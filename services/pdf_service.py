@@ -1,0 +1,164 @@
+"""
+FileForge — PDF Processing Service
+Handles PDF-to-image conversion, image-to-PDF merging, and PDF compression.
+"""
+import io
+import os
+import zipfile
+from pathlib import Path
+from typing import List, Optional
+
+import fitz  # PyMuPDF
+from PIL import Image
+
+from config import TEMP_DIR
+
+
+async def convert_pdf_to_jpg(
+    pdf_bytes: bytes,
+    filename: str,
+    dpi: int = 200,
+    quality: int = 90,
+) -> bytes:
+    """
+    Convert each page of a PDF to a JPG image.
+    Returns a ZIP archive containing all page images.
+    """
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    zip_buffer = io.BytesIO()
+
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        for page_num in range(len(doc)):
+            page = doc[page_num]
+            zoom = dpi / 72  # 72 is the default PDF resolution
+            matrix = fitz.Matrix(zoom, zoom)
+            pix = page.get_pixmap(matrix=matrix)
+
+            # Convert pixmap to PIL Image for quality control
+            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+            img_buffer = io.BytesIO()
+            img.save(img_buffer, format="JPEG", quality=quality)
+            img_buffer.seek(0)
+
+            base_name = Path(filename).stem
+            zf.writestr(f"{base_name}_page_{page_num + 1}.jpg", img_buffer.read())
+
+    doc.close()
+    zip_buffer.seek(0)
+    return zip_buffer.read()
+
+
+async def merge_images_to_pdf(
+    image_files: List[tuple[str, bytes]],
+) -> bytes:
+    """
+    Merge multiple images (PNG/JPG) into a single PDF.
+    image_files: list of (filename, file_bytes) tuples.
+    Returns PDF bytes.
+    """
+    images: List[Image.Image] = []
+
+    for filename, file_bytes in image_files:
+        img = Image.open(io.BytesIO(file_bytes))
+        # Convert to RGB if necessary (e.g., RGBA PNGs)
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        images.append(img)
+
+    if not images:
+        raise ValueError("No valid images provided")
+
+    pdf_buffer = io.BytesIO()
+    # First image saves, rest appended
+    images[0].save(
+        pdf_buffer,
+        format="PDF",
+        save_all=True,
+        append_images=images[1:] if len(images) > 1 else [],
+    )
+
+    pdf_buffer.seek(0)
+    return pdf_buffer.read()
+
+
+async def compress_pdf(
+    pdf_bytes: bytes,
+    quality: str = "medium",
+) -> bytes:
+    """
+    Compress a PDF by reducing image quality and cleaning up.
+    quality: 'low' (aggressive), 'medium' (balanced), 'high' (minimal)
+    Returns compressed PDF bytes.
+    """
+    quality_settings = {
+        "low": {"image_quality": 30, "dpi": 72},
+        "medium": {"image_quality": 60, "dpi": 120},
+        "high": {"image_quality": 85, "dpi": 150},
+    }
+    settings = quality_settings.get(quality, quality_settings["medium"])
+
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+
+    for page_num in range(len(doc)):
+        page = doc[page_num]
+        image_list = page.get_images(full=True)
+
+        for img_index, img_info in enumerate(image_list):
+            xref = img_info[0]
+            try:
+                base_image = doc.extract_image(xref)
+                if base_image is None:
+                    continue
+
+                image_bytes = base_image["image"]
+                img = Image.open(io.BytesIO(image_bytes))
+
+                # Resize if larger than target DPI equivalent
+                max_dim = settings["dpi"] * 10
+                if max(img.size) > max_dim:
+                    img.thumbnail((max_dim, max_dim), Image.Resampling.LANCZOS)
+
+                # Convert to RGB for JPEG compression
+                if img.mode != "RGB":
+                    img = img.convert("RGB")
+
+                img_buffer = io.BytesIO()
+                img.save(img_buffer, format="JPEG", quality=settings["image_quality"])
+                img_buffer.seek(0)
+
+                # Replace image in PDF
+                page.replace_image(xref, stream=img_buffer.read())
+            except Exception:
+                # Skip images that can't be processed
+                continue
+
+    # Save with garbage collection and deflation
+    output_buffer = io.BytesIO()
+    doc.save(
+        output_buffer,
+        garbage=4,
+        deflate=True,
+        clean=True,
+    )
+    doc.close()
+
+    output_buffer.seek(0)
+    return output_buffer.read()
+
+
+async def extract_text_from_pdf(pdf_bytes: bytes) -> str:
+    """
+    Extract all text content from a PDF file.
+    Returns the full text as a string.
+    """
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    text_parts = []
+
+    for page_num in range(len(doc)):
+        page = doc[page_num]
+        text = page.get_text("text")
+        if text.strip():
+            text_parts.append(f"--- Page {page_num + 1} ---\n{text}")
+
+    doc.close()
+    return "\n\n".join(text_parts)

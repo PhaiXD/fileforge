@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FileForge — Local file conversion, compression, media download, and AI summarization tools. Free and open source.">
+    <title>FileForge — File Tools</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    
+    <!-- ==================== UPDATE BANNER ==================== -->
+    <div id="update-banner" class="update-banner">
+        <span>🎉 A new version (<span class="update-version">v1.0.0</span>) is available!</span>
+        <button class="update-banner-btn">Update Now</button>
+        <button class="update-banner-close">✕</button>
+    </div>
+
+    <!-- ==================== NAVBAR ==================== -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand" onclick="event.preventDefault(); hidePanel(); renderTools();">
+            <div class="navbar-logo">F</div>
+            <span class="navbar-title">FileForge</span>
+            <span class="navbar-version">v1.0.0</span>
+        </a>
+        <div class="navbar-actions">
+            <button id="btn-settings" class="icon-btn" title="Settings">⚙️</button>
+            <button id="theme-toggle" class="icon-btn" title="Toggle Theme">🌙</button>
+        </div>
+    </nav>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="main-content">
+        
+        <!-- Hero -->
+        <section class="hero">
+            <h1>FileForge</h1>
+            <p>Convert, compress, download, and summarize — all locally on your machine.</p>
+        </section>
+
+        <!-- Category Tabs -->
+        <div class="category-tabs">
+            <button class="category-tab active" data-category="video-audio">
+                <span class="tab-icon">🎬</span> Video & Audio
+            </button>
+            <button class="category-tab" data-category="image">
+                <span class="tab-icon">🖼️</span> Image
+            </button>
+            <button class="category-tab" data-category="pdf-docs">
+                <span class="tab-icon">📄</span> PDF & Documents
+            </button>
+        </div>
+
+        <!-- Mode Toggle -->
+        <div class="mode-toggle">
+            <div class="mode-toggle-group">
+                <button class="mode-toggle-btn active" data-mode="convert">🔄 Convert</button>
+                <button class="mode-toggle-btn" data-mode="compress">🗜️ Compress</button>
+            </div>
+        </div>
+
+        <!-- Tool Grid Section -->
+        <section id="tool-grid-section">
+            <div id="tool-grid" class="tool-grid">
+                <!-- Dynamically rendered by JS -->
+            </div>
+        </section>
+
+        <!-- AI Tools Section -->
+        <section id="ai-section" style="margin-top:16px;">
+            <div class="section-header">
+                <span class="section-icon">🤖</span>
+                <h2>AI Tools</h2>
+                <span style="font-size:12px; color:var(--text-tertiary); background:var(--accent-purple-light); color:var(--accent-purple); padding:3px 10px; border-radius:var(--radius-full); font-weight:600;">Powered by Gemini</span>
+            </div>
+            <div class="tool-grid">
+                <div class="tool-card ai-tool-card" data-tool="ai-pdf" style="--card-accent: var(--accent-purple)">
+                    <span class="tool-card-badge badge-active">✓ Active</span>
+                    <div class="tool-card-icon" style="background:var(--accent-purple-light); color:var(--accent-purple)">📄</div>
+                    <div class="tool-card-content">
+                        <div class="tool-card-title">Summarize PDF</div>
+                        <div class="tool-card-desc">Extract and summarize PDF content using AI</div>
+                    </div>
+                </div>
+                <div class="tool-card ai-tool-card" data-tool="ai-video" style="--card-accent: var(--accent-purple)">
+                    <span class="tool-card-badge badge-active">✓ Active</span>
+                    <div class="tool-card-icon" style="background:var(--accent-purple-light); color:var(--accent-purple)">🎬</div>
+                    <div class="tool-card-content">
+                        <div class="tool-card-title">Summarize Video</div>
+                        <div class="tool-card-desc">Summarize YouTube video content from subtitles or audio</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TOOL PANELS ==================== -->
+
+        <!-- ===== PDF to JPG ===== -->
+        <div id="panel-pdf-to-jpg" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">📄</span>
+                    <h2>PDF to JPG</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-zone-icon">📤</div>
+                <div class="upload-zone-text">Drop your PDF file here or click to browse</div>
+                <div class="upload-zone-hint">Supports .pdf files up to 100MB</div>
+                <input type="file" accept=".pdf" style="display:none">
+            </div>
+            <div class="file-list"></div>
+            <div style="display:flex; gap:24px; margin-top:20px; flex-wrap:wrap; align-items:end;">
+                <div class="option-group">
+                    <label class="option-label">Resolution (DPI)</label>
+                    <select class="option-select dpi-select">
+                        <option value="72">72 DPI (Fast)</option>
+                        <option value="150">150 DPI (Standard)</option>
+                        <option value="200" selected>200 DPI (Good)</option>
+                        <option value="300">300 DPI (High Quality)</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label class="option-label">Quality: <span class="quality-value">90%</span></label>
+                    <input type="range" min="10" max="100" value="90" class="option-range quality-range">
+                </div>
+            </div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>🔄 Convert to JPG</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
+        <!-- ===== Images to PDF ===== -->
+        <div id="panel-images-to-pdf" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">📑</span>
+                    <h2>Images to PDF</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-zone-icon">📤</div>
+                <div class="upload-zone-text">Drop your images here or click to browse</div>
+                <div class="upload-zone-hint">Supports JPG, PNG, BMP, WEBP — select multiple files</div>
+                <input type="file" accept=".jpg,.jpeg,.png,.bmp,.webp" multiple style="display:none">
+            </div>
+            <div class="file-list"></div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>📑 Merge into PDF</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
+        <!-- ===== PDF Compressor ===== -->
+        <div id="panel-pdf-compress" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">📦</span>
+                    <h2>PDF Compressor</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-zone-icon">📤</div>
+                <div class="upload-zone-text">Drop your PDF file here or click to browse</div>
+                <div class="upload-zone-hint">Supports .pdf files up to 100MB</div>
+                <input type="file" accept=".pdf" style="display:none">
+            </div>
+            <div class="file-list"></div>
+            <div style="margin-top:20px;">
+                <div class="option-group">
+                    <label class="option-label">Compression Level</label>
+                    <select class="option-select quality-select">
+                        <option value="high">Low Compression (Best Quality)</option>
+                        <option value="medium" selected>Medium Compression (Balanced)</option>
+                        <option value="low">High Compression (Smallest Size)</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>🗜️ Compress PDF</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
+        <!-- ===== Image Compressor ===== -->
+        <div id="panel-image-compress" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">📐</span>
+                    <h2>Image Compressor</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-zone-icon">📤</div>
+                <div class="upload-zone-text">Drop your image here or click to browse</div>
+                <div class="upload-zone-hint">Supports JPG, PNG, WEBP, BMP</div>
+                <input type="file" accept=".jpg,.jpeg,.png,.webp,.bmp" style="display:none">
+            </div>
+            <div class="file-list"></div>
+            <div style="display:flex; gap:24px; margin-top:20px; flex-wrap:wrap; align-items:end;">
+                <div class="option-group">
+                    <label class="option-label">Quality: <span class="quality-value">75%</span></label>
+                    <input type="range" min="10" max="100" value="75" class="option-range quality-range">
+                </div>
+                <div class="option-group">
+                    <label class="option-label">Max Width (px, optional)</label>
+                    <input type="number" class="modal-input max-width-input" placeholder="e.g. 1920" min="100" style="margin-bottom:0; max-width:200px;">
+                </div>
+            </div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>🗜️ Compress Image</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
+        <!-- ===== YouTube to MP4 ===== -->
+        <div id="panel-yt-mp4" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">🎬</span>
+                    <h2>YouTube to MP4</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="url-input-group">
+                <input type="text" class="url-input" placeholder="Paste YouTube URL here...">
+                <button class="btn-secondary btn-fetch-info">Fetch Info</button>
+            </div>
+            <div class="media-info" style="display:none"></div>
+            <div class="option-group" style="display:none;">
+                <label class="option-label">Quality</label>
+                <select class="option-select quality-select"></select>
+            </div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>⬇️ Download MP4</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
+        <!-- ===== YouTube to MP3 ===== -->
+        <div id="panel-yt-mp3" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">🎵</span>
+                    <h2>YouTube to MP3</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="url-input-group">
+                <input type="text" class="url-input" placeholder="Paste YouTube URL here...">
+                <button class="btn-secondary btn-fetch-info">Fetch Info</button>
+            </div>
+            <div class="media-info" style="display:none"></div>
+            <div class="option-group" style="display:none;">
+                <label class="option-label">Quality</label>
+                <select class="option-select quality-select"></select>
+            </div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>⬇️ Download MP3</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
+        <!-- ===== TikTok to MP4 ===== -->
+        <div id="panel-tt-mp4" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">📱</span>
+                    <h2>TikTok to MP4</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="url-input-group">
+                <input type="text" class="url-input" placeholder="Paste TikTok URL here...">
+                <button class="btn-secondary btn-fetch-info">Fetch Info</button>
+            </div>
+            <div class="media-info" style="display:none"></div>
+            <div class="option-group" style="display:none;">
+                <label class="option-label">Quality</label>
+                <select class="option-select quality-select"></select>
+            </div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>⬇️ Download MP4</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
+        <!-- ===== TikTok to MP3 ===== -->
+        <div id="panel-tt-mp3" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">🎶</span>
+                    <h2>TikTok to MP3</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="url-input-group">
+                <input type="text" class="url-input" placeholder="Paste TikTok URL here...">
+                <button class="btn-secondary btn-fetch-info">Fetch Info</button>
+            </div>
+            <div class="media-info" style="display:none"></div>
+            <div class="option-group" style="display:none;">
+                <label class="option-label">Quality</label>
+                <select class="option-select quality-select"></select>
+            </div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>⬇️ Download MP3</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
+        <!-- ===== AI: Summarize PDF ===== -->
+        <div id="panel-ai-pdf" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">🤖</span>
+                    <h2>Summarize PDF</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <p style="color:var(--text-secondary); margin-bottom:20px; font-size:14px;">
+                Upload a PDF file and let AI extract and summarize its content. Requires a Google Gemini API key (set in Settings).
+            </p>
+            <div class="upload-zone">
+                <div class="upload-zone-icon">📤</div>
+                <div class="upload-zone-text">Drop your PDF file here or click to browse</div>
+                <div class="upload-zone-hint">Supports .pdf files</div>
+                <input type="file" accept=".pdf" style="display:none">
+            </div>
+            <div class="file-list"></div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>🤖 Summarize with AI</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+            <div class="summary-result" style="display:none;"></div>
+        </div>
+
+        <!-- ===== AI: Summarize Video ===== -->
+        <div id="panel-ai-video" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">🤖</span>
+                    <h2>Summarize Video</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <p style="color:var(--text-secondary); margin-bottom:20px; font-size:14px;">
+                Paste a YouTube URL and AI will summarize the video content. It will try to use subtitles first, 
+                and if unavailable, will ask to use audio (higher token usage). Requires a Google Gemini API key (set in Settings).
+            </p>
+            <div class="url-input-group">
+                <input type="text" class="url-input" placeholder="Paste YouTube URL here...">
+            </div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert">🤖 Summarize Video</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+            <div class="summary-result" style="display:none;"></div>
+        </div>
+
+    </main>
+
+    <!-- ==================== SETTINGS MODAL ==================== -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-title">⚙️ Settings</div>
+            <div class="modal-body">
+                <p>Configure your Google Gemini API key for AI-powered features.</p>
+                <p style="margin-top:8px; font-size:12px; color:var(--text-tertiary);">Your API key is stored locally in your browser and never sent to any external server.</p>
+            </div>
+            <label class="option-label">Google Gemini API Key</label>
+            <input id="settings-api-key" class="modal-input" type="password" placeholder="Enter your API key...">
+            <div class="modal-actions">
+                <button id="settings-cancel" class="btn-secondary">Cancel</button>
+                <button id="settings-save" class="btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TOAST CONTAINER ==================== -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/convert.js"></script>
+    <script src="/static/js/compress.js"></script>
+    <script src="/static/js/media.js"></script>
+    <script src="/static/js/ai.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
