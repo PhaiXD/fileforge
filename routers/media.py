@@ -3,6 +3,7 @@ FileForge — Media Router
 API endpoints for media downloading via yt-dlp.
 """
 import os
+import traceback
 
 from fastapi import APIRouter, Form
 from fastapi.responses import FileResponse
@@ -19,6 +20,7 @@ async def media_info(url: str = Form(...)):
         info = await get_media_info(url)
         return {"success": True, "data": info}
     except Exception as e:
+        traceback.print_exc()
         return {"success": False, "error": str(e)}
 
 
@@ -49,4 +51,5 @@ async def media_download(
             headers={"Content-Disposition": f'attachment; filename="{filename}"'},
         )
     except Exception as e:
+        traceback.print_exc()
         return {"success": False, "error": str(e)}

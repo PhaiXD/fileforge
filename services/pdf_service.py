@@ -8,10 +8,55 @@ import zipfile
 from pathlib import Path
 from typing import List, Optional
 
-import fitz  # PyMuPDF
+import pymupdf as fitz
 from PIL import Image
 
 from config import TEMP_DIR
+
+
+def _parse_page_range(pages_str: Optional[str], total_pages: int) -> List[int]:
+    """
+    Parse comma-separated page numbers and ranges like '1,3,5-8'
+    returning a 0-indexed list of page numbers.
+    """
+    if not pages_str or not pages_str.strip():
+        return list(range(total_pages))
+
+    pages = set()
+    for part in pages_str.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if "-" in part:
+            range_parts = part.split("-", 1)
+            try:
+                start = int(range_parts[0].strip())
+                end = int(range_parts[1].strip())
+                if start > end:
+                    start, end = end, start
+                for p in range(start, end + 1):
+                    if 1 <= p <= total_pages:
+                        pages.add(p - 1)
+            except ValueError:
+                continue
+        else:
+            try:
+                p = int(part)
+                if 1 <= p <= total_pages:
+                    pages.add(p - 1)
+            except ValueError:
+                continue
+
+    result = sorted(pages)
+    return result if result else list(range(total_pages))
+
+
+async def get_pdf_page_count(pdf_bytes: bytes) -> int:
+    """Get the total page count of a PDF file."""
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    count = len(doc)
+    doc.close()
+    return count
 
 
 async def convert_pdf_to_jpg(
@@ -19,29 +64,39 @@ async def convert_pdf_to_jpg(
     filename: str,
     dpi: int = 200,
     quality: int = 90,
+    pages: Optional[str] = None,
 ) -> bytes:
     """
     Convert each page of a PDF to a JPG image.
     Returns a ZIP archive containing all page images.
     """
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    page_indices = _parse_page_range(pages, len(doc))
     zip_buffer = io.BytesIO()
 
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-        for page_num in range(len(doc)):
-            page = doc[page_num]
-            zoom = dpi / 72  # 72 is the default PDF resolution
-            matrix = fitz.Matrix(zoom, zoom)
-            pix = page.get_pixmap(matrix=matrix)
+        for page_num in page_indices:
+            try:
+                page = doc[page_num]
+                zoom = dpi / 72  # 72 is the default PDF resolution
+                matrix = fitz.Matrix(zoom, zoom)
+                pix = page.get_pixmap(matrix=matrix)
 
-            # Convert pixmap to PIL Image for quality control
-            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-            img_buffer = io.BytesIO()
-            img.save(img_buffer, format="JPEG", quality=quality)
-            img_buffer.seek(0)
+                # Convert pixmap to PIL Image for quality control
+                if pix.n == 4:
+                    img = Image.frombytes("RGBA", [pix.width, pix.height], pix.samples).convert("RGB")
+                else:
+                    img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
-            base_name = Path(filename).stem
-            zf.writestr(f"{base_name}_page_{page_num + 1}.jpg", img_buffer.read())
+                img_buffer = io.BytesIO()
+                img.save(img_buffer, format="JPEG", quality=quality)
+                img_buffer.seek(0)
+
+                base_name = Path(filename).stem
+                zf.writestr(f"{base_name}_page_{page_num + 1}.jpg", img_buffer.read())
+            except Exception as e:
+                print(f"Error converting page {page_num + 1}: {e}")
+                continue
 
     doc.close()
     zip_buffer.seek(0)

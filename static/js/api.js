@@ -52,7 +52,9 @@ function uploadFiles(endpoint, formData, onProgress = null) {
             if (xhr.status >= 200 && xhr.status < 300) {
                 const contentType = xhr.getResponseHeader('content-type');
                 if (contentType && contentType.includes('application/json')) {
-                    resolve(JSON.parse(xhr.responseText));
+                    const decoder = new TextDecoder();
+                    const text = decoder.decode(xhr.response);
+                    resolve(JSON.parse(text));
                 } else {
                     // Return blob for file downloads
                     resolve({
@@ -67,7 +69,9 @@ function uploadFiles(endpoint, formData, onProgress = null) {
                 }
             } else {
                 try {
-                    reject(JSON.parse(xhr.responseText));
+                    const decoder = new TextDecoder();
+                    const text = decoder.decode(xhr.response);
+                    reject(JSON.parse(text));
                 } catch {
                     reject({ error: `HTTP ${xhr.status}: ${xhr.statusText}` });
                 }

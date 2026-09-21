@@ -6,6 +6,8 @@ import asyncio
 import json
 import os
 import re
+import shutil
+import subprocess
 import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -13,20 +15,11 @@ from typing import Any, Dict, List, Optional
 from config import TEMP_DIR, YTDLP_DEFAULT_AUDIO_FORMAT, YTDLP_DEFAULT_VIDEO_FORMAT
 
 
-async def _run_ytdlp(args: List[str]) -> tuple[str, str, int]:
-    """Run yt-dlp as a subprocess and return (stdout, stderr, returncode)."""
-    process = await asyncio.create_subprocess_exec(
-        "yt-dlp",
-        *args,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
-    stdout, stderr = await process.communicate()
-    return (
-        stdout.decode("utf-8", errors="replace"),
-        stderr.decode("utf-8", errors="replace"),
-        process.returncode,
-    )
+async def _run_ytdlp(args):
+    def _run_sync():
+        result = subprocess.run(['yt-dlp'] + list(args), capture_output=True, text=True, timeout=60)
+        return (result.stdout, result.stderr, result.returncode)
+    return await asyncio.to_thread(_run_sync)
 
 
 async def get_media_info(url: str) -> Dict[str, Any]:
@@ -44,7 +37,11 @@ async def get_media_info(url: str) -> Dict[str, Any]:
     if code != 0:
         raise RuntimeError(f"yt-dlp failed: {stderr}")
 
-    data = json.loads(stdout)
+    try:
+        data = json.loads(stdout)
+    except Exception:
+        print(stderr)
+        raise
 
     # Extract available quality options
     formats = []

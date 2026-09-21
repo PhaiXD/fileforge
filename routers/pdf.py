@@ -8,7 +8,7 @@ from typing import List
 from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import Response
 
-from services.pdf_service import compress_pdf, convert_pdf_to_jpg, merge_images_to_pdf
+from services.pdf_service import compress_pdf, convert_pdf_to_jpg, get_pdf_page_count, merge_images_to_pdf
 
 router = APIRouter(prefix="/api/pdf", tags=["PDF"])
 
@@ -18,13 +18,16 @@ async def pdf_to_jpg(
     file: UploadFile = File(...),
     dpi: int = Form(200),
     quality: int = Form(90),
+    pages: str = Form(''),
 ):
     """Convert a PDF file to JPG images (returned as a ZIP archive)."""
     if not file.filename.lower().endswith(".pdf"):
         return {"error": "Please upload a PDF file"}
 
     pdf_bytes = await file.read()
-    zip_bytes = await convert_pdf_to_jpg(pdf_bytes, file.filename, dpi=dpi, quality=quality)
+    zip_bytes = await convert_pdf_to_jpg(
+        pdf_bytes, file.filename, dpi=dpi, quality=quality, pages=pages
+    )
 
     output_name = file.filename.rsplit(".", 1)[0] + "_images.zip"
     return Response(
@@ -32,6 +35,22 @@ async def pdf_to_jpg(
         media_type="application/zip",
         headers={"Content-Disposition": f'attachment; filename="{output_name}"'},
     )
+
+
+@router.post("/page-count")
+async def pdf_page_count(
+    file: UploadFile = File(...),
+):
+    """Get the total page count of a PDF file."""
+    if not file.filename.lower().endswith(".pdf"):
+        return {"error": "Please upload a PDF file"}
+
+    try:
+        pdf_bytes = await file.read()
+        count = await get_pdf_page_count(pdf_bytes)
+        return {"success": True, "page_count": count, "total_pages": count}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 
 @router.post("/merge-images")
