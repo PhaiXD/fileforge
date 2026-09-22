@@ -56,10 +56,11 @@ function uploadFiles(endpoint, formData, onProgress = null) {
                     const text = decoder.decode(xhr.response);
                     resolve(JSON.parse(text));
                 } else {
-                    // Return blob for file downloads
+                    // Return blob for file downloads with correct MIME type
+                    const mimeType = contentType || 'application/octet-stream';
                     resolve({
-                        blob: new Blob([xhr.response]),
-                        filename: getFilenameFromHeaders(xhr),
+                        blob: new Blob([xhr.response], { type: mimeType }),
+                        filename: getFilenameFromHeaders(xhr, contentType),
                         headers: {
                             'x-original-size': xhr.getResponseHeader('x-original-size'),
                             'x-compressed-size': xhr.getResponseHeader('x-compressed-size'),
@@ -86,12 +87,33 @@ function uploadFiles(endpoint, formData, onProgress = null) {
 
 /**
  * Extract filename from Content-Disposition header.
+ * Supports both standard filename="..." and RFC 5987 filename*=UTF-8''...
  */
-function getFilenameFromHeaders(xhr) {
+function getFilenameFromHeaders(xhr, contentType) {
     const disposition = xhr.getResponseHeader('content-disposition');
     if (disposition) {
-        const match = disposition.match(/filename="?([^";\n]+)"?/);
-        if (match) return match[1];
+        // Try RFC 5987 format: filename*=UTF-8''encoded_name
+        const utf8Match = disposition.match(/filename\*=UTF-8''([^;\s]+)/i);
+        if (utf8Match) {
+            try { return decodeURIComponent(utf8Match[1]); } catch (e) { /* fall through */ }
+        }
+        // Try standard format: filename="name" or filename=name
+        const stdMatch = disposition.match(/filename="?([^";\n]+)"?/);
+        if (stdMatch) return stdMatch[1];
+    }
+    // Fallback: guess extension from content-type
+    const extMap = {
+        'application/zip': 'download.zip',
+        'application/pdf': 'download.pdf',
+        'image/jpeg': 'download.jpg',
+        'image/png': 'download.png',
+        'image/webp': 'download.webp',
+        'video/mp4': 'download.mp4',
+        'audio/mpeg': 'download.mp3',
+    };
+    if (contentType) {
+        const ct = contentType.split(';')[0].trim();
+        if (extMap[ct]) return extMap[ct];
     }
     return 'download';
 }

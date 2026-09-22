@@ -62,45 +62,66 @@ async def get_pdf_page_count(pdf_bytes: bytes) -> int:
 async def convert_pdf_to_jpg(
     pdf_bytes: bytes,
     filename: str,
-    dpi: int = 200,
-    quality: int = 90,
+    dpi: int = 300,
+    quality: int = 95,
     pages: Optional[str] = None,
-) -> bytes:
+) -> dict:
     """
-    Convert each page of a PDF to a JPG image.
-    Returns a ZIP archive containing all page images.
+    Convert PDF page(s) to JPG image(s).
+    Returns a dict with:
+      - data: bytes (JPG for single page, ZIP for multiple)
+      - type: 'jpeg' or 'zip'
+      - filename: suggested output filename
     """
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     page_indices = _parse_page_range(pages, len(doc))
-    zip_buffer = io.BytesIO()
+    base_name = Path(filename).stem
+    jpg_results = []
 
-    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-        for page_num in page_indices:
-            try:
-                page = doc[page_num]
-                zoom = dpi / 72  # 72 is the default PDF resolution
-                matrix = fitz.Matrix(zoom, zoom)
-                pix = page.get_pixmap(matrix=matrix)
+    for page_num in page_indices:
+        try:
+            page = doc[page_num]
+            zoom = dpi / 72  # 72 is the default PDF resolution
+            matrix = fitz.Matrix(zoom, zoom)
+            pix = page.get_pixmap(matrix=matrix)
 
-                # Convert pixmap to PIL Image for quality control
-                if pix.n == 4:
-                    img = Image.frombytes("RGBA", [pix.width, pix.height], pix.samples).convert("RGB")
-                else:
-                    img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+            # Convert pixmap to PIL Image for quality control
+            if pix.n == 4:
+                img = Image.frombytes("RGBA", [pix.width, pix.height], pix.samples).convert("RGB")
+            else:
+                img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
-                img_buffer = io.BytesIO()
-                img.save(img_buffer, format="JPEG", quality=quality)
-                img_buffer.seek(0)
+            img_buffer = io.BytesIO()
+            img.save(img_buffer, format="JPEG", quality=quality)
+            img_buffer.seek(0)
 
-                base_name = Path(filename).stem
-                zf.writestr(f"{base_name}_page_{page_num + 1}.jpg", img_buffer.read())
-            except Exception as e:
-                print(f"Error converting page {page_num + 1}: {e}")
-                continue
+            jpg_name = f"{base_name}_page_{page_num + 1}.jpg"
+            jpg_results.append((jpg_name, img_buffer.read()))
+        except Exception as e:
+            print(f"Error converting page {page_num + 1}: {e}")
+            continue
 
     doc.close()
-    zip_buffer.seek(0)
-    return zip_buffer.read()
+
+    if len(jpg_results) == 1:
+        # Single page: return JPG directly
+        return {
+            "data": jpg_results[0][1],
+            "type": "jpeg",
+            "filename": jpg_results[0][0],
+        }
+    else:
+        # Multiple pages: return ZIP
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            for name, data in jpg_results:
+                zf.writestr(name, data)
+        zip_buffer.seek(0)
+        return {
+            "data": zip_buffer.read(),
+            "type": "zip",
+            "filename": f"{base_name}_images.zip",
+        }
 
 
 async def merge_images_to_pdf(

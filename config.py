@@ -43,8 +43,8 @@ YTDLP_DEFAULT_VIDEO_FORMAT = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4
 YTDLP_DEFAULT_AUDIO_FORMAT = "bestaudio[ext=m4a]/bestaudio/best"
 
 # --- Gemini Config ---
-GEMINI_TEXT_MODEL = "gemini-2.0-flash"
-GEMINI_AUDIO_MODEL = "gemini-1.5-pro"
+GEMINI_TEXT_MODEL = "gemini-3.6-flash"
+GEMINI_AUDIO_MODEL = "gemini-3.6-flash"
 GEMINI_SUMMARIZE_PROMPT = """You are a professional content summarizer. 
 Provide a clear, well-structured summary of the following content.
 Use bullet points for key takeaways. Keep it concise but comprehensive.

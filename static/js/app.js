@@ -225,6 +225,18 @@ function saveSettings() {
 async function checkForUpdates() {
     try {
         const result = await fetchAPI('/api/system/check-update');
+        
+        // Update version in navbar dynamically
+        if (result.current_version) {
+            const versionElements = document.querySelectorAll('.navbar-version');
+            versionElements.forEach(el => {
+                // Only add 'v' prefix if it's not a commit hash (which git describe might return without v)
+                // usually git tags have 'v' but we lstrip it, so let's just add 'v' if it starts with digit
+                const verText = /^\d/.test(result.current_version) ? `v${result.current_version}` : result.current_version;
+                el.textContent = verText;
+            });
+        }
+
         if (result.update_available) {
             const banner = document.getElementById('update-banner');
             if (banner) {

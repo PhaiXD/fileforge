@@ -66,7 +66,7 @@ function initPdfSummarizer() {
                 showResult(resultArea, true, 'PDF summarized successfully!');
                 if (summaryResult) {
                     summaryResult.style.display = 'block';
-                    summaryResult.textContent = result.summary;
+                    summaryResult.innerHTML = marked.parse(result.summary);
                 }
             } else {
                 showResult(resultArea, false, result.error || 'Summarization failed');
@@ -131,7 +131,7 @@ function initVideoSummarizer() {
                 showResult(resultArea, true, `Video summarized successfully! ${methodLabel}`);
                 if (summaryResult) {
                     summaryResult.style.display = 'block';
-                    summaryResult.textContent = result.summary;
+                    summaryResult.innerHTML = marked.parse(result.summary);
                 }
             } else if (result.no_subtitle) {
                 // No subtitles — show warning popup
@@ -158,7 +158,7 @@ function initVideoSummarizer() {
                             showResult(resultArea, true, 'Video summarized successfully! (from audio)');
                             if (summaryResult) {
                                 summaryResult.style.display = 'block';
-                                summaryResult.textContent = audioResult.summary;
+                                summaryResult.innerHTML = marked.parse(audioResult.summary);
                             }
                         } else {
                             showResult(resultArea, false, audioResult.error || 'Audio summarization failed');

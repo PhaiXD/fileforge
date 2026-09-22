@@ -788,13 +788,24 @@ body {
     border-radius: var(--radius-md);
     padding: 20px;
     margin-top: 14px;
-    white-space: pre-wrap;
     line-height: 1.7;
     font-size: 13px;
     color: var(--text-primary);
     max-height: 500px;
     overflow-y: auto;
 }
+
+.summary-result p { margin-bottom: 12px; }
+.summary-result p:last-child { margin-bottom: 0; }
+.summary-result h1, .summary-result h2, .summary-result h3 {
+    margin: 16px 0 10px 0;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.summary-result h1:first-child, .summary-result h2:first-child, .summary-result h3:first-child { margin-top: 0; }
+.summary-result ul, .summary-result ol { margin-bottom: 12px; padding-left: 20px; }
+.summary-result li { margin-bottom: 4px; }
+.summary-result strong { font-weight: 600; }
 
 /* --- Modal --- */
 .modal-overlay {

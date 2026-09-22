@@ -30,21 +30,25 @@ async def pdf_to_jpg(
     dpi: int = Form(300),
     pages: str = Form(''),
 ):
-    """Convert a PDF file to JPG images (returned as a ZIP archive)."""
+    """Convert a PDF file to JPG images."""
     if not file.filename.lower().endswith(".pdf"):
         return {"error": "Please upload a PDF file"}
 
     try:
         pdf_bytes = await file.read()
-        zip_bytes = await convert_pdf_to_jpg(
+        result = await convert_pdf_to_jpg(
             pdf_bytes, file.filename, dpi=dpi, quality=95, pages=pages
         )
 
-        output_name = file.filename.rsplit(".", 1)[0] + "_images.zip"
+        if result["type"] == "jpeg":
+            media_type = "image/jpeg"
+        else:
+            media_type = "application/zip"
+
         return Response(
-            content=zip_bytes,
-            media_type="application/zip",
-            headers={"Content-Disposition": _safe_content_disposition(output_name)},
+            content=result["data"],
+            media_type=media_type,
+            headers={"Content-Disposition": _safe_content_disposition(result["filename"])},
         )
     except Exception as e:
         return {"error": str(e)}
