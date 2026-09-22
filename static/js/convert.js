@@ -16,21 +16,12 @@ function initPdfToJpg() {
     const pageSelector = panel.querySelector('.page-selector');
     const convertBtn = panel.querySelector('.btn-convert');
     const dpiSelect = panel.querySelector('.dpi-select');
-    const qualityRange = panel.querySelector('.quality-range');
-    const qualityValue = panel.querySelector('.quality-value');
     const progressContainer = panel.querySelector('.progress-container');
     const progressBar = panel.querySelector('.progress-bar');
     const progressText = panel.querySelector('.progress-text');
     const resultArea = panel.querySelector('.result-area');
 
     let selectedFile = null;
-
-    // Quality slider
-    if (qualityRange) {
-        qualityRange.addEventListener('input', () => {
-            qualityValue.textContent = qualityRange.value + '%';
-        });
-    }
 
     // Upload zone events
     setupUploadZone(uploadZone, fileInput, async (file) => {
@@ -86,8 +77,7 @@ function initPdfToJpg() {
 
         const formData = new FormData();
         formData.append('file', selectedFile);
-        formData.append('dpi', dpiSelect?.value || '200');
-        formData.append('quality', qualityRange?.value || '90');
+        formData.append('dpi', dpiSelect?.value || '300');
         formData.append('pages', pagesVal);
 
         try {

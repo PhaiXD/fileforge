@@ -88,8 +88,8 @@ function initImageCompressor() {
     const fileInput = panel.querySelector('input[type="file"]');
     const fileList = panel.querySelector('.file-list');
     const compressBtn = panel.querySelector('.btn-convert');
-    const qualityRange = panel.querySelector('.quality-range');
-    const qualityValue = panel.querySelector('.quality-value');
+    const compressRange = panel.querySelector('.compress-range');
+    const compressValue = panel.querySelector('.compress-value');
     const maxWidthInput = panel.querySelector('.max-width-input');
     const progressContainer = panel.querySelector('.progress-container');
     const progressBar = panel.querySelector('.progress-bar');
@@ -98,9 +98,14 @@ function initImageCompressor() {
 
     let selectedFile = null;
 
-    if (qualityRange) {
-        qualityRange.addEventListener('input', () => {
-            qualityValue.textContent = qualityRange.value + '%';
+    // Compression level labels: 1=Minimal, 2=Low, 3=Medium, 4=High, 5=Maximum
+    const levelLabels = { 1: 'Minimal', 2: 'Low', 3: 'Medium', 4: 'High', 5: 'Maximum' };
+    // Map compression level to quality: higher compression = lower quality
+    const levelToQuality = { 1: 90, 2: 75, 3: 60, 4: 40, 5: 20 };
+
+    if (compressRange) {
+        compressRange.addEventListener('input', () => {
+            compressValue.textContent = levelLabels[compressRange.value] || 'Medium';
         });
     }
 
@@ -123,10 +128,13 @@ function initImageCompressor() {
     compressBtn.addEventListener('click', async () => {
         if (!selectedFile) return;
 
+        const level = parseInt(compressRange?.value || '3');
+        const quality = levelToQuality[level] || 60;
+
         const formData = new FormData();
         formData.append('file', selectedFile);
-        formData.append('quality', qualityRange?.value || '75');
-        
+        formData.append('quality', quality.toString());
+
         const maxWidth = maxWidthInput?.value;
         if (maxWidth && parseInt(maxWidth) > 0) {
             formData.append('max_width', maxWidth);

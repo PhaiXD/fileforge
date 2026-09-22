@@ -4,6 +4,7 @@ API endpoints for PDF conversion, merging, and compression.
 """
 import io
 from typing import List
+from urllib.parse import quote
 
 from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import Response
@@ -13,28 +14,40 @@ from services.pdf_service import compress_pdf, convert_pdf_to_jpg, get_pdf_page_
 router = APIRouter(prefix="/api/pdf", tags=["PDF"])
 
 
+def _safe_content_disposition(filename: str) -> str:
+    """Build a Content-Disposition header safe for non-ASCII filenames."""
+    try:
+        filename.encode("latin-1")
+        return f'attachment; filename="{filename}"'
+    except UnicodeEncodeError:
+        encoded = quote(filename)
+        return f"attachment; filename*=UTF-8''{encoded}"
+
+
 @router.post("/to-jpg")
 async def pdf_to_jpg(
     file: UploadFile = File(...),
-    dpi: int = Form(200),
-    quality: int = Form(90),
+    dpi: int = Form(300),
     pages: str = Form(''),
 ):
     """Convert a PDF file to JPG images (returned as a ZIP archive)."""
     if not file.filename.lower().endswith(".pdf"):
         return {"error": "Please upload a PDF file"}
 
-    pdf_bytes = await file.read()
-    zip_bytes = await convert_pdf_to_jpg(
-        pdf_bytes, file.filename, dpi=dpi, quality=quality, pages=pages
-    )
+    try:
+        pdf_bytes = await file.read()
+        zip_bytes = await convert_pdf_to_jpg(
+            pdf_bytes, file.filename, dpi=dpi, quality=95, pages=pages
+        )
 
-    output_name = file.filename.rsplit(".", 1)[0] + "_images.zip"
-    return Response(
-        content=zip_bytes,
-        media_type="application/zip",
-        headers={"Content-Disposition": f'attachment; filename="{output_name}"'},
-    )
+        output_name = file.filename.rsplit(".", 1)[0] + "_images.zip"
+        return Response(
+            content=zip_bytes,
+            media_type="application/zip",
+            headers={"Content-Disposition": _safe_content_disposition(output_name)},
+        )
+    except Exception as e:
+        return {"error": str(e)}
 
 
 @router.post("/page-count")
@@ -69,13 +82,15 @@ async def images_to_pdf(
     if not image_files:
         return {"error": "No valid image files provided"}
 
-    pdf_bytes = await merge_images_to_pdf(image_files)
-
-    return Response(
-        content=pdf_bytes,
-        media_type="application/pdf",
-        headers={"Content-Disposition": 'attachment; filename="merged_images.pdf"'},
-    )
+    try:
+        pdf_bytes = await merge_images_to_pdf(image_files)
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": 'attachment; filename="merged_images.pdf"'},
+        )
+    except Exception as e:
+        return {"error": str(e)}
 
 
 @router.post("/compress")
@@ -87,22 +102,25 @@ async def compress_pdf_endpoint(
     if not file.filename.lower().endswith(".pdf"):
         return {"error": "Please upload a PDF file"}
 
-    pdf_bytes = await file.read()
-    original_size = len(pdf_bytes)
+    try:
+        pdf_bytes = await file.read()
+        original_size = len(pdf_bytes)
 
-    compressed_bytes = await compress_pdf(pdf_bytes, quality=quality)
-    compressed_size = len(compressed_bytes)
+        compressed_bytes = await compress_pdf(pdf_bytes, quality=quality)
+        compressed_size = len(compressed_bytes)
 
-    reduction = round((1 - compressed_size / original_size) * 100, 1) if original_size > 0 else 0
-    output_name = file.filename.rsplit(".", 1)[0] + "_compressed.pdf"
+        reduction = round((1 - compressed_size / original_size) * 100, 1) if original_size > 0 else 0
+        output_name = file.filename.rsplit(".", 1)[0] + "_compressed.pdf"
 
-    return Response(
-        content=compressed_bytes,
-        media_type="application/pdf",
-        headers={
-            "Content-Disposition": f'attachment; filename="{output_name}"',
-            "X-Original-Size": str(original_size),
-            "X-Compressed-Size": str(compressed_size),
-            "X-Reduction-Percent": str(reduction),
-        },
-    )
+        return Response(
+            content=compressed_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": _safe_content_disposition(output_name),
+                "X-Original-Size": str(original_size),
+                "X-Compressed-Size": str(compressed_size),
+                "X-Reduction-Percent": str(reduction),
+            },
+        )
+    except Exception as e:
+        return {"error": str(e)}
