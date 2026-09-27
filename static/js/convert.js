@@ -138,11 +138,16 @@ function initImagesToPdf() {
         }
 
         selectedFiles = validFiles;
-        renderFileList(fileList, validFiles, (index) => {
-            selectedFiles.splice(index, 1);
-            renderFileList(fileList, selectedFiles);
-            convertBtn.disabled = selectedFiles.length === 0;
-        });
+        
+        const updateList = () => {
+            renderFileList(fileList, selectedFiles, (index) => {
+                selectedFiles.splice(index, 1);
+                updateList();
+                convertBtn.disabled = selectedFiles.length === 0;
+            });
+        };
+        
+        updateList();
         convertBtn.disabled = false;
     }, true);
 
@@ -408,11 +413,16 @@ function _initHeicPanel(panelId) {
 
     setupUploadZone(uploadZone, fileInput, (files) => {
         currentFiles = [...currentFiles, ...Array.from(files)];
-        renderFileList(fileListContainer, currentFiles, (index) => {
-            currentFiles.splice(index, 1);
-            renderFileList(fileListContainer, currentFiles);
-            convertBtn.disabled = currentFiles.length === 0;
-        });
+        
+        const updateList = () => {
+            renderFileList(fileListContainer, currentFiles, (index) => {
+                currentFiles.splice(index, 1);
+                updateList();
+                convertBtn.disabled = currentFiles.length === 0;
+            });
+        };
+        
+        updateList();
         convertBtn.disabled = currentFiles.length === 0;
         hideResult(resultArea);
     }, true);
