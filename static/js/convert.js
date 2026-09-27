@@ -220,7 +220,7 @@ function renderFileList(container, files, onRemove = null) {
         const item = document.createElement('div');
         item.className = 'file-item';
         item.innerHTML = `
-            <div class="file-item-info">
+            <div class="file-item-info" style="cursor:pointer; transition:opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1" title="Click to preview">
                 <span class="file-item-icon">📄</span>
                 <div>
                     <div class="file-item-name">${escapeHtml(file.name)}</div>
@@ -230,8 +230,13 @@ function renderFileList(container, files, onRemove = null) {
             ${onRemove ? '<button class="file-item-remove" title="Remove">✕</button>' : ''}
         `;
 
+        item.querySelector('.file-item-info').addEventListener('click', () => {
+            openPreviewModal(file);
+        });
+
         if (onRemove) {
-            item.querySelector('.file-item-remove')?.addEventListener('click', () => {
+            item.querySelector('.file-item-remove')?.addEventListener('click', (e) => {
+                e.stopPropagation();
                 onRemove(index);
             });
         }
@@ -378,4 +383,57 @@ function initPdfExtract() {
             hideProgress(progressContainer);
         }
     });
+}
+
+// --- Helper: File Preview ---
+function openPreviewModal(file) {
+    const modal = document.getElementById('modal-preview');
+    if (!modal) return;
+    
+    const title = modal.querySelector('#preview-title');
+    const iframe = modal.querySelector('#preview-iframe');
+    const img = modal.querySelector('#preview-image');
+    const unsupported = modal.querySelector('#preview-unsupported');
+    const cancelBtn = modal.querySelector('.btn-cancel');
+    
+    title.textContent = file.name || 'Preview';
+    iframe.style.display = 'none';
+    img.style.display = 'none';
+    unsupported.style.display = 'none';
+    
+    if (iframe.src) { URL.revokeObjectURL(iframe.src); iframe.src = ''; }
+    if (img.src) { URL.revokeObjectURL(img.src); img.src = ''; }
+
+    const fileType = file.type || '';
+    const nameLower = (file.name || '').toLowerCase();
+    
+    let objectUrl = null;
+
+    if (fileType === 'application/pdf' || nameLower.endsWith('.pdf')) {
+        objectUrl = URL.createObjectURL(file);
+        iframe.src = objectUrl;
+        iframe.style.display = 'block';
+    } else if (fileType.startsWith('image/') || /\.(jpg|jpeg|png|webp|bmp|gif)$/.test(nameLower)) {
+        objectUrl = URL.createObjectURL(file);
+        img.src = objectUrl;
+        img.style.display = 'block';
+    } else {
+        unsupported.style.display = 'block';
+    }
+    
+    modal.classList.add('active');
+    
+    const closeModal = () => {
+        modal.classList.remove('active');
+        if (objectUrl) {
+            setTimeout(() => URL.revokeObjectURL(objectUrl), 100);
+        }
+        iframe.src = '';
+        img.src = '';
+    };
+    
+    cancelBtn.onclick = closeModal;
+    modal.onclick = (e) => {
+        if (e.target === modal) closeModal();
+    };
 }

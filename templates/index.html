@@ -444,6 +444,21 @@
 
     </main>
 
+    <!-- ==================== PREVIEW MODAL ==================== -->
+    <div id="modal-preview" class="modal-overlay">
+        <div class="modal" style="width:90%; max-width:900px; height:85vh; max-height:900px; display:flex; flex-direction:column; padding:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <div id="preview-title" class="modal-title" style="margin-bottom:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:85%;">Preview</div>
+                <button class="btn-cancel" style="background:none; border:none; color:var(--text-secondary); cursor:pointer; font-size:24px; display:flex; align-items:center; justify-content:center; padding:4px; border-radius:var(--radius-sm); transition:color 0.2s;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-secondary)'">✕</button>
+            </div>
+            <div style="flex:1; background:var(--bg-secondary); border-radius:var(--radius-md); overflow:hidden; display:flex; justify-content:center; align-items:center; border:1px solid var(--border-color);">
+                <iframe id="preview-iframe" style="width:100%; height:100%; border:none; display:none;" title="PDF Preview"></iframe>
+                <img id="preview-image" style="max-width:100%; max-height:100%; object-fit:contain; display:none;" alt="Image Preview">
+                <div id="preview-unsupported" style="color:var(--text-tertiary); display:none; font-size:14px;">Preview not supported for this file type.</div>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== SETTINGS MODAL ==================== -->
     <div id="settings-modal" class="modal-overlay">
         <div class="modal">
