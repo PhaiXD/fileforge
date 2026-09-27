@@ -29,6 +29,8 @@ async def compress_image(
     # Determine output format
     if output_format:
         fmt = output_format.upper()
+        if fmt == "JPG":
+            fmt = "JPEG"
     else:
         fmt = original_format.upper()
         if fmt == "PNG":

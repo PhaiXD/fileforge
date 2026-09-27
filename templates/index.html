@@ -273,12 +273,12 @@
             <div class="result-area"></div>
         </div>
 
-        <!-- ===== HEIC Converter ===== -->
-        <div id="panel-heic-convert" class="tool-panel">
+        <!-- ===== HEIC to JPG ===== -->
+        <div id="panel-heic-jpg" class="tool-panel">
             <div class="tool-panel-header">
                 <div class="tool-panel-title">
                     <span style="font-size:28px">📸</span>
-                    <h2>HEIC Converter</h2>
+                    <h2>HEIC to JPG</h2>
                 </div>
                 <button class="tool-panel-back">← Back to Tools</button>
             </div>
@@ -289,17 +289,36 @@
                 <input type="file" accept=".heic,.heif" multiple style="display:none">
             </div>
             <div class="file-list"></div>
-            <div style="display:flex; gap:24px; margin-top:20px; flex-wrap:wrap; align-items:end;">
-                <div class="option-group">
-                    <label class="option-label">Output Format</label>
-                    <select class="option-select format-select">
-                        <option value="jpg" selected>JPG (Smaller size, good quality)</option>
-                        <option value="png">PNG (Lossless, transparent)</option>
-                    </select>
-                </div>
-            </div>
+            <input type="hidden" class="format-select" value="jpg">
             <div style="margin-top:24px;">
-                <button class="btn-primary btn-convert" disabled>📸 Convert HEIC</button>
+                <button class="btn-primary btn-convert" disabled>📸 Convert to JPG</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
+        <!-- ===== HEIC to PNG ===== -->
+        <div id="panel-heic-png" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">📸</span>
+                    <h2>HEIC to PNG</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-zone-icon">📤</div>
+                <div class="upload-zone-text">Drop your HEIC files here or click to browse</div>
+                <div class="upload-zone-hint">Supports .heic, .heif files — select multiple files</div>
+                <input type="file" accept=".heic,.heif" multiple style="display:none">
+            </div>
+            <div class="file-list"></div>
+            <input type="hidden" class="format-select" value="png">
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>📸 Convert to PNG</button>
             </div>
             <div class="progress-container">
                 <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>

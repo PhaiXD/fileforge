@@ -164,8 +164,8 @@ function showPanel(toolId) {
         'pdf-extract': 'panel-pdf-extract',
         'pdf-compress': 'panel-pdf-compress',
         'image-compress': 'panel-image-compress',
-        'heic-jpg': 'panel-heic-convert',
-        'heic-png': 'panel-heic-convert',
+        'heic-jpg': 'panel-heic-jpg',
+        'heic-png': 'panel-heic-png',
         'ai-pdf': 'panel-ai-pdf',
         'ai-video': 'panel-ai-video',
     };
@@ -176,15 +176,6 @@ function showPanel(toolId) {
         if (panel) {
             panel.classList.add('active');
             currentPanel = toolId;
-            
-            // Preset values for generic panels
-            if (toolId === 'heic-png') {
-                const sel = panel.querySelector('.format-select');
-                if (sel) sel.value = 'png';
-            } else if (toolId === 'heic-jpg') {
-                const sel = panel.querySelector('.format-select');
-                if (sel) sel.value = 'jpg';
-            }
         }
     }
 }

@@ -386,7 +386,12 @@ function initPdfExtract() {
 }
 
 function initHeicConvert() {
-    const panel = document.getElementById('panel-heic-convert');
+    _initHeicPanel('panel-heic-jpg');
+    _initHeicPanel('panel-heic-png');
+}
+
+function _initHeicPanel(panelId) {
+    const panel = document.getElementById(panelId);
     if (!panel) return;
 
     const fileInput = panel.querySelector('input[type="file"]');
@@ -401,7 +406,7 @@ function initHeicConvert() {
 
     let currentFiles = [];
 
-    setupDragAndDrop(uploadZone, fileInput, true, (files) => {
+    setupUploadZone(uploadZone, fileInput, (files) => {
         currentFiles = [...currentFiles, ...Array.from(files)];
         renderFileList(fileListContainer, currentFiles, (index) => {
             currentFiles.splice(index, 1);
@@ -410,7 +415,7 @@ function initHeicConvert() {
         });
         convertBtn.disabled = currentFiles.length === 0;
         hideResult(resultArea);
-    });
+    }, true);
 
     convertBtn.addEventListener('click', async () => {
         if (currentFiles.length === 0) return;
@@ -418,15 +423,12 @@ function initHeicConvert() {
         const formData = new FormData();
         currentFiles.forEach(file => formData.append('file', file));
         
-        // Pass format: target_format = 'jpg' or 'png'
         formData.append('target_format', formatSelect.value);
 
         try {
             convertBtn.disabled = true;
             showProgress(progressContainer, progressBar, progressText);
 
-            // Our backend currently only handles one file per request for /api/image/convert,
-            // or we need to loop them. Let's loop them if multiple.
             const total = currentFiles.length;
             
             if (total === 1) {
@@ -441,7 +443,6 @@ function initHeicConvert() {
                 if (result.error) throw new Error(result.error);
                 downloadBlob(result.blob, result.filename);
             } else {
-                // If JSZip is available, zip them in browser or just download one by one
                 const zip = new JSZip();
                 let hasError = false;
                 
