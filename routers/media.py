@@ -24,6 +24,13 @@ async def media_info(url: str = Form(...)):
         return {"success": False, "error": str(e)}
 
 
+import urllib.parse
+
+def _safe_content_disposition(filename: str) -> str:
+    """Safely encode filenames for the Content-Disposition header using RFC 5987."""
+    safe_name = urllib.parse.quote(filename)
+    return f"attachment; filename*=UTF-8''{safe_name}"
+
 @router.post("/download")
 async def media_download(
     url: str = Form(...),
@@ -48,7 +55,7 @@ async def media_download(
             path=file_path,
             filename=filename,
             media_type=media_type,
-            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+            headers={"Content-Disposition": _safe_content_disposition(filename)},
         )
     except Exception as e:
         traceback.print_exc()
