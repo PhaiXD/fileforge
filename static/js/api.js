@@ -121,7 +121,7 @@ function getFilenameFromHeaders(xhr, contentType) {
 /**
  * Trigger a file download from a Blob.
  */
-function downloadBlob(blob, filename) {
+function _executeDownload(blob, filename) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -129,7 +129,69 @@ function downloadBlob(blob, filename) {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function downloadBlob(blob, filename) {
+    if ((blob.type === 'application/zip' || filename.toLowerCase().endsWith('.zip')) && window.JSZip) {
+        showZipDownloadModal(blob, filename);
+        return;
+    }
+    _executeDownload(blob, filename);
+}
+
+function showZipDownloadModal(blob, filename) {
+    const modal = document.getElementById('modal-zip-download');
+    if (!modal) {
+        _executeDownload(blob, filename);
+        return;
+    }
+    
+    const btnZip = modal.querySelector('#btn-download-zip');
+    const btnMultiple = modal.querySelector('#btn-download-multiple');
+    const btnCancel = modal.querySelector('.btn-cancel');
+    
+    const cleanup = () => {
+        modal.classList.remove('active');
+        // Remove old event listeners
+        const newZipBtn = btnZip.cloneNode(true);
+        btnZip.parentNode.replaceChild(newZipBtn, btnZip);
+        const newMultBtn = btnMultiple.cloneNode(true);
+        btnMultiple.parentNode.replaceChild(newMultBtn, btnMultiple);
+        const newCancelBtn = btnCancel.cloneNode(true);
+        btnCancel.parentNode.replaceChild(newCancelBtn, btnCancel);
+    };
+    
+    btnCancel.onclick = cleanup;
+    
+    btnZip.onclick = () => {
+        cleanup();
+        _executeDownload(blob, filename);
+    };
+    
+    btnMultiple.onclick = async () => {
+        cleanup();
+        try {
+            const zip = new JSZip();
+            const contents = await zip.loadAsync(blob);
+            const files = Object.values(contents.files).filter(f => !f.dir);
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileBlob = await file.async("blob");
+                _executeDownload(fileBlob, file.name);
+                await new Promise(r => setTimeout(r, 200)); // small delay to prevent browser block
+            }
+        } catch (err) {
+            console.error("Failed to extract ZIP:", err);
+            if (typeof showToast === 'function') {
+                showToast("Failed to extract files. Downloading as ZIP.", "error");
+            }
+            _executeDownload(blob, filename);
+        }
+    };
+    
+    modal.classList.add('active');
 }
 
 /**

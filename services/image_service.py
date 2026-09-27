@@ -6,7 +6,10 @@ import io
 from typing import Optional
 
 from PIL import Image
+import pillow_heif
 
+# Register HEIF opener to allow PIL to read .heic and .heif files natively
+pillow_heif.register_heif_opener()
 
 async def compress_image(
     image_bytes: bytes,

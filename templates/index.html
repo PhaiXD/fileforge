@@ -273,6 +273,41 @@
             <div class="result-area"></div>
         </div>
 
+        <!-- ===== HEIC Converter ===== -->
+        <div id="panel-heic-convert" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">📸</span>
+                    <h2>HEIC Converter</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-zone-icon">📤</div>
+                <div class="upload-zone-text">Drop your HEIC files here or click to browse</div>
+                <div class="upload-zone-hint">Supports .heic, .heif files — select multiple files</div>
+                <input type="file" accept=".heic,.heif" multiple style="display:none">
+            </div>
+            <div class="file-list"></div>
+            <div style="display:flex; gap:24px; margin-top:20px; flex-wrap:wrap; align-items:end;">
+                <div class="option-group">
+                    <label class="option-label">Output Format</label>
+                    <select class="option-select format-select">
+                        <option value="jpg" selected>JPG (Smaller size, good quality)</option>
+                        <option value="png">PNG (Lossless, transparent)</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>📸 Convert HEIC</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
         <!-- ===== YouTube to MP4 ===== -->
         <div id="panel-yt-mp4" class="tool-panel">
             <div class="tool-panel-header">
@@ -459,6 +494,26 @@
         </div>
     </div>
 
+    <!-- ==================== ZIP DOWNLOAD MODAL ==================== -->
+    <div id="modal-zip-download" class="modal-overlay">
+        <div class="modal" style="width:90%; max-width:400px; text-align:center; position:relative; padding:32px 24px;">
+            <button class="btn-cancel" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:20px; color:var(--text-secondary); cursor:pointer; padding:4px;" title="Cancel">✕</button>
+            <div style="font-size:32px; margin-bottom:12px;">📦</div>
+            <div class="modal-title" style="margin-bottom:8px; justify-content:center;">Download Options</div>
+            <div class="modal-body" style="color:var(--text-secondary); font-size:14px; margin-bottom:24px;">
+                You have multiple files ready to download.<br>How would you like to save them?
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <button class="btn-primary" id="btn-download-zip" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">
+                    <span style="font-size:18px;">📦</span> Download as Single ZIP
+                </button>
+                <button class="btn-secondary" id="btn-download-multiple" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">
+                    <span style="font-size:18px;">📄</span> Download as Multiple Files
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== SETTINGS MODAL ==================== -->
     <div id="settings-modal" class="modal-overlay">
         <div class="modal">
@@ -481,6 +536,7 @@
 
     <!-- ==================== SCRIPTS ==================== -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="/static/js/api.js"></script>
     <script src="/static/js/convert.js"></script>
     <script src="/static/js/compress.js"></script>

@@ -61,7 +61,8 @@ const TOOLS = {
             { id: 'jpg-png', title: 'JPG to PNG', desc: 'Convert JPG images to PNG format', icon: '🖼️', color: 'var(--accent-green)', active: false },
             { id: 'webp-png', title: 'WEBP to PNG', desc: 'Convert WebP images to PNG', icon: '🌐', color: 'var(--accent-purple)', active: false },
             { id: 'svg-png', title: 'SVG to PNG', desc: 'Rasterize SVG to PNG image', icon: '✏️', color: 'var(--accent-yellow)', active: false },
-            { id: 'heic-jpg', title: 'HEIC to JPG', desc: 'Convert Apple HEIC to JPG', icon: '📸', color: 'var(--accent-teal)', active: false },
+            { id: 'heic-jpg', title: 'HEIC to JPG', desc: 'Convert Apple HEIC to JPG', icon: '📸', color: 'var(--accent-teal)', active: true },
+            { id: 'heic-png', title: 'HEIC to PNG', desc: 'Convert Apple HEIC to PNG', icon: '📸', color: 'var(--accent-purple)', active: true },
         ],
         compress: [
             { id: 'image-compress', title: 'Image Compressor', desc: 'Reduce image file size while preserving quality', icon: '📐', color: 'var(--accent-green)', active: true },
@@ -163,6 +164,8 @@ function showPanel(toolId) {
         'pdf-extract': 'panel-pdf-extract',
         'pdf-compress': 'panel-pdf-compress',
         'image-compress': 'panel-image-compress',
+        'heic-jpg': 'panel-heic-convert',
+        'heic-png': 'panel-heic-convert',
         'ai-pdf': 'panel-ai-pdf',
         'ai-video': 'panel-ai-video',
     };
@@ -173,6 +176,15 @@ function showPanel(toolId) {
         if (panel) {
             panel.classList.add('active');
             currentPanel = toolId;
+            
+            // Preset values for generic panels
+            if (toolId === 'heic-png') {
+                const sel = panel.querySelector('.format-select');
+                if (sel) sel.value = 'png';
+            } else if (toolId === 'heic-jpg') {
+                const sel = panel.querySelector('.format-select');
+                if (sel) sel.value = 'jpg';
+            }
         }
     }
 }
@@ -358,6 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initPdfExtract();
     initPdfCompressor();
     initImageCompressor();
+    if (typeof initHeicConvert === 'function') initHeicConvert();
     initMediaDownloader('yt-mp4');
     initMediaDownloader('yt-mp3');
     initMediaDownloader('tt-mp4');

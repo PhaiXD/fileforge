@@ -385,6 +385,99 @@ function initPdfExtract() {
     });
 }
 
+function initHeicConvert() {
+    const panel = document.getElementById('panel-heic-convert');
+    if (!panel) return;
+
+    const fileInput = panel.querySelector('input[type="file"]');
+    const uploadZone = panel.querySelector('.upload-zone');
+    const fileListContainer = panel.querySelector('.file-list');
+    const convertBtn = panel.querySelector('.btn-convert');
+    const progressContainer = panel.querySelector('.progress-container');
+    const progressBar = panel.querySelector('.progress-bar');
+    const progressText = panel.querySelector('.progress-text');
+    const resultArea = panel.querySelector('.result-area');
+    const formatSelect = panel.querySelector('.format-select');
+
+    let currentFiles = [];
+
+    setupDragAndDrop(uploadZone, fileInput, true, (files) => {
+        currentFiles = [...currentFiles, ...Array.from(files)];
+        renderFileList(fileListContainer, currentFiles, (index) => {
+            currentFiles.splice(index, 1);
+            renderFileList(fileListContainer, currentFiles);
+            convertBtn.disabled = currentFiles.length === 0;
+        });
+        convertBtn.disabled = currentFiles.length === 0;
+        hideResult(resultArea);
+    });
+
+    convertBtn.addEventListener('click', async () => {
+        if (currentFiles.length === 0) return;
+
+        const formData = new FormData();
+        currentFiles.forEach(file => formData.append('file', file));
+        
+        // Pass format: target_format = 'jpg' or 'png'
+        formData.append('target_format', formatSelect.value);
+
+        try {
+            convertBtn.disabled = true;
+            showProgress(progressContainer, progressBar, progressText);
+
+            // Our backend currently only handles one file per request for /api/image/convert,
+            // or we need to loop them. Let's loop them if multiple.
+            const total = currentFiles.length;
+            
+            if (total === 1) {
+                const singleForm = new FormData();
+                singleForm.append('file', currentFiles[0]);
+                singleForm.append('target_format', formatSelect.value);
+                
+                const result = await uploadFiles('/api/image/convert', singleForm, (percent) => {
+                    updateProgress(progressBar, progressText, percent, 'Converting...');
+                });
+                
+                if (result.error) throw new Error(result.error);
+                downloadBlob(result.blob, result.filename);
+            } else {
+                // If JSZip is available, zip them in browser or just download one by one
+                const zip = new JSZip();
+                let hasError = false;
+                
+                for (let i = 0; i < total; i++) {
+                    const pct = Math.round((i / total) * 100);
+                    updateProgress(progressBar, progressText, pct, `Converting ${i+1}/${total}...`);
+                    
+                    const singleForm = new FormData();
+                    singleForm.append('file', currentFiles[i]);
+                    singleForm.append('target_format', formatSelect.value);
+                    
+                    const result = await uploadFiles('/api/image/convert', singleForm);
+                    if (result.error) {
+                        hasError = true;
+                        continue;
+                    }
+                    zip.file(result.filename, result.blob);
+                }
+                
+                updateProgress(progressBar, progressText, 100, 'Zipping files...');
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+                downloadBlob(zipBlob, `converted_images.zip`);
+                if (hasError) throw new Error("Some files failed to convert.");
+            }
+
+            hideProgress(progressContainer);
+            showResult(resultArea, true, 'Converted successfully!');
+        } catch (err) {
+            showResult(resultArea, false, err.message || 'Conversion failed');
+        } finally {
+            convertBtn.disabled = false;
+            hideProgress(progressContainer);
+        }
+    });
+}
+
 // --- Helper: File Preview ---
 function openPreviewModal(file) {
     const modal = document.getElementById('modal-preview');

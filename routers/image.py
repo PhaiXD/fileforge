@@ -31,7 +31,7 @@ async def compress_image_endpoint(
     max_height: Optional[int] = Form(None),
 ):
     """Compress an image file to reduce its size."""
-    allowed_exts = ("jpg", "jpeg", "png", "webp", "bmp")
+    allowed_exts = ("jpg", "jpeg", "png", "webp", "bmp", "heic", "heif")
     ext = file.filename.lower().rsplit(".", 1)[-1] if "." in file.filename else ""
     if ext not in allowed_exts:
         return {"error": f"Unsupported format. Allowed: {', '.join(allowed_exts)}"}
@@ -50,7 +50,6 @@ async def compress_image_endpoint(
         compressed_size = len(compressed_bytes)
         reduction = round((1 - compressed_size / original_size) * 100, 1) if original_size > 0 else 0
 
-        # Determine content type
         content_type_map = {
             ".jpg": "image/jpeg",
             ".jpeg": "image/jpeg",
@@ -68,6 +67,49 @@ async def compress_image_endpoint(
                 "X-Original-Size": str(original_size),
                 "X-Compressed-Size": str(compressed_size),
                 "X-Reduction-Percent": str(reduction),
+            },
+        )
+    except Exception as e:
+        return {"error": str(e)}
+
+@router.post("/convert")
+async def convert_image_endpoint(
+    file: UploadFile = File(...),
+    target_format: str = Form("jpg"),
+):
+    """Convert an image to a specific format."""
+    allowed_exts = ("jpg", "jpeg", "png", "webp", "bmp", "heic", "heif", "svg")
+    ext = file.filename.lower().rsplit(".", 1)[-1] if "." in file.filename else ""
+    if ext not in allowed_exts:
+        return {"error": f"Unsupported format. Allowed: {', '.join(allowed_exts)}"}
+        
+    try:
+        image_bytes = await file.read()
+        
+        # We can just reuse compress_image but pass output_format and quality 100 for PNG, 95 for JPG
+        quality = 95 if target_format in ("jpg", "jpeg") else 100
+        
+        converted_bytes, output_filename = await compress_image(
+            image_bytes,
+            file.filename,
+            quality=quality,
+            output_format=target_format
+        )
+        
+        content_type_map = {
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".png": "image/png",
+            ".webp": "image/webp",
+        }
+        output_ext = "." + output_filename.rsplit(".", 1)[-1].lower()
+        content_type = content_type_map.get(output_ext, "image/jpeg")
+
+        return Response(
+            content=converted_bytes,
+            media_type=content_type,
+            headers={
+                "Content-Disposition": _safe_content_disposition(output_filename)
             },
         )
     except Exception as e:
