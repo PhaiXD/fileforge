@@ -59,6 +59,24 @@ async def get_pdf_page_count(pdf_bytes: bytes) -> int:
     return count
 
 
+async def extract_pdf_pages(pdf_bytes: bytes, pages: str) -> bytes:
+    """
+    Extract specific pages from a PDF and return a new PDF.
+    """
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    page_indices = _parse_page_range(pages, len(doc))
+    
+    new_doc = fitz.open()
+    for idx in page_indices:
+        new_doc.insert_pdf(doc, from_page=idx, to_page=idx)
+    
+    pdf_out = new_doc.tobytes()
+    new_doc.close()
+    doc.close()
+    
+    return pdf_out
+
+
 async def convert_pdf_to_jpg(
     pdf_bytes: bytes,
     filename: str,

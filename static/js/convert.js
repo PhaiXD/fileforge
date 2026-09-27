@@ -280,3 +280,102 @@ function escapeHtml(str) {
     div.appendChild(document.createTextNode(str));
     return div.innerHTML;
 }
+
+/**
+ * Initialize PDF Extract tool.
+ */
+function initPdfExtract() {
+    const panel = document.getElementById('panel-pdf-extract');
+    if (!panel) return;
+
+    const uploadZone = panel.querySelector('.upload-zone');
+    const fileInput = panel.querySelector('input[type="file"]');
+    const fileList = panel.querySelector('.file-list');
+    const pageSelector = panel.querySelector('.page-selector');
+    const convertBtn = panel.querySelector('.btn-convert');
+    const progressContainer = panel.querySelector('.progress-container');
+    const progressBar = panel.querySelector('.progress-bar');
+    const progressText = panel.querySelector('.progress-text');
+    const resultArea = panel.querySelector('.result-area');
+
+    let selectedFile = null;
+
+    setupUploadZone(uploadZone, fileInput, async (file) => {
+        if (!file.name.toLowerCase().endsWith('.pdf')) {
+            showToast('Please select a PDF file', 'error');
+            return;
+        }
+        selectedFile = file;
+        renderFileList(fileList, [file], () => {
+            selectedFile = null;
+            renderFileList(fileList, []);
+            convertBtn.disabled = true;
+            if (pageSelector) {
+                pageSelector.style.display = 'none';
+                pageSelector.innerHTML = '';
+            }
+        });
+        convertBtn.disabled = false;
+
+        // Fetch page count and show page selector
+        if (pageSelector) {
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const data = await fetchAPI('/api/pdf/page-count', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (data && (data.page_count !== undefined || data.total_pages !== undefined)) {
+                    const totalPages = data.page_count !== undefined ? data.page_count : data.total_pages;
+                    pageSelector.style.display = 'block';
+                    pageSelector.innerHTML = `
+                        <div class="option-group" style="margin-top:16px; margin-bottom:0;">
+                            <label class="option-label">Pages to Extract <span class="page-count-display" style="text-transform:none; font-weight:normal; color:var(--text-tertiary); margin-left:8px;">(Total: ${totalPages} pages)</span></label>
+                            <input type="text" class="modal-input page-range-input" placeholder="e.g. 1, 3, 5-8 (leave blank for all pages)" style="max-width:320px; margin-bottom:4px;">
+                            <div class="page-hint" style="font-size:12px; color:var(--text-tertiary);">Total: ${totalPages} pages. Specify page numbers and/or ranges (e.g. 1, 3, 5-8).</div>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error('Failed to get page count:', err);
+            }
+        }
+    }, false);
+
+    convertBtn.addEventListener('click', async () => {
+        if (!selectedFile) return;
+
+        const pageInput = panel.querySelector('.page-range-input');
+        const pagesVal = pageInput ? pageInput.value.trim() : '';
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('pages', pagesVal);
+
+        try {
+            convertBtn.disabled = true;
+            showProgress(progressContainer, progressBar, progressText);
+
+            const result = await uploadFiles('/api/pdf/extract', formData, (percent) => {
+                updateProgress(progressBar, progressText, percent, 'Uploading...');
+            });
+
+            setProgressIndeterminate(progressBar, progressText, 'Extracting PDF pages...');
+
+            if (result.error) {
+                showResult(resultArea, false, result.error);
+            } else {
+                hideProgress(progressContainer);
+                showResult(resultArea, true, 'PDF pages extracted successfully!');
+                downloadBlob(result.blob, result.filename);
+            }
+        } catch (err) {
+            showResult(resultArea, false, err.error || 'Extraction failed');
+        } finally {
+            convertBtn.disabled = false;
+            hideProgress(progressContainer);
+        }
+    });
+}

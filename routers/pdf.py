@@ -9,7 +9,7 @@ from urllib.parse import quote
 from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import Response
 
-from services.pdf_service import compress_pdf, convert_pdf_to_jpg, get_pdf_page_count, merge_images_to_pdf
+from services.pdf_service import compress_pdf, convert_pdf_to_jpg, extract_pdf_pages, get_pdf_page_count, merge_images_to_pdf
 
 router = APIRouter(prefix="/api/pdf", tags=["PDF"])
 
@@ -125,6 +125,30 @@ async def compress_pdf_endpoint(
                 "X-Compressed-Size": str(compressed_size),
                 "X-Reduction-Percent": str(reduction),
             },
+        )
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.post("/extract")
+async def extract_pdf_endpoint(
+    file: UploadFile = File(...),
+    pages: str = Form(...),
+):
+    """Extract specific pages from a PDF."""
+    if not file.filename.lower().endswith(".pdf"):
+        return {"error": "Please upload a PDF file"}
+
+    try:
+        pdf_bytes = await file.read()
+        extracted_bytes = await extract_pdf_pages(pdf_bytes, pages)
+        
+        output_name = file.filename.rsplit(".", 1)[0] + "_extracted.pdf"
+        
+        return Response(
+            content=extracted_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": _safe_content_disposition(output_name)},
         )
     except Exception as e:
         return {"error": str(e)}
