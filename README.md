@@ -1,4 +1,4 @@
-# 🔨 FileForge
+# <img width="25" height="25" alt="FileForge logo_white" src="https://github.com/user-attachments/assets/e5c9e441-09d6-4593-b71a-afd13b59c29a" /> FileForge
 
 **FileForge** is a fast, powerful, and privacy-first local web application for all your daily file operations. Built with **FastAPI** and **Vanilla JS**, it runs entirely on your local machine—meaning your files never leave your computer.
 
