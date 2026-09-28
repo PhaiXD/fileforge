@@ -35,14 +35,29 @@
 
 ## 🚀 Getting Started
 
-Since FileForge processes everything 100% locally, you will need to set up a few background dependencies first.
+FileForge can be run easily whether you are a general user wanting a ready-to-use app, or a developer wanting to tinker with the code.
 
-### 1. Prerequisites
+### 👤 For General Users (No coding required)
+The easiest way to use FileForge is by downloading the pre-packaged executable. You don't need to install Python or set up any environments!
+
+1. Go to the [Releases](../../releases) page on GitHub.
+2. Download the latest `FileForge.zip` file.
+3. Extract the ZIP file to your preferred folder.
+4. Double-click on `FileForge.exe` to run the application.
+> The server will start in the background, and **your default web browser will automatically open to `http://localhost:8000`**. 🎉
+
+*(Placeholder: 🎞️ [Insert a GIF showing the ZIP extraction and double-clicking `FileForge.exe`])*
+
+---
+
+### 👨‍💻 For Developers (Source Code)
+If you want to run from source, you will need to set up the Python environment.
+
+**Prerequisites:**
 - **Python 3.10+**
 - **FFmpeg:** Required for Video/Audio processing. (Download and install from [ffmpeg.org](https://ffmpeg.org/download.html), and ensure it's added to your system's PATH)
-- **Node.js / npm** (Optional: for potential future build scripts or Tailwind integration)
 
-### 2. Installation
+**Installation:**
 1. Clone this repository to your local machine:
    ```bash
    git clone https://github.com/yourusername/fileforge.git
@@ -57,14 +72,11 @@ Since FileForge processes everything 100% locally, you will need to set up a few
    ```
 3. *(Optional)* API Key Setup: Copy the `.env.example` file to `.env` and insert your `GEMINI_API_KEY` if you plan to use the AI-powered summarization features.
 
-### 3. Run the App
+**Run the App:**
 Start the server with the following command:
 ```bash
 python main.py
 ```
-> The server will start up, and **your default web browser will automatically open to `http://localhost:8000`**. 🎉
-
-*(Placeholder: 🎞️ [Insert a GIF showing `python main.py` being run in the terminal and the browser launching automatically])*
 
 ---
 
