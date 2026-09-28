@@ -197,6 +197,32 @@
             <div class="result-area"></div>
         </div>
 
+        <!-- ===== Merge PDFs ===== -->
+        <div id="panel-pdf-merge" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">🔗</span>
+                    <h2>Merge PDFs</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-zone-icon">📤</div>
+                <div class="upload-zone-text">Drop your PDF files here or click to browse</div>
+                <div class="upload-zone-hint">Supports multiple .pdf files</div>
+                <input type="file" accept=".pdf" multiple style="display:none">
+            </div>
+            <div class="file-list-sortable" style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;"></div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>🔗 Merge PDFs</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
         <!-- ===== PDF Compressor ===== -->
         <div id="panel-pdf-compress" class="tool-panel">
             <div class="tool-panel-header">

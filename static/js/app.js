@@ -73,6 +73,7 @@ const TOOLS = {
             { id: 'pdf-to-jpg', title: 'PDF to JPG', desc: 'Convert PDF pages to JPG images', icon: '📄', color: 'var(--accent-red)', active: true },
             { id: 'images-to-pdf', title: 'Images to PDF', desc: 'Merge multiple images into one PDF', icon: '📑', color: 'var(--accent-blue)', active: true },
             { id: 'pdf-extract', title: 'Extract PDF Pages', desc: 'Split or extract specific pages from a PDF', icon: '✂️', color: 'var(--accent-purple)', active: true },
+            { id: 'pdf-merge', title: 'Merge PDFs', desc: 'Combine multiple PDFs into one in your chosen order', icon: '🔗', color: 'var(--accent-blue)', active: true },
             { id: 'pdf-word', title: 'PDF to Word', desc: 'Convert PDF to editable Word document', icon: '📝', color: 'var(--accent-blue)', active: false },
             { id: 'word-pdf', title: 'Word to PDF', desc: 'Convert Word documents to PDF', icon: '📋', color: 'var(--accent-red)', active: false },
             { id: 'pdf-png', title: 'PDF to PNG', desc: 'Convert PDF pages to PNG images', icon: '🖼️', color: 'var(--accent-green)', active: false },
@@ -162,6 +163,7 @@ function showPanel(toolId) {
         'pdf-to-jpg': 'panel-pdf-to-jpg',
         'images-to-pdf': 'panel-images-to-pdf',
         'pdf-extract': 'panel-pdf-extract',
+        'pdf-merge': 'panel-pdf-merge',
         'pdf-compress': 'panel-pdf-compress',
         'image-compress': 'panel-image-compress',
         'heic-jpg': 'panel-heic-jpg',
@@ -359,6 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initPdfToJpg();
     initImagesToPdf();
     initPdfExtract();
+    if (typeof initPdfMerge === 'function') initPdfMerge();
     initPdfCompressor();
     initImageCompressor();
     if (typeof initHeicConvert === 'function') initHeicConvert();

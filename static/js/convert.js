@@ -390,6 +390,148 @@ function initPdfExtract() {
     });
 }
 
+function initPdfMerge() {
+    const panel = document.getElementById('panel-pdf-merge');
+    if (!panel) return;
+
+    const fileInput = panel.querySelector('input[type="file"]');
+    const uploadZone = panel.querySelector('.upload-zone');
+    const fileListContainer = panel.querySelector('.file-list-sortable');
+    const convertBtn = panel.querySelector('.btn-convert');
+    const progressContainer = panel.querySelector('.progress-container');
+    const progressBar = panel.querySelector('.progress-bar');
+    const progressText = panel.querySelector('.progress-text');
+    const resultArea = panel.querySelector('.result-area');
+
+    let currentFiles = [];
+    let fileCounter = 0;
+
+    const renderList = () => {
+        fileListContainer.innerHTML = '';
+        currentFiles.forEach((fObj, index) => {
+            const item = document.createElement('div');
+            item.className = 'file-item';
+            item.style.flexDirection = 'column';
+            item.style.alignItems = 'stretch';
+            
+            item.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div class="file-item-info" style="cursor:pointer;" title="Click to preview">
+                        <span class="file-item-icon">📄</span>
+                        <div>
+                            <div class="file-item-name" style="word-break: break-all;">${escapeHtml(fObj.file.name)}</div>
+                            <div class="file-item-size">${formatFileSize(fObj.file.size)}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap: 4px; align-items:center; min-width:80px; justify-content:flex-end;">
+                        <button class="btn-move-up" style="background:transparent; border:none; cursor:${index === 0 ? 'default' : 'pointer'}; font-size:16px; opacity:${index === 0 ? '0.2' : '1'};">⬆️</button>
+                        <button class="btn-move-down" style="background:transparent; border:none; cursor:${index === currentFiles.length - 1 ? 'default' : 'pointer'}; font-size:16px; opacity:${index === currentFiles.length - 1 ? '0.2' : '1'};">⬇️</button>
+                        <button class="file-item-remove" style="margin-left: 8px;">✕</button>
+                    </div>
+                </div>
+                <div style="margin-top: 12px;">
+                    <input type="text" class="modal-input page-input" placeholder="Pages to extract (e.g. 1, 3, 5-8). Leave blank to merge all pages." value="${fObj.pageRange}" style="margin-bottom:0; font-size:13px; padding:8px 12px;">
+                </div>
+            `;
+            
+            // Preview
+            item.querySelector('.file-item-info').addEventListener('click', () => openPreviewModal(fObj.file));
+            
+            // Delete
+            item.querySelector('.file-item-remove').addEventListener('click', () => {
+                currentFiles.splice(index, 1);
+                renderList();
+                convertBtn.disabled = currentFiles.length === 0;
+            });
+            
+            // Move up
+            const btnUp = item.querySelector('.btn-move-up');
+            if (btnUp && index > 0) {
+                btnUp.addEventListener('click', () => {
+                    const temp = currentFiles[index];
+                    currentFiles[index] = currentFiles[index-1];
+                    currentFiles[index-1] = temp;
+                    renderList();
+                });
+            }
+            
+            // Move down
+            const btnDown = item.querySelector('.btn-move-down');
+            if (btnDown && index < currentFiles.length - 1) {
+                btnDown.addEventListener('click', () => {
+                    const temp = currentFiles[index];
+                    currentFiles[index] = currentFiles[index+1];
+                    currentFiles[index+1] = temp;
+                    renderList();
+                });
+            }
+            
+            // Page input
+            item.querySelector('.page-input').addEventListener('input', (e) => {
+                fObj.pageRange = e.target.value;
+            });
+
+            fileListContainer.appendChild(item);
+        });
+    };
+
+    setupUploadZone(uploadZone, fileInput, (files) => {
+        const validFiles = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.pdf'));
+        if (validFiles.length === 0) {
+            showToast('Please select PDF files only', 'error');
+            return;
+        }
+        
+        validFiles.forEach(f => {
+            currentFiles.push({
+                file: f,
+                pageRange: '',
+                id: ++fileCounter
+            });
+        });
+        
+        renderList();
+        convertBtn.disabled = currentFiles.length === 0;
+        hideResult(resultArea);
+    }, true);
+
+    convertBtn.addEventListener('click', async () => {
+        if (currentFiles.length === 0) return;
+
+        const formData = new FormData();
+        const pagesList = [];
+        
+        currentFiles.forEach(fObj => {
+            formData.append('files', fObj.file);
+            pagesList.push(fObj.pageRange.trim());
+        });
+        
+        formData.append('pages_list', JSON.stringify(pagesList));
+
+        try {
+            convertBtn.disabled = true;
+            showProgress(progressContainer, progressBar, progressText);
+
+            const result = await uploadFiles('/api/pdf/merge-pdfs', formData, (percent) => {
+                updateProgress(progressBar, progressText, percent, 'Uploading & Merging...');
+            });
+
+            if (result.error) {
+                showResult(resultArea, false, result.error);
+            } else {
+                hideProgress(progressContainer);
+                showResult(resultArea, true, 'PDFs merged successfully!');
+                downloadBlob(result.blob, result.filename || 'merged.pdf');
+            }
+        } catch (err) {
+            showResult(resultArea, false, err.error || 'Merge failed');
+        } finally {
+            convertBtn.disabled = false;
+            hideProgress(progressContainer);
+        }
+    });
+}
+
 function initHeicConvert() {
     _initHeicPanel('panel-heic-jpg');
     _initHeicPanel('panel-heic-png');

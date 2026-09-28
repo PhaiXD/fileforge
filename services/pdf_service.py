@@ -77,6 +77,32 @@ async def extract_pdf_pages(pdf_bytes: bytes, pages: str) -> bytes:
     return pdf_out
 
 
+async def merge_multiple_pdfs(files: List[tuple[bytes, str]], pages_list: List[str]) -> bytes:
+    """
+    Merge multiple PDFs into one, extracting specific pages if requested.
+    files: List of (pdf_bytes, filename)
+    pages_list: List of page range strings (same length as files)
+    """
+    new_doc = fitz.open()
+    
+    for i, (pdf_bytes, filename) in enumerate(files):
+        try:
+            doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+            pages_str = pages_list[i] if i < len(pages_list) else ""
+            page_indices = _parse_page_range(pages_str, len(doc))
+            
+            for idx in page_indices:
+                new_doc.insert_pdf(doc, from_page=idx, to_page=idx)
+            doc.close()
+        except Exception:
+            continue
+            
+    pdf_out = new_doc.tobytes()
+    new_doc.close()
+    return pdf_out
+
+
+
 async def convert_pdf_to_jpg(
     pdf_bytes: bytes,
     filename: str,

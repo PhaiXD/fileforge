@@ -9,7 +9,7 @@ from urllib.parse import quote
 from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import Response
 
-from services.pdf_service import compress_pdf, convert_pdf_to_jpg, extract_pdf_pages, get_pdf_page_count, merge_images_to_pdf
+from services.pdf_service import compress_pdf, convert_pdf_to_jpg, extract_pdf_pages, get_pdf_page_count, merge_images_to_pdf, merge_multiple_pdfs
 
 router = APIRouter(prefix="/api/pdf", tags=["PDF"])
 
@@ -149,6 +149,38 @@ async def extract_pdf_endpoint(
             content=extracted_bytes,
             media_type="application/pdf",
             headers={"Content-Disposition": _safe_content_disposition(output_name)},
+        )
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.post("/merge-pdfs")
+async def merge_pdfs_endpoint(
+    files: List[UploadFile] = File(...),
+    pages_list: str = Form("[]"),  # Expected to be a JSON string like '["1-2", "", "3"]'
+):
+    """Merge multiple PDFs with optional page ranges."""
+    import json
+    
+    try:
+        pages_array = json.loads(pages_list)
+    except Exception:
+        pages_array = []
+        
+    try:
+        pdf_data = []
+        for i, file in enumerate(files):
+            if not file.filename.lower().endswith(".pdf"):
+                return {"error": f"File '{file.filename}' is not a PDF"}
+            pdf_bytes = await file.read()
+            pdf_data.append((pdf_bytes, file.filename))
+            
+        merged_bytes = await merge_multiple_pdfs(pdf_data, pages_array)
+        
+        return Response(
+            content=merged_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": _safe_content_disposition("merged.pdf")},
         )
     except Exception as e:
         return {"error": str(e)}
