@@ -223,18 +223,58 @@ function initImagesToPdf() {
             return;
         }
 
-        selectedFiles = validFiles;
+        selectedFiles = [...selectedFiles, ...validFiles];
         
-        const updateList = () => {
-            renderFileList(fileList, selectedFiles, (index) => {
-                selectedFiles.splice(index, 1);
-                updateList();
-                convertBtn.disabled = selectedFiles.length === 0;
+        const renderList = () => {
+            fileList.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.style.cursor = 'grab';
+                item.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                        <div style="display:flex; align-items:center; gap: 12px;">
+                            <span class="drag-handle" style="color:var(--text-tertiary); cursor:grab; font-size:16px;">☰</span>
+                            <div class="file-item-info" style="cursor:pointer;" title="Click to preview">
+                                <span class="file-item-icon">🖼️</span>
+                                <div>
+                                    <div class="file-item-name">${escapeHtml(file.name)}</div>
+                                    <div class="file-item-size">${formatFileSize(file.size)}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="file-item-remove">✕</button>
+                    </div>
+                `;
+                
+                item.querySelector('.file-item-info').addEventListener('click', () => openPreviewModal(file));
+                item.querySelector('.file-item-remove').addEventListener('click', () => {
+                    selectedFiles.splice(index, 1);
+                    renderList();
+                    convertBtn.disabled = selectedFiles.length === 0;
+                });
+                
+                fileList.appendChild(item);
+            });
+            
+            // Re-initialize sortable
+            if (fileList.sortableInstance) {
+                fileList.sortableInstance.destroy();
+            }
+            fileList.sortableInstance = Sortable.create(fileList, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
+                onEnd: function (evt) {
+                    const movedItem = selectedFiles.splice(evt.oldIndex, 1)[0];
+                    selectedFiles.splice(evt.newIndex, 0, movedItem);
+                },
             });
         };
         
-        updateList();
+        renderList();
         convertBtn.disabled = false;
+        hideResult(resultArea);
     }, true);
 
     // Convert button
@@ -703,16 +743,17 @@ function initPdfMerge() {
             
             item.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div class="file-item-info" style="cursor:pointer;" title="Click to preview">
-                        <span class="file-item-icon">📄</span>
-                        <div>
-                            <div class="file-item-name" style="word-break: break-all;">${escapeHtml(fObj.file.name)}</div>
-                            <div class="file-item-size">${formatFileSize(fObj.file.size)}</div>
+                    <div style="display:flex; align-items:center; gap: 12px;">
+                        <span class="drag-handle" style="color:var(--text-tertiary); cursor:grab; font-size:16px;">☰</span>
+                        <div class="file-item-info" style="cursor:pointer;" title="Click to preview">
+                            <span class="file-item-icon">📄</span>
+                            <div>
+                                <div class="file-item-name" style="word-break: break-all;">${escapeHtml(fObj.file.name)}</div>
+                                <div class="file-item-size">${formatFileSize(fObj.file.size)}</div>
+                            </div>
                         </div>
                     </div>
-                    <div style="display:flex; gap: 4px; align-items:center; min-width:80px; justify-content:flex-end;">
-                        <button class="btn-move-up" style="background:transparent; border:none; cursor:${index === 0 ? 'default' : 'pointer'}; font-size:16px; opacity:${index === 0 ? '0.2' : '1'};">⬆️</button>
-                        <button class="btn-move-down" style="background:transparent; border:none; cursor:${index === currentFiles.length - 1 ? 'default' : 'pointer'}; font-size:16px; opacity:${index === currentFiles.length - 1 ? '0.2' : '1'};">⬇️</button>
+                    <div style="display:flex; gap: 4px; align-items:center; min-width:40px; justify-content:flex-end;">
                         <button class="file-item-remove" style="margin-left: 8px;">✕</button>
                     </div>
                 </div>
@@ -731,34 +772,25 @@ function initPdfMerge() {
                 convertBtn.disabled = currentFiles.length === 0;
             });
             
-            // Move up
-            const btnUp = item.querySelector('.btn-move-up');
-            if (btnUp && index > 0) {
-                btnUp.addEventListener('click', () => {
-                    const temp = currentFiles[index];
-                    currentFiles[index] = currentFiles[index-1];
-                    currentFiles[index-1] = temp;
-                    renderList();
-                });
-            }
-            
-            // Move down
-            const btnDown = item.querySelector('.btn-move-down');
-            if (btnDown && index < currentFiles.length - 1) {
-                btnDown.addEventListener('click', () => {
-                    const temp = currentFiles[index];
-                    currentFiles[index] = currentFiles[index+1];
-                    currentFiles[index+1] = temp;
-                    renderList();
-                });
-            }
-            
             // Page input
             item.querySelector('.page-input').addEventListener('input', (e) => {
                 fObj.pageRange = e.target.value;
             });
 
             fileListContainer.appendChild(item);
+        });
+
+        if (fileListContainer.sortableInstance) {
+            fileListContainer.sortableInstance.destroy();
+        }
+        fileListContainer.sortableInstance = Sortable.create(fileListContainer, {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'sortable-ghost',
+            onEnd: function (evt) {
+                const movedItem = currentFiles.splice(evt.oldIndex, 1)[0];
+                currentFiles.splice(evt.newIndex, 0, movedItem);
+            },
         });
     };
 

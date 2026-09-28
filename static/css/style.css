@@ -748,6 +748,31 @@ body {
     background: var(--bg-secondary);
     border-radius: var(--radius-sm);
     margin-bottom: 6px;
+    border: 1px solid transparent;
+}
+
+.file-item.sortable-ghost {
+    opacity: 0.4;
+    background: var(--bg-tertiary);
+    border: 1px dashed var(--border);
+}
+
+.file-item.sortable-drag {
+    opacity: 1 !important;
+    background: var(--bg-primary);
+    box-shadow: var(--shadow-md);
+    cursor: grabbing !important;
+}
+
+.drag-handle {
+    cursor: grab;
+    transition: color var(--transition-fast);
+}
+.drag-handle:hover {
+    color: var(--text-primary) !important;
+}
+.drag-handle:active {
+    cursor: grabbing;
 }
 
 .file-item-info {

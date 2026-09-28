@@ -75,8 +75,8 @@ async def compress_image(
             new_size = (int(w * ratio), int(h * ratio))
             img = img.resize(new_size, Image.Resampling.LANCZOS)
 
-    # Convert mode for JPEG
-    if fmt == "JPEG" and img.mode in ("RGBA", "P", "LA"):
+    # Convert mode for JPEG and PDF (to replace transparency with white background)
+    if fmt in ("JPEG", "PDF") and img.mode in ("RGBA", "P", "LA"):
         background = Image.new("RGB", img.size, (255, 255, 255))
         if img.mode == "P":
             img = img.convert("RGBA")
@@ -99,7 +99,7 @@ async def compress_image(
     output_buffer.seek(0)
 
     # Generate output filename
-    ext_map = {"JPEG": ".jpg", "PNG": ".png", "WEBP": ".webp", "GIF": ".gif", "ICO": ".ico"}
+    ext_map = {"JPEG": ".jpg", "PNG": ".png", "WEBP": ".webp", "GIF": ".gif", "ICO": ".ico", "PDF": ".pdf"}
     ext = ext_map.get(fmt, ".jpg")
     base_name = ".".join(filename.rsplit(".", 1)[:-1]) if "." in filename else filename
     suffix = "_converted" if output_format else "_compressed"

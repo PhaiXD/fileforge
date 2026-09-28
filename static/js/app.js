@@ -94,11 +94,11 @@ const TOOLS = {
             { id: 'heic-webp', title: 'HEIC to WEBP', desc: 'Convert Apple HEIC to WebP', icon: '📸', color: 'var(--accent-teal)', active: true },
             { id: 'ico-webp', title: 'ICO to WEBP', desc: 'Convert ICO icons to WebP', icon: '🎯', color: 'var(--accent-purple)', active: true },
             // To ICO
-            { id: 'png-ico', title: 'PNG to ICO', desc: 'Convert PNG images to ICO format', icon: '🎯', color: 'var(--accent-red)', active: true },
-            { id: 'jpg-ico', title: 'JPG to ICO', desc: 'Convert JPG images to ICO format', icon: '🎯', color: 'var(--accent-red)', active: true },
-            { id: 'webp-ico', title: 'WEBP to ICO', desc: 'Convert WebP images to ICO', icon: '🎯', color: 'var(--accent-red)', active: true },
-            { id: 'svg-ico', title: 'SVG to ICO', desc: 'Convert SVG to ICO icon', icon: '🎯', color: 'var(--accent-red)', active: true },
-            { id: 'heic-ico', title: 'HEIC to ICO', desc: 'Convert HEIC to ICO icon', icon: '🎯', color: 'var(--accent-red)', active: true },
+            { id: 'png-ico', title: 'PNG to ICO', desc: 'Convert PNG images to ICO format', icon: '🖼️', color: 'var(--accent-red)', active: true },
+            { id: 'jpg-ico', title: 'JPG to ICO', desc: 'Convert JPG images to ICO format', icon: '🖼️', color: 'var(--accent-red)', active: true },
+            { id: 'webp-ico', title: 'WEBP to ICO', desc: 'Convert WebP images to ICO', icon: '🌐', color: 'var(--accent-red)', active: true },
+            { id: 'svg-ico', title: 'SVG to ICO', desc: 'Convert SVG to ICO icon', icon: '✏️', color: 'var(--accent-red)', active: true },
+            { id: 'heic-ico', title: 'HEIC to ICO', desc: 'Convert HEIC to ICO icon', icon: '📸', color: 'var(--accent-red)', active: true },
         ],
         compress: [
             { id: 'image-compress', title: 'Image Compressor', desc: 'Reduce image file size while preserving quality', icon: '📐', color: 'var(--accent-green)', active: true },
@@ -106,8 +106,9 @@ const TOOLS = {
     },
     'pdf-docs': {
         convert: [
+            { id: 'image-pdf', title: 'Image to PDF', desc: 'Convert image files to PDF format (1 image per PDF)', icon: '📄', color: 'var(--accent-green)', active: true },
+            { id: 'images-to-pdf', title: 'Merge Images to PDF', desc: 'Merge multiple images into a single PDF file', icon: '📑', color: 'var(--accent-blue)', active: true },
             { id: 'pdf-to-jpg', title: 'PDF to JPG', desc: 'Convert PDF pages to JPG images', icon: '📄', color: 'var(--accent-red)', active: true },
-            { id: 'images-to-pdf', title: 'Images to PDF', desc: 'Merge multiple images into one PDF', icon: '📑', color: 'var(--accent-blue)', active: true },
             { id: 'pdf-extract', title: 'Extract PDF Pages', desc: 'Split or extract specific pages from a PDF', icon: '✂️', color: 'var(--accent-purple)', active: true },
             { id: 'pdf-merge', title: 'Merge PDFs', desc: 'Combine multiple PDFs into one in your chosen order', icon: '🔗', color: 'var(--accent-blue)', active: true },
             { id: 'pdf-word', title: 'PDF to Word', desc: 'Convert PDF to editable Word document', icon: '📝', color: 'var(--accent-blue)', active: false },
@@ -139,14 +140,43 @@ function switchMode(mode) {
     hidePanel();
 }
 
+function getRecentTools() {
+    try {
+        return JSON.parse(localStorage.getItem('fileforge_recent_tools')) || [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function updateRecentTool(toolId) {
+    let recent = getRecentTools();
+    recent = recent.filter(id => id !== toolId);
+    recent.unshift(toolId);
+    recent = recent.slice(0, 50); // Keep top 50
+    localStorage.setItem('fileforge_recent_tools', JSON.stringify(recent));
+}
+
 function renderTools() {
     const grid = document.getElementById('tool-grid');
     if (!grid) return;
 
-    const tools = TOOLS[currentCategory]?.[currentMode] || [];
+    let tools = TOOLS[currentCategory]?.[currentMode] || [];
+    
+    // Sort tools based on recent usage
+    const recent = getRecentTools();
+    const sortedTools = [...tools].sort((a, b) => {
+        const aIndex = recent.indexOf(a.id);
+        const bIndex = recent.indexOf(b.id);
+        
+        if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+        if (aIndex !== -1) return -1;
+        if (bIndex !== -1) return 1;
+        return 0; // Keep original order for non-recent tools
+    });
+    
     grid.innerHTML = '';
 
-    tools.forEach(tool => {
+    sortedTools.forEach(tool => {
         const card = document.createElement('div');
         card.className = `tool-card ${tool.active ? '' : 'disabled'}`;
         card.style.setProperty('--card-accent', tool.color);
@@ -161,7 +191,10 @@ function renderTools() {
         `;
 
         if (tool.active) {
-            card.addEventListener('click', () => showPanel(tool.id));
+            card.addEventListener('click', () => {
+                updateRecentTool(tool.id);
+                showPanel(tool.id);
+            });
         } else {
             card.addEventListener('click', () => {
                 showToast(`${tool.title} is coming soon!`, 'info');
@@ -241,6 +274,7 @@ function showPanel(toolId) {
         'webp-ico': 'panel-img-convert',
         'svg-ico': 'panel-img-convert',
         'heic-ico': 'panel-img-convert',
+        'image-pdf': 'panel-img-convert',
         'ai-pdf': 'panel-ai-pdf',
         'ai-video': 'panel-ai-video',
     };
@@ -256,25 +290,26 @@ function showPanel(toolId) {
             if (panelId === 'panel-img-convert') {
                 const IMG_CONVERT_CONFIG = {
                     'png-jpg':   { title: 'PNG to JPG',   accept: '.png', hint: 'Supports .png files', format: 'jpg', btnText: '🖼️ Convert to JPG', ext: 'PNG' },
-                    'webp-jpg':  { title: 'WEBP to JPG',  accept: '.webp', hint: 'Supports .webp files', format: 'jpg', btnText: '🖼️ Convert to JPG', ext: 'WEBP' },
-                    'svg-jpg':   { title: 'SVG to JPG',   accept: '.svg', hint: 'Supports .svg files', format: 'jpg', btnText: '🖼️ Convert to JPG', ext: 'SVG' },
+                    'webp-jpg':  { title: 'WEBP to JPG',  accept: '.webp', hint: 'Supports .webp files', format: 'jpg', btnText: '🌐 Convert to JPG', ext: 'WEBP' },
+                    'svg-jpg':   { title: 'SVG to JPG',   accept: '.svg', hint: 'Supports .svg files', format: 'jpg', btnText: '✏️ Convert to JPG', ext: 'SVG' },
                     'heic-jpg':  { title: 'HEIC to JPG',  accept: '.heic,.heif', hint: 'Supports .heic files', format: 'jpg', btnText: '📸 Convert to JPG', ext: 'HEIC' },
                     'ico-jpg':   { title: 'ICO to JPG',   accept: '.ico', hint: 'Supports .ico files', format: 'jpg', btnText: '🎯 Convert to JPG', ext: 'ICO' },
                     'jpg-png':   { title: 'JPG to PNG',   accept: '.jpg,.jpeg', hint: 'Supports .jpg, .jpeg files', format: 'png', btnText: '🖼️ Convert to PNG', ext: 'JPG' },
-                    'webp-png':  { title: 'WEBP to PNG',  accept: '.webp', hint: 'Supports .webp files', format: 'png', btnText: '🖼️ Convert to PNG', ext: 'WEBP' },
-                    'svg-png':   { title: 'SVG to PNG',   accept: '.svg', hint: 'Supports .svg files', format: 'png', btnText: '🖼️ Convert to PNG', ext: 'SVG' },
+                    'webp-png':  { title: 'WEBP to PNG',  accept: '.webp', hint: 'Supports .webp files', format: 'png', btnText: '🌐 Convert to PNG', ext: 'WEBP' },
+                    'svg-png':   { title: 'SVG to PNG',   accept: '.svg', hint: 'Supports .svg files', format: 'png', btnText: '✏️ Convert to PNG', ext: 'SVG' },
                     'heic-png':  { title: 'HEIC to PNG',  accept: '.heic,.heif', hint: 'Supports .heic files', format: 'png', btnText: '📸 Convert to PNG', ext: 'HEIC' },
                     'ico-png':   { title: 'ICO to PNG',   accept: '.ico', hint: 'Supports .ico files', format: 'png', btnText: '🎯 Convert to PNG', ext: 'ICO' },
-                    'jpg-webp':  { title: 'JPG to WEBP',  accept: '.jpg,.jpeg', hint: 'Supports .jpg files', format: 'webp', btnText: '🌐 Convert to WEBP', ext: 'JPG' },
-                    'png-webp':  { title: 'PNG to WEBP',  accept: '.png', hint: 'Supports .png files', format: 'webp', btnText: '🌐 Convert to WEBP', ext: 'PNG' },
-                    'svg-webp':  { title: 'SVG to WEBP',  accept: '.svg', hint: 'Supports .svg files', format: 'webp', btnText: '🌐 Convert to WEBP', ext: 'SVG' },
+                    'jpg-webp':  { title: 'JPG to WEBP',  accept: '.jpg,.jpeg', hint: 'Supports .jpg files', format: 'webp', btnText: '🖼️ Convert to WEBP', ext: 'JPG' },
+                    'png-webp':  { title: 'PNG to WEBP',  accept: '.png', hint: 'Supports .png files', format: 'webp', btnText: '🖼️ Convert to WEBP', ext: 'PNG' },
+                    'svg-webp':  { title: 'SVG to WEBP',  accept: '.svg', hint: 'Supports .svg files', format: 'webp', btnText: '✏️ Convert to WEBP', ext: 'SVG' },
                     'heic-webp': { title: 'HEIC to WEBP', accept: '.heic,.heif', hint: 'Supports .heic files', format: 'webp', btnText: '📸 Convert to WEBP', ext: 'HEIC' },
                     'ico-webp':  { title: 'ICO to WEBP',  accept: '.ico', hint: 'Supports .ico files', format: 'webp', btnText: '🎯 Convert to WEBP', ext: 'ICO' },
-                    'png-ico':   { title: 'PNG to ICO',   accept: '.png', hint: 'Supports .png files', format: 'ico', btnText: '🎯 Convert to ICO', ext: 'PNG' },
-                    'jpg-ico':   { title: 'JPG to ICO',   accept: '.jpg,.jpeg', hint: 'Supports .jpg, .jpeg files', format: 'ico', btnText: '🎯 Convert to ICO', ext: 'JPG' },
-                    'webp-ico':  { title: 'WEBP to ICO',  accept: '.webp', hint: 'Supports .webp files', format: 'ico', btnText: '🎯 Convert to ICO', ext: 'WEBP' },
-                    'svg-ico':   { title: 'SVG to ICO',   accept: '.svg', hint: 'Supports .svg files', format: 'ico', btnText: '🎯 Convert to ICO', ext: 'SVG' },
-                    'heic-ico':  { title: 'HEIC to ICO',  accept: '.heic,.heif', hint: 'Supports .heic files', format: 'ico', btnText: '🎯 Convert to ICO', ext: 'HEIC' },
+                    'png-ico':   { title: 'PNG to ICO',   accept: '.png', hint: 'Supports .png files', format: 'ico', btnText: '🖼️ Convert to ICO', ext: 'PNG' },
+                    'jpg-ico':   { title: 'JPG to ICO',   accept: '.jpg,.jpeg', hint: 'Supports .jpg, .jpeg files', format: 'ico', btnText: '🖼️ Convert to ICO', ext: 'JPG' },
+                    'webp-ico':  { title: 'WEBP to ICO',  accept: '.webp', hint: 'Supports .webp files', format: 'ico', btnText: '🌐 Convert to ICO', ext: 'WEBP' },
+                    'svg-ico':   { title: 'SVG to ICO',   accept: '.svg', hint: 'Supports .svg files', format: 'ico', btnText: '✏️ Convert to ICO', ext: 'SVG' },
+                    'heic-ico':  { title: 'HEIC to ICO',  accept: '.heic,.heif', hint: 'Supports .heic files', format: 'ico', btnText: '📸 Convert to ICO', ext: 'HEIC' },
+                    'image-pdf': { title: 'Image to PDF', accept: '.jpg,.jpeg,.png,.webp,.heic,.heif,.svg', hint: 'Supports standard images', format: 'pdf', btnText: '📄 Convert to PDF', ext: 'IMG' },
                 };
                 const cfg = IMG_CONVERT_CONFIG[toolId];
                 if (cfg) {
@@ -356,6 +391,9 @@ function hidePanel() {
         aiSection.style.display = 'block';
     }
     currentPanel = null;
+    
+    // Re-render tools to update recent usage sorting
+    renderTools();
 }
 
 // ============================================================
