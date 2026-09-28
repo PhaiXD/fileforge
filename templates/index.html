@@ -50,6 +50,16 @@
             <p>Convert, compress, download, and summarize — all locally on your machine.</p>
         </section>
 
+        <!-- Search Bar -->
+        <div id="search-container" class="search-container">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-input" class="search-input" placeholder="Search tools... (e.g. PDF, YouTube, Compress)" autocomplete="off">
+                <button id="search-clear" class="search-clear" style="display:none;">✕</button>
+            </div>
+            <div id="search-results" class="search-results" style="display:none;"></div>
+        </div>
+
         <!-- Category Tabs -->
         <div class="category-tabs">
             <button class="category-tab active" data-category="video-audio">

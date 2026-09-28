@@ -193,6 +193,172 @@ function hidePanel() {
 }
 
 // ============================================================
+// Search Engine
+// ============================================================
+
+const CATEGORY_LABELS = {
+    'video-audio': 'Video & Audio',
+    'image': 'Image',
+    'pdf-docs': 'PDF & Documents',
+};
+
+const AI_TOOLS = [
+    { id: 'ai-pdf', title: 'Summarize PDF', desc: 'Extract and summarize PDF content using AI', icon: '📄', color: 'var(--accent-purple)', active: true, category: 'AI Tools', mode: 'ai' },
+    { id: 'ai-video', title: 'Summarize Video', desc: 'Summarize YouTube video content from subtitles or audio', icon: '🎬', color: 'var(--accent-purple)', active: true, category: 'AI Tools', mode: 'ai' },
+];
+
+function getAllTools() {
+    const allTools = [];
+    for (const [category, modes] of Object.entries(TOOLS)) {
+        for (const [mode, tools] of Object.entries(modes)) {
+            tools.forEach(tool => {
+                allTools.push({
+                    ...tool,
+                    category: CATEGORY_LABELS[category] || category,
+                    categoryKey: category,
+                    mode: mode,
+                });
+            });
+        }
+    }
+    // Also add AI tools
+    AI_TOOLS.forEach(t => allTools.push({ ...t }));
+    return allTools;
+}
+
+function highlightMatch(text, query) {
+    if (!query) return escapeHtml(text);
+    const escaped = escapeHtml(text);
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return escaped.replace(regex, '<span class="search-highlight">$1</span>');
+}
+
+function searchTools(query) {
+    const q = query.toLowerCase().trim();
+    if (!q) return [];
+    
+    const allTools = getAllTools();
+    return allTools.filter(tool => {
+        const title = tool.title.toLowerCase();
+        const desc = tool.desc.toLowerCase();
+        const cat = (tool.category || '').toLowerCase();
+        return title.includes(q) || desc.includes(q) || cat.includes(q);
+    });
+}
+
+function renderSearchResults(results, query) {
+    const container = document.getElementById('search-results');
+    if (!container) return;
+    
+    if (results.length === 0) {
+        container.innerHTML = `
+            <div class="search-no-results">
+                <span>🔍</span>
+                No tools found for "<strong>${escapeHtml(query)}</strong>"
+            </div>
+        `;
+        container.style.display = 'block';
+        return;
+    }
+    
+    container.innerHTML = '';
+    results.forEach(tool => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        item.innerHTML = `
+            <div class="search-result-icon" style="background:${tool.color}15; color:${tool.color};">
+                ${tool.icon}
+            </div>
+            <div class="search-result-info">
+                <div class="search-result-title">${highlightMatch(tool.title, query)}</div>
+                <div class="search-result-desc">${highlightMatch(tool.desc, query)}</div>
+            </div>
+            <span class="search-result-category">${escapeHtml(tool.category)}</span>
+            <span class="search-result-badge ${tool.active ? 'badge-active' : 'badge-soon'}">
+                ${tool.active ? '✓ Active' : '🔜 Soon'}
+            </span>
+        `;
+        
+        item.addEventListener('click', () => {
+            // Clear search
+            document.getElementById('search-input').value = '';
+            document.getElementById('search-clear').style.display = 'none';
+            container.style.display = 'none';
+            
+            if (!tool.active) {
+                showToast(`${tool.title} is coming soon!`, 'info');
+                return;
+            }
+            
+            // If it has a category key, switch to that category & mode first
+            if (tool.categoryKey) {
+                switchCategory(tool.categoryKey);
+                switchMode(tool.mode);
+            }
+            
+            showPanel(tool.id);
+        });
+        
+        container.appendChild(item);
+    });
+    container.style.display = 'block';
+}
+
+function initSearch() {
+    const input = document.getElementById('search-input');
+    const clearBtn = document.getElementById('search-clear');
+    const resultsContainer = document.getElementById('search-results');
+    if (!input) return;
+    
+    input.addEventListener('input', () => {
+        const query = input.value.trim();
+        clearBtn.style.display = query ? 'flex' : 'none';
+        
+        if (!query) {
+            resultsContainer.style.display = 'none';
+            return;
+        }
+        
+        const results = searchTools(query);
+        renderSearchResults(results, query);
+    });
+    
+    clearBtn.addEventListener('click', () => {
+        input.value = '';
+        clearBtn.style.display = 'none';
+        resultsContainer.style.display = 'none';
+        input.focus();
+    });
+    
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+        const container = document.getElementById('search-container');
+        if (container && !container.contains(e.target)) {
+            resultsContainer.style.display = 'none';
+        }
+    });
+    
+    // Re-open on focus if there's a query
+    input.addEventListener('focus', () => {
+        const query = input.value.trim();
+        if (query) {
+            const results = searchTools(query);
+            renderSearchResults(results, query);
+        }
+    });
+    
+    // Keyboard: Escape to close
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            input.value = '';
+            clearBtn.style.display = 'none';
+            resultsContainer.style.display = 'none';
+            input.blur();
+        }
+    });
+}
+
+// ============================================================
 // Settings Modal
 // ============================================================
 
@@ -356,6 +522,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Render initial tools
     renderTools();
+
+    // Initialize search
+    initSearch();
 
     // Initialize tool handlers
     initPdfToJpg();
