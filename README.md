@@ -33,7 +33,7 @@
 
 ---
 
-## 🚀 HOW TO USE
+## 🚀 HOW TO RUN
 
 FileForge can be run easily whether you are a general user wanting a ready-to-use app, or a developer wanting to tinker with the code.
 
@@ -60,7 +60,7 @@ If you want to run from source, you will need to set up the Python environment.
 **Installation:**
 1. Clone this repository to your local machine:
    ```bash
-   git clone https://github.com/yourusername/fileforge.git
+   git clone https://github.com/PhaiXD/fileforge.git
    cd fileforge
    ```
 2. Create a Virtual Environment and install dependencies:
@@ -83,7 +83,7 @@ python main.py
 ## 🛠️ Tech Stack
 - **Backend:** Python, FastAPI, Pillow (Image), PyMuPDF (PDF), FFmpeg (Media), yt-dlp
 - **Frontend:** HTML5, Vanilla JavaScript, CSS3 (CSS Variables, Grid, Flexbox)
-- **AI Integration:** Google Gemini 1.5 Pro / Flash
+- **AI Integration:** Google Gemini Pro / Flash
 
 ---
 
