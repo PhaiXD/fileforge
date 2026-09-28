@@ -85,9 +85,20 @@ async def serve_index():
 
 # --- Run Server ---
 if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host=HOST,
-        port=PORT,
-        reload=True,
-    )
+    import sys
+    is_frozen = getattr(sys, 'frozen', False)
+    
+    if is_frozen:
+        uvicorn.run(
+            app,
+            host=HOST,
+            port=PORT,
+            reload=False,
+        )
+    else:
+        uvicorn.run(
+            "main:app",
+            host=HOST,
+            port=PORT,
+            reload=True,
+        )

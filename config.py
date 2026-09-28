@@ -15,8 +15,16 @@ GITHUB_REPO_NAME = "fileforge"
 GITHUB_REPO_URL = f"https://github.com/{GITHUB_REPO_OWNER}/{GITHUB_REPO_NAME}"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO_OWNER}/{GITHUB_REPO_NAME}"
 
+import sys
+
 # --- Paths ---
-BASE_DIR = Path(__file__).resolve().parent
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    # Running as PyInstaller executable
+    BASE_DIR = Path(sys._MEIPASS)
+else:
+    # Running as a normal Python script
+    BASE_DIR = Path(__file__).resolve().parent
+
 TEMP_DIR = BASE_DIR / "temp"
 TEMPLATES_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
