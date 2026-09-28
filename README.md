@@ -33,7 +33,7 @@
 
 ---
 
-## 🚀 HOW TO RUN
+## 🚀 HOW TO INSTALL
 
 FileForge can be run easily whether you are a general user wanting a ready-to-use app, or a developer wanting to tinker with the code.
 
@@ -46,7 +46,7 @@ The easiest way to use FileForge is by downloading the pre-packaged executable. 
 4. Double-click on `FileForge.exe` to run the application.
 > The server will start in the background, and **your default web browser will automatically open to `http://localhost:8000`**. 🎉
 
-*(Placeholder: 🎞️ [Insert a GIF showing the ZIP extraction and double-clicking `FileForge.exe`])*
+<img width="800" height="450" alt="fileforge_how-to-install_converted" src="https://github.com/user-attachments/assets/21918adf-ee4d-4b15-a028-a24888f2a3cb" />
 
 ---
 
