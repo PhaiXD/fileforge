@@ -24,12 +24,20 @@ from config import (
 )
 from routers import pdf, image, media, ai, system
 
+import threading
+import webbrowser
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown lifecycle events."""
     # Startup: create temp directory
     TEMP_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Open browser automatically after a short delay
+    def open_browser():
+        webbrowser.open(f"http://{HOST}:{PORT}")
+    threading.Timer(1.5, open_browser).start()
+
     print(f"\n{'='*50}")
     print(f"  {APP_NAME} v{APP_VERSION}")
     print(f"  Running at http://{HOST}:{PORT}")
