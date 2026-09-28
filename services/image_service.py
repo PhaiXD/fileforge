@@ -55,6 +55,11 @@ async def compress_image(
         else:
             fmt = "JPEG"
 
+    # Force resize for ICO format to a maximum of 256x256 (standard max size)
+    if fmt == "ICO":
+        max_width = min(max_width or 256, 256)
+        max_height = min(max_height or 256, 256)
+
     # Resize if max dimensions are specified
     if max_width or max_height:
         w, h = img.size
@@ -94,7 +99,7 @@ async def compress_image(
     output_buffer.seek(0)
 
     # Generate output filename
-    ext_map = {"JPEG": ".jpg", "PNG": ".png", "WEBP": ".webp", "GIF": ".gif"}
+    ext_map = {"JPEG": ".jpg", "PNG": ".png", "WEBP": ".webp", "GIF": ".gif", "ICO": ".ico"}
     ext = ext_map.get(fmt, ".jpg")
     base_name = ".".join(filename.rsplit(".", 1)[:-1]) if "." in filename else filename
     suffix = "_converted" if output_format else "_compressed"
