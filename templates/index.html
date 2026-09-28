@@ -97,7 +97,6 @@
             </div>
             <div class="tool-grid">
                 <div class="tool-card ai-tool-card" data-tool="ai-pdf" style="--card-accent: var(--accent-purple)">
-                    <span class="tool-card-badge badge-active">✓ Active</span>
                     <div class="tool-card-icon" style="background:var(--accent-purple-light); color:var(--accent-purple)">📄</div>
                     <div class="tool-card-content">
                         <div class="tool-card-title">Summarize PDF</div>
@@ -105,7 +104,6 @@
                     </div>
                 </div>
                 <div class="tool-card ai-tool-card" data-tool="ai-video" style="--card-accent: var(--accent-purple)">
-                    <span class="tool-card-badge badge-active">✓ Active</span>
                     <div class="tool-card-icon" style="background:var(--accent-purple-light); color:var(--accent-purple)">🎬</div>
                     <div class="tool-card-content">
                         <div class="tool-card-title">Summarize Video</div>
@@ -117,8 +115,8 @@
 
         <!-- ==================== TOOL PANELS ==================== -->
 
-        <!-- ===== PDF to JPG ===== -->
-        <div id="panel-pdf-to-jpg" class="tool-panel">
+        <!-- ===== PDF to Image ===== -->
+        <div id="panel-pdf-to-image" class="tool-panel">
             <div class="tool-panel-header">
                 <div class="tool-panel-title">
                     <span style="font-size:28px">📄</span>
@@ -134,6 +132,7 @@
             </div>
             <div class="file-list"></div>
             <div class="page-selector"></div>
+            <input type="hidden" class="format-value" value="jpeg">
             <div style="display:flex; gap:24px; margin-top:20px; flex-wrap:wrap; align-items:end;">
                 <div class="option-group">
                     <label class="option-label">Resolution (DPI)</label>
@@ -146,6 +145,85 @@
             </div>
             <div style="margin-top:24px;">
                 <button class="btn-primary btn-convert" disabled>🔄 Convert to JPG</button>
+
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
+        <!-- ===== PDF to Word ===== -->
+        <div id="panel-pdf-word" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">📝</span>
+                    <h2>PDF to Word</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-zone-icon">📤</div>
+                <div class="upload-zone-text">Drop your PDF file here or click to browse</div>
+                <div class="upload-zone-hint">Supports .pdf files</div>
+                <input type="file" accept=".pdf" style="display:none">
+            </div>
+            <div class="file-list"></div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>📝 Convert to Word</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
+        <!-- ===== Word to PDF ===== -->
+        <div id="panel-word-pdf" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">📋</span>
+                    <h2>Word to PDF</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-zone-icon">📤</div>
+                <div class="upload-zone-text">Drop your Word file here or click to browse</div>
+                <div class="upload-zone-hint">Supports .doc, .docx files</div>
+                <input type="file" accept=".doc,.docx" style="display:none">
+            </div>
+            <div class="file-list"></div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>📋 Convert to PDF</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
+        <!-- ===== Excel to PDF ===== -->
+        <div id="panel-excel-pdf" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">📊</span>
+                    <h2>Excel to PDF</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-zone-icon">📤</div>
+                <div class="upload-zone-text">Drop your Excel file here or click to browse</div>
+                <div class="upload-zone-hint">Supports .xls, .xlsx files</div>
+                <input type="file" accept=".xls,.xlsx" style="display:none">
+            </div>
+            <div class="file-list"></div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>📊 Convert to PDF</button>
             </div>
             <div class="progress-container">
                 <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
@@ -309,25 +387,50 @@
             <div class="result-area"></div>
         </div>
 
-        <!-- ===== HEIC to JPG ===== -->
-        <div id="panel-heic-jpg" class="tool-panel">
+        <!-- ===== Generic Image Converter ===== -->
+        <div id="panel-img-convert" class="tool-panel">
             <div class="tool-panel-header">
                 <div class="tool-panel-title">
-                    <span style="font-size:28px">📸</span>
-                    <h2>HEIC to JPG</h2>
+                    <span style="font-size:28px">🖼️</span>
+                    <h2>Image Converter</h2>
                 </div>
                 <button class="tool-panel-back">← Back to Tools</button>
             </div>
             <div class="upload-zone">
                 <div class="upload-zone-icon">📤</div>
-                <div class="upload-zone-text">Drop your HEIC files here or click to browse</div>
-                <div class="upload-zone-hint">Supports .heic, .heif files — select multiple files</div>
-                <input type="file" accept=".heic,.heif" multiple style="display:none">
+                <div class="upload-zone-text">Drop your image files here or click to browse</div>
+                <div class="upload-zone-hint">Supports image files — select multiple files</div>
+                <input type="file" accept=".png,.jpg,.jpeg,.webp,.svg" multiple style="display:none">
             </div>
             <div class="file-list"></div>
-            <input type="hidden" class="format-select" value="jpg">
+            <input type="hidden" class="format-value" value="jpg">
             <div style="margin-top:24px;">
-                <button class="btn-primary btn-convert" disabled>📸 Convert to JPG</button>
+                <button class="btn-primary btn-convert" disabled>🖼️ Convert</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>        <!-- ===== Generic Media Converter ===== -->
+        <div id="panel-media-convert" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">🔄</span>
+                    <h2>Media Converter</h2>
+                </div>
+                <button class="tool-panel-back">← Back to Tools</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-zone-icon">📤</div>
+                <div class="upload-zone-text">Drop your media files here or click to browse</div>
+                <div class="upload-zone-hint">Supports media files</div>
+                <input type="file" accept=".mp4,.mov,.wav,.mp3" multiple style="display:none">
+            </div>
+            <div class="file-list"></div>
+            <input type="hidden" class="format-value" value="mp4">
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>🔄 Convert</button>
             </div>
             <div class="progress-container">
                 <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
@@ -335,34 +438,6 @@
             </div>
             <div class="result-area"></div>
         </div>
-
-        <!-- ===== HEIC to PNG ===== -->
-        <div id="panel-heic-png" class="tool-panel">
-            <div class="tool-panel-header">
-                <div class="tool-panel-title">
-                    <span style="font-size:28px">📸</span>
-                    <h2>HEIC to PNG</h2>
-                </div>
-                <button class="tool-panel-back">← Back to Tools</button>
-            </div>
-            <div class="upload-zone">
-                <div class="upload-zone-icon">📤</div>
-                <div class="upload-zone-text">Drop your HEIC files here or click to browse</div>
-                <div class="upload-zone-hint">Supports .heic, .heif files — select multiple files</div>
-                <input type="file" accept=".heic,.heif" multiple style="display:none">
-            </div>
-            <div class="file-list"></div>
-            <input type="hidden" class="format-select" value="png">
-            <div style="margin-top:24px;">
-                <button class="btn-primary btn-convert" disabled>📸 Convert to PNG</button>
-            </div>
-            <div class="progress-container">
-                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
-                <div class="progress-text">Starting...</div>
-            </div>
-            <div class="result-area"></div>
-        </div>
-
         <!-- ===== YouTube to MP4 ===== -->
         <div id="panel-yt-mp4" class="tool-panel">
             <div class="tool-panel-header">

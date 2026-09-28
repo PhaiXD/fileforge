@@ -103,62 +103,73 @@ async def merge_multiple_pdfs(files: List[tuple[bytes, str]], pages_list: List[s
 
 
 
-async def convert_pdf_to_jpg(
+async def convert_pdf_to_image(
     pdf_bytes: bytes,
     filename: str,
     dpi: int = 300,
     quality: int = 95,
     pages: Optional[str] = None,
+    target_format: str = "jpeg",
 ) -> dict:
     """
-    Convert PDF page(s) to JPG image(s).
+    Convert PDF page(s) to image(s) (JPEG/PNG).
     Returns a dict with:
-      - data: bytes (JPG for single page, ZIP for multiple)
-      - type: 'jpeg' or 'zip'
+      - data: bytes
+      - type: 'jpeg', 'png', or 'zip'
       - filename: suggested output filename
     """
+    target_format = target_format.lower()
+    if target_format == "jpg":
+        target_format = "jpeg"
+        
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     page_indices = _parse_page_range(pages, len(doc))
     base_name = Path(filename).stem
-    jpg_results = []
+    results = []
+    
+    ext = ".jpg" if target_format == "jpeg" else f".{target_format}"
 
     for page_num in page_indices:
         try:
             page = doc[page_num]
-            zoom = dpi / 72  # 72 is the default PDF resolution
+            zoom = dpi / 72
             matrix = fitz.Matrix(zoom, zoom)
             pix = page.get_pixmap(matrix=matrix)
 
-            # Convert pixmap to PIL Image for quality control
             if pix.n == 4:
-                img = Image.frombytes("RGBA", [pix.width, pix.height], pix.samples).convert("RGB")
+                img = Image.frombytes("RGBA", [pix.width, pix.height], pix.samples)
+                if target_format == "jpeg":
+                    bg = Image.new("RGB", img.size, (255, 255, 255))
+                    bg.paste(img, mask=img.split()[3])
+                    img = bg
             else:
                 img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
             img_buffer = io.BytesIO()
-            img.save(img_buffer, format="JPEG", quality=quality)
+            if target_format == "jpeg":
+                img.save(img_buffer, format="JPEG", quality=quality)
+            else:
+                img.save(img_buffer, format=target_format.upper(), optimize=True)
             img_buffer.seek(0)
 
-            jpg_name = f"{base_name}_page_{page_num + 1}.jpg"
-            jpg_results.append((jpg_name, img_buffer.read()))
+            img_name = f"{base_name}_page_{page_num + 1}{ext}"
+            results.append((img_name, img_buffer.read()))
         except Exception as e:
             print(f"Error converting page {page_num + 1}: {e}")
             continue
 
     doc.close()
 
-    if len(jpg_results) == 1:
-        # Single page: return JPG directly
+    if len(results) == 1:
         return {
-            "data": jpg_results[0][1],
-            "type": "jpeg",
-            "filename": jpg_results[0][0],
+            "data": results[0][1],
+            "type": target_format,
+            "filename": results[0][0],
         }
     else:
-        # Multiple pages: return ZIP
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-            for name, data in jpg_results:
+            for name, data in results:
                 zf.writestr(name, data)
         zip_buffer.seek(0)
         return {
@@ -166,6 +177,79 @@ async def convert_pdf_to_jpg(
             "type": "zip",
             "filename": f"{base_name}_images.zip",
         }
+
+
+async def convert_pdf_to_word(pdf_bytes: bytes, filename: str) -> bytes:
+    import tempfile
+    from pdf2docx import Converter
+    
+    with tempfile.TemporaryDirectory() as temp_dir:
+        pdf_path = os.path.join(temp_dir, "input.pdf")
+        docx_path = os.path.join(temp_dir, "output.docx")
+        
+        with open(pdf_path, "wb") as f:
+            f.write(pdf_bytes)
+            
+        cv = Converter(pdf_path)
+        cv.convert(docx_path)
+        cv.close()
+        
+        with open(docx_path, "rb") as f:
+            return f.read()
+
+
+async def convert_word_to_pdf(word_bytes: bytes, filename: str) -> bytes:
+    import tempfile
+    import pythoncom
+    from docx2pdf import convert
+    
+    with tempfile.TemporaryDirectory() as temp_dir:
+        safe_name = os.path.basename(filename)
+        word_path = os.path.abspath(os.path.join(temp_dir, safe_name))
+        pdf_path = os.path.abspath(os.path.join(temp_dir, "output.pdf"))
+        
+        with open(word_path, "wb") as f:
+            f.write(word_bytes)
+            
+        pythoncom.CoInitialize()
+        try:
+            convert(word_path, pdf_path)
+        finally:
+            pythoncom.CoUninitialize()
+            
+        with open(pdf_path, "rb") as f:
+            return f.read()
+
+
+async def convert_excel_to_pdf(excel_bytes: bytes, filename: str) -> bytes:
+    import tempfile
+    import pythoncom
+    import win32com.client
+    
+    with tempfile.TemporaryDirectory() as temp_dir:
+        safe_name = os.path.basename(filename)
+        excel_path = os.path.abspath(os.path.join(temp_dir, safe_name))
+        pdf_path = os.path.abspath(os.path.join(temp_dir, "output.pdf"))
+        
+        with open(excel_path, "wb") as f:
+            f.write(excel_bytes)
+            
+        pythoncom.CoInitialize()
+        try:
+            excel = win32com.client.DispatchEx("Excel.Application")
+            excel.Visible = False
+            excel.DisplayAlerts = False
+            
+            wb = excel.Workbooks.Open(excel_path)
+            # 0 corresponds to xlTypePDF
+            wb.ExportAsFixedFormat(0, pdf_path)
+            wb.Close(False)
+            excel.Quit()
+        finally:
+            pythoncom.CoUninitialize()
+            
+        with open(pdf_path, "rb") as f:
+            return f.read()
 
 
 async def merge_images_to_pdf(

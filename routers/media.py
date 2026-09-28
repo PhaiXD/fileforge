@@ -60,3 +60,46 @@ async def media_download(
     except Exception as e:
         traceback.print_exc()
         return {"success": False, "error": str(e)}
+
+from fastapi import UploadFile, File
+import shutil
+import uuid
+from config import TEMP_DIR
+from services.video_service import convert_media
+
+@router.post("/convert")
+async def media_convert(
+    file: UploadFile = File(...),
+    target_format: str = Form(...)
+):
+    """
+    Convert a media file (Video/Audio) locally using FFmpeg.
+    """
+    try:
+        # Save uploaded file
+        job_id = str(uuid.uuid4())[:8]
+        input_dir = TEMP_DIR / f"input_{job_id}"
+        input_dir.mkdir(parents=True, exist_ok=True)
+        input_path = str(input_dir / file.filename)
+        
+        with open(input_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        # Convert media
+        output_path, output_filename = await convert_media(input_path, target_format, file.filename)
+        
+        # Determine media type
+        media_type = "application/octet-stream"
+        if target_format == "mp3": media_type = "audio/mpeg"
+        elif target_format == "mp4": media_type = "video/mp4"
+        elif target_format == "gif": media_type = "image/gif"
+        
+        return FileResponse(
+            path=output_path,
+            filename=output_filename,
+            media_type=media_type,
+            headers={"Content-Disposition": _safe_content_disposition(output_filename)}
+        )
+    except Exception as e:
+        traceback.print_exc()
+        return {"success": False, "error": str(e)}

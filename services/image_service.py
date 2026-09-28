@@ -11,6 +11,7 @@ import pillow_heif
 # Register HEIF opener to allow PIL to read .heic and .heif files natively
 pillow_heif.register_heif_opener()
 
+
 async def compress_image(
     image_bytes: bytes,
     filename: str,
@@ -23,7 +24,21 @@ async def compress_image(
     Compress an image by reducing quality and optionally resizing.
     Returns (compressed_bytes, output_filename).
     """
-    img = Image.open(io.BytesIO(image_bytes))
+    ext_lower = filename.lower().rsplit(".", 1)[-1] if "." in filename else ""
+
+    # Handle SVG input: convert to raster via cairosvg
+    if ext_lower == "svg":
+        try:
+            import cairosvg
+        except ImportError:
+            raise ValueError("cairosvg is required for SVG conversion. Install with: pip install cairosvg")
+
+        # Convert SVG to PNG bytes first, then open as PIL Image
+        png_bytes = cairosvg.svg2png(bytestring=image_bytes)
+        img = Image.open(io.BytesIO(png_bytes))
+    else:
+        img = Image.open(io.BytesIO(image_bytes))
+
     original_format = img.format or "JPEG"
 
     # Determine output format
@@ -82,6 +97,7 @@ async def compress_image(
     ext_map = {"JPEG": ".jpg", "PNG": ".png", "WEBP": ".webp", "GIF": ".gif"}
     ext = ext_map.get(fmt, ".jpg")
     base_name = ".".join(filename.rsplit(".", 1)[:-1]) if "." in filename else filename
-    output_filename = f"{base_name}_compressed{ext}"
+    suffix = "_converted" if output_format else "_compressed"
+    output_filename = f"{base_name}{suffix}{ext}"
 
     return output_buffer.read(), output_filename

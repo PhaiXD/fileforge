@@ -9,7 +9,11 @@ from urllib.parse import quote
 from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import Response
 
-from services.pdf_service import compress_pdf, convert_pdf_to_jpg, extract_pdf_pages, get_pdf_page_count, merge_images_to_pdf, merge_multiple_pdfs
+from services.pdf_service import (
+    compress_pdf, convert_pdf_to_image, extract_pdf_pages, 
+    get_pdf_page_count, merge_images_to_pdf, merge_multiple_pdfs,
+    convert_pdf_to_word, convert_word_to_pdf, convert_excel_to_pdf
+)
 
 router = APIRouter(prefix="/api/pdf", tags=["PDF"])
 
@@ -24,24 +28,27 @@ def _safe_content_disposition(filename: str) -> str:
         return f"attachment; filename*=UTF-8''{encoded}"
 
 
-@router.post("/to-jpg")
-async def pdf_to_jpg(
+@router.post("/to-image")
+async def pdf_to_image(
     file: UploadFile = File(...),
     dpi: int = Form(300),
     pages: str = Form(''),
+    target_format: str = Form("jpeg"),
 ):
-    """Convert a PDF file to JPG images."""
+    """Convert a PDF file to JPG/PNG images."""
     if not file.filename.lower().endswith(".pdf"):
         return {"error": "Please upload a PDF file"}
 
     try:
         pdf_bytes = await file.read()
-        result = await convert_pdf_to_jpg(
-            pdf_bytes, file.filename, dpi=dpi, quality=95, pages=pages
+        result = await convert_pdf_to_image(
+            pdf_bytes, file.filename, dpi=dpi, quality=95, pages=pages, target_format=target_format
         )
 
         if result["type"] == "jpeg":
             media_type = "image/jpeg"
+        elif result["type"] == "png":
+            media_type = "image/png"
         else:
             media_type = "application/zip"
 
@@ -181,6 +188,65 @@ async def merge_pdfs_endpoint(
             content=merged_bytes,
             media_type="application/pdf",
             headers={"Content-Disposition": _safe_content_disposition("merged.pdf")},
+        )
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.post("/to-word")
+async def pdf_to_word_endpoint(file: UploadFile = File(...)):
+    """Convert a PDF to Word Document."""
+    if not file.filename.lower().endswith(".pdf"):
+        return {"error": "Please upload a PDF file"}
+    try:
+        pdf_bytes = await file.read()
+        docx_bytes = await convert_pdf_to_word(pdf_bytes, file.filename)
+        output_name = file.filename.rsplit(".", 1)[0] + ".docx"
+        
+        return Response(
+            content=docx_bytes,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": _safe_content_disposition(output_name)},
+        )
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.post("/word-to-pdf")
+async def word_to_pdf_endpoint(file: UploadFile = File(...)):
+    """Convert Word Document to PDF."""
+    ext = file.filename.lower().rsplit(".", 1)[-1] if "." in file.filename else ""
+    if ext not in ("doc", "docx"):
+        return {"error": "Please upload a Word document (.doc or .docx)"}
+    try:
+        word_bytes = await file.read()
+        pdf_bytes = await convert_word_to_pdf(word_bytes, file.filename)
+        output_name = file.filename.rsplit(".", 1)[0] + ".pdf"
+        
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": _safe_content_disposition(output_name)},
+        )
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.post("/excel-to-pdf")
+async def excel_to_pdf_endpoint(file: UploadFile = File(...)):
+    """Convert Excel Spreadsheet to PDF."""
+    ext = file.filename.lower().rsplit(".", 1)[-1] if "." in file.filename else ""
+    if ext not in ("xls", "xlsx"):
+        return {"error": "Please upload an Excel spreadsheet (.xls or .xlsx)"}
+    try:
+        excel_bytes = await file.read()
+        pdf_bytes = await convert_excel_to_pdf(excel_bytes, file.filename)
+        output_name = file.filename.rsplit(".", 1)[0] + ".pdf"
+        
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": _safe_content_disposition(output_name)},
         )
     except Exception as e:
         return {"error": str(e)}

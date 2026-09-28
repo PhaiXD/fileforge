@@ -4,10 +4,10 @@
  */
 
 /**
- * Initialize PDF to JPG conversion tool.
+ * Initialize PDF to Image conversion tool.
  */
-function initPdfToJpg() {
-    const panel = document.getElementById('panel-pdf-to-jpg');
+function initPdfToImage() {
+    const panel = document.getElementById('panel-pdf-to-image');
     if (!panel) return;
 
     const uploadZone = panel.querySelector('.upload-zone');
@@ -20,8 +20,21 @@ function initPdfToJpg() {
     const progressBar = panel.querySelector('.progress-bar');
     const progressText = panel.querySelector('.progress-text');
     const resultArea = panel.querySelector('.result-area');
+    const formatInput = panel.querySelector('.format-value');
 
     let selectedFile = null;
+    
+    // Clear state
+    panel._resetFiles = () => {
+        selectedFile = null;
+        renderFileList(fileList, []);
+        convertBtn.disabled = true;
+        hideResult(resultArea);
+        if (pageSelector) {
+            pageSelector.style.display = 'none';
+            pageSelector.innerHTML = '';
+        }
+    };
 
     // Upload zone events
     setupUploadZone(uploadZone, fileInput, async (file) => {
@@ -31,15 +44,10 @@ function initPdfToJpg() {
         }
         selectedFile = file;
         renderFileList(fileList, [file], () => {
-            selectedFile = null;
-            renderFileList(fileList, []);
-            convertBtn.disabled = true;
-            if (pageSelector) {
-                pageSelector.style.display = 'none';
-                pageSelector.innerHTML = '';
-            }
+            panel._resetFiles();
         });
         convertBtn.disabled = false;
+        hideResult(resultArea);
 
         // Fetch page count and show page selector
         if (pageSelector) {
@@ -74,17 +82,19 @@ function initPdfToJpg() {
 
         const pageInput = panel.querySelector('.page-range-input');
         const pagesVal = pageInput ? pageInput.value.trim() : '';
+        const targetFormat = formatInput ? formatInput.value : 'jpeg';
 
         const formData = new FormData();
         formData.append('file', selectedFile);
         formData.append('dpi', dpiSelect?.value || '300');
         formData.append('pages', pagesVal);
+        formData.append('target_format', targetFormat);
 
         try {
             convertBtn.disabled = true;
             showProgress(progressContainer, progressBar, progressText);
 
-            const result = await uploadFiles('/api/pdf/to-jpg', formData, (percent) => {
+            const result = await uploadFiles('/api/pdf/to-image', formData, (percent) => {
                 updateProgress(progressBar, progressText, percent, 'Uploading...');
             });
 
@@ -104,6 +114,82 @@ function initPdfToJpg() {
             hideProgress(progressContainer);
         }
     });
+}
+
+function createSingleFileConvertHandler(panelId, endpoint, validExts, loadingText, successText) {
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+
+    const uploadZone = panel.querySelector('.upload-zone');
+    const fileInput = panel.querySelector('input[type="file"]');
+    const fileList = panel.querySelector('.file-list');
+    const convertBtn = panel.querySelector('.btn-convert');
+    const progressContainer = panel.querySelector('.progress-container');
+    const progressBar = panel.querySelector('.progress-bar');
+    const progressText = panel.querySelector('.progress-text');
+    const resultArea = panel.querySelector('.result-area');
+
+    let selectedFile = null;
+
+    setupUploadZone(uploadZone, fileInput, async (file) => {
+        const ext = '.' + file.name.split('.').pop().toLowerCase();
+        if (!validExts.includes(ext)) {
+            showToast(`Please select a valid file (${validExts.join(', ')})`, 'error');
+            return;
+        }
+        selectedFile = file;
+        renderFileList(fileList, [file], () => {
+            selectedFile = null;
+            renderFileList(fileList, []);
+            convertBtn.disabled = true;
+            hideResult(resultArea);
+        });
+        convertBtn.disabled = false;
+        hideResult(resultArea);
+    }, false);
+
+    convertBtn.addEventListener('click', async () => {
+        if (!selectedFile) return;
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        try {
+            convertBtn.disabled = true;
+            showProgress(progressContainer, progressBar, progressText);
+
+            const result = await uploadFiles(endpoint, formData, (percent) => {
+                updateProgress(progressBar, progressText, percent, 'Uploading...');
+            });
+
+            setProgressIndeterminate(progressBar, progressText, loadingText);
+
+            if (result.error) {
+                showResult(resultArea, false, result.error);
+            } else {
+                hideProgress(progressContainer);
+                showResult(resultArea, true, successText);
+                downloadBlob(result.blob, result.filename);
+            }
+        } catch (err) {
+            showResult(resultArea, false, err.error || 'Conversion failed');
+        } finally {
+            convertBtn.disabled = false;
+            hideProgress(progressContainer);
+        }
+    });
+}
+
+function initPdfToWord() {
+    createSingleFileConvertHandler('panel-pdf-word', '/api/pdf/to-word', ['.pdf'], 'Converting to Word...', 'Converted to Word successfully!');
+}
+
+function initWordToPdf() {
+    createSingleFileConvertHandler('panel-word-pdf', '/api/pdf/word-to-pdf', ['.doc', '.docx'], 'Converting to PDF...', 'Converted to PDF successfully!');
+}
+
+function initExcelToPdf() {
+    createSingleFileConvertHandler('panel-excel-pdf', '/api/pdf/excel-to-pdf', ['.xls', '.xlsx'], 'Converting to PDF...', 'Converted to PDF successfully!');
 }
 
 /**
@@ -383,6 +469,207 @@ function initPdfExtract() {
             }
         } catch (err) {
             showResult(resultArea, false, err.error || 'Extraction failed');
+        } finally {
+            convertBtn.disabled = false;
+            hideProgress(progressContainer);
+        }
+    });
+}
+
+function initImageConvert() {
+    const panel = document.getElementById('panel-img-convert');
+    if (!panel) return;
+
+    const fileInput = panel.querySelector('input[type="file"]');
+    const uploadZone = panel.querySelector('.upload-zone');
+    const fileListContainer = panel.querySelector('.file-list');
+    const convertBtn = panel.querySelector('.btn-convert');
+    const progressContainer = panel.querySelector('.progress-container');
+    const progressBar = panel.querySelector('.progress-bar');
+    const progressText = panel.querySelector('.progress-text');
+    const resultArea = panel.querySelector('.result-area');
+    const formatInput = panel.querySelector('.format-value');
+
+    let currentFiles = [];
+
+    const resetFiles = () => {
+        currentFiles = [];
+        fileListContainer.innerHTML = '';
+        convertBtn.disabled = true;
+        hideResult(resultArea);
+    };
+    
+    // Expose reset so showPanel can call it when switching tools
+    panel._resetFiles = resetFiles;
+
+    setupUploadZone(uploadZone, fileInput, (files) => {
+        currentFiles = [...currentFiles, ...Array.from(files)];
+        
+        const updateList = () => {
+            renderFileList(fileListContainer, currentFiles, (index) => {
+                currentFiles.splice(index, 1);
+                updateList();
+                convertBtn.disabled = currentFiles.length === 0;
+            });
+        };
+        
+        updateList();
+        convertBtn.disabled = currentFiles.length === 0;
+        hideResult(resultArea);
+    }, true);
+
+    convertBtn.addEventListener('click', async () => {
+        if (currentFiles.length === 0) return;
+
+        const targetFormat = formatInput.value || 'jpg';
+
+        try {
+            convertBtn.disabled = true;
+            showProgress(progressContainer, progressBar, progressText);
+
+            const total = currentFiles.length;
+            
+            if (total === 1) {
+                const singleForm = new FormData();
+                singleForm.append('file', currentFiles[0]);
+                singleForm.append('target_format', targetFormat);
+                
+                const result = await uploadFiles('/api/image/convert', singleForm, (percent) => {
+                    updateProgress(progressBar, progressText, percent, 'Converting...');
+                });
+                
+                if (result.error) throw new Error(result.error);
+                downloadBlob(result.blob, result.filename);
+            } else {
+                const zip = new JSZip();
+                let hasError = false;
+                
+                for (let i = 0; i < total; i++) {
+                    const pct = Math.round((i / total) * 100);
+                    updateProgress(progressBar, progressText, pct, `Converting ${i+1}/${total}...`);
+                    
+                    const singleForm = new FormData();
+                    singleForm.append('file', currentFiles[i]);
+                    singleForm.append('target_format', targetFormat);
+                    
+                    const result = await uploadFiles('/api/image/convert', singleForm);
+                    if (result.error) {
+                        hasError = true;
+                        continue;
+                    }
+                    zip.file(result.filename, result.blob);
+                }
+                
+                updateProgress(progressBar, progressText, 100, 'Zipping files...');
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+                downloadBlob(zipBlob, `converted_images.zip`);
+                if (hasError) throw new Error("Some files failed to convert.");
+            }
+
+            hideProgress(progressContainer);
+            showResult(resultArea, true, 'Converted successfully!');
+        } catch (err) {
+            showResult(resultArea, false, err.message || 'Conversion failed');
+        } finally {
+            convertBtn.disabled = false;
+            hideProgress(progressContainer);
+        }
+    });
+}
+
+function initMediaConvert() {
+    const panel = document.getElementById('panel-media-convert');
+    if (!panel) return;
+
+    const uploadZone = panel.querySelector('.upload-zone');
+    const fileInput = panel.querySelector('input[type="file"]');
+    const fileListContainer = panel.querySelector('.file-list');
+    const convertBtn = panel.querySelector('.btn-convert');
+    const progressContainer = panel.querySelector('.progress-container');
+    const progressBar = panel.querySelector('.progress-bar');
+    const progressText = panel.querySelector('.progress-text');
+    const resultArea = panel.querySelector('.result-area');
+    const formatInput = panel.querySelector('.format-value');
+
+    let currentFiles = [];
+
+    const resetFiles = () => {
+        currentFiles = [];
+        renderFileList(fileListContainer, []);
+        convertBtn.disabled = true;
+        hideResult(resultArea);
+    };
+    
+    panel._resetFiles = resetFiles;
+
+    setupUploadZone(uploadZone, fileInput, (files) => {
+        currentFiles = [...currentFiles, ...Array.from(files)];
+        
+        const updateList = () => {
+            renderFileList(fileListContainer, currentFiles, (index) => {
+                currentFiles.splice(index, 1);
+                updateList();
+                convertBtn.disabled = currentFiles.length === 0;
+            });
+        };
+        
+        updateList();
+        convertBtn.disabled = currentFiles.length === 0;
+        hideResult(resultArea);
+    }, true);
+
+    convertBtn.addEventListener('click', async () => {
+        if (currentFiles.length === 0) return;
+
+        const targetFormat = formatInput.value || 'mp4';
+
+        try {
+            convertBtn.disabled = true;
+            showProgress(progressContainer, progressBar, progressText);
+
+            const total = currentFiles.length;
+            
+            if (total === 1) {
+                const singleForm = new FormData();
+                singleForm.append('file', currentFiles[0]);
+                singleForm.append('target_format', targetFormat);
+                
+                const result = await uploadFiles('/api/media/convert', singleForm, (percent) => {
+                    updateProgress(progressBar, progressText, percent, 'Converting...');
+                });
+                
+                if (result.error) throw new Error(result.error);
+                downloadBlob(result.blob, result.filename);
+            } else {
+                const zip = new JSZip();
+                let hasError = false;
+                
+                for (let i = 0; i < total; i++) {
+                    const pct = Math.round((i / total) * 100);
+                    updateProgress(progressBar, progressText, pct, `Converting ${i+1}/${total}...`);
+                    
+                    const singleForm = new FormData();
+                    singleForm.append('file', currentFiles[i]);
+                    singleForm.append('target_format', targetFormat);
+                    
+                    const result = await uploadFiles('/api/media/convert', singleForm);
+                    if (result.error) {
+                        hasError = true;
+                        continue;
+                    }
+                    zip.file(result.filename, result.blob);
+                }
+                
+                updateProgress(progressBar, progressText, 100, 'Zipping files...');
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+                downloadBlob(zipBlob, `converted_media.zip`);
+                if (hasError) throw new Error("Some files failed to convert.");
+            }
+
+            hideProgress(progressContainer);
+            showResult(resultArea, true, 'Converted successfully!');
+        } catch (err) {
+            showResult(resultArea, false, err.message || 'Conversion failed');
         } finally {
             convertBtn.disabled = false;
             hideProgress(progressContainer);

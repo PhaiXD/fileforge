@@ -45,10 +45,28 @@ const TOOLS = {
             { id: 'yt-mp3', title: 'YouTube to MP3', desc: 'Extract audio from YouTube videos', icon: '🎵', color: 'var(--accent-red)', active: true },
             { id: 'tt-mp4', title: 'TikTok to MP4', desc: 'Download TikTok videos', icon: '📱', color: 'var(--accent-purple)', active: true },
             { id: 'tt-mp3', title: 'TikTok to MP3', desc: 'Extract audio from TikTok videos', icon: '🎶', color: 'var(--accent-purple)', active: true },
-            { id: 'mp4-mp3', title: 'MP4 to MP3', desc: 'Convert video files to audio', icon: '🔄', color: 'var(--accent-blue)', active: false },
-            { id: 'mp4-gif', title: 'MP4 to GIF', desc: 'Convert video clips to animated GIFs', icon: '🖼️', color: 'var(--accent-yellow)', active: false },
-            { id: 'wav-mp3', title: 'WAV to MP3', desc: 'Convert WAV audio to MP3', icon: '🎧', color: 'var(--accent-teal)', active: false },
-            { id: 'mov-mp4', title: 'MOV to MP4', desc: 'Convert QuickTime to MP4', icon: '📹', color: 'var(--accent-green)', active: false },
+            // Extract Audio
+            { id: 'mp4-mp3', title: 'MP4 to MP3', desc: 'Extract audio from MP4 video', icon: '🎧', color: 'var(--accent-blue)', active: true },
+            { id: 'mp4-m4a', title: 'MP4 to M4A', desc: 'Extract audio from MP4 video (AAC)', icon: '🎧', color: 'var(--accent-blue)', active: true },
+            { id: 'mov-mp3', title: 'MOV to MP3', desc: 'Extract audio from MOV video', icon: '🎧', color: 'var(--accent-blue)', active: true },
+            { id: 'mov-m4a', title: 'MOV to M4A', desc: 'Extract audio from MOV video (AAC)', icon: '🎧', color: 'var(--accent-blue)', active: true },
+            { id: 'webm-mp3', title: 'WEBM to MP3', desc: 'Extract audio from WEBM video', icon: '🎧', color: 'var(--accent-blue)', active: true },
+            { id: 'mkv-mp3', title: 'MKV to MP3', desc: 'Extract audio from MKV video', icon: '🎧', color: 'var(--accent-blue)', active: true },
+            // Video to GIF
+            { id: 'mp4-gif', title: 'MP4 to GIF', desc: 'Convert MP4 to animated GIF', icon: '🖼️', color: 'var(--accent-yellow)', active: true },
+            { id: 'mov-gif', title: 'MOV to GIF', desc: 'Convert MOV to animated GIF', icon: '🖼️', color: 'var(--accent-yellow)', active: true },
+            { id: 'webm-gif', title: 'WEBM to GIF', desc: 'Convert WEBM to animated GIF', icon: '🖼️', color: 'var(--accent-yellow)', active: true },
+            // Video to MP4
+            { id: 'mov-mp4', title: 'MOV to MP4', desc: 'Convert QuickTime MOV to MP4', icon: '📹', color: 'var(--accent-green)', active: true },
+            { id: 'webm-mp4', title: 'WEBM to MP4', desc: 'Convert WEBM to MP4', icon: '📹', color: 'var(--accent-green)', active: true },
+            { id: 'mkv-mp4', title: 'MKV to MP4', desc: 'Convert MKV to MP4', icon: '📹', color: 'var(--accent-green)', active: true },
+            { id: 'avi-mp4', title: 'AVI to MP4', desc: 'Convert AVI to MP4', icon: '📹', color: 'var(--accent-green)', active: true },
+            // Audio to Audio
+            { id: 'wav-mp3', title: 'WAV to MP3', desc: 'Convert WAV audio to MP3', icon: '🎵', color: 'var(--accent-teal)', active: true },
+            { id: 'wav-m4a', title: 'WAV to M4A', desc: 'Convert WAV audio to M4A (AAC)', icon: '🎵', color: 'var(--accent-teal)', active: true },
+            { id: 'm4a-mp3', title: 'M4A to MP3', desc: 'Convert M4A audio to MP3', icon: '🎵', color: 'var(--accent-teal)', active: true },
+            { id: 'ogg-mp3', title: 'OGG to MP3', desc: 'Convert OGG audio to MP3', icon: '🎵', color: 'var(--accent-teal)', active: true },
+            { id: 'flac-mp3', title: 'FLAC to MP3', desc: 'Convert FLAC audio to MP3', icon: '🎵', color: 'var(--accent-teal)', active: true },
         ],
         compress: [
             { id: 'video-compress', title: 'Video Compressor', desc: 'Reduce video file size', icon: '🗜️', color: 'var(--accent-blue)', active: false },
@@ -57,12 +75,21 @@ const TOOLS = {
     },
     'image': {
         convert: [
-            { id: 'png-jpg', title: 'PNG to JPG', desc: 'Convert PNG images to JPG format', icon: '🖼️', color: 'var(--accent-blue)', active: false },
-            { id: 'jpg-png', title: 'JPG to PNG', desc: 'Convert JPG images to PNG format', icon: '🖼️', color: 'var(--accent-green)', active: false },
-            { id: 'webp-png', title: 'WEBP to PNG', desc: 'Convert WebP images to PNG', icon: '🌐', color: 'var(--accent-purple)', active: false },
-            { id: 'svg-png', title: 'SVG to PNG', desc: 'Rasterize SVG to PNG image', icon: '✏️', color: 'var(--accent-yellow)', active: false },
+            // To JPG
+            { id: 'png-jpg', title: 'PNG to JPG', desc: 'Convert PNG images to JPG format', icon: '🖼️', color: 'var(--accent-blue)', active: true },
+            { id: 'webp-jpg', title: 'WEBP to JPG', desc: 'Convert WebP images to JPG format', icon: '🌐', color: 'var(--accent-blue)', active: true },
+            { id: 'svg-jpg', title: 'SVG to JPG', desc: 'Rasterize SVG to JPG image', icon: '✏️', color: 'var(--accent-blue)', active: true },
             { id: 'heic-jpg', title: 'HEIC to JPG', desc: 'Convert Apple HEIC to JPG', icon: '📸', color: 'var(--accent-teal)', active: true },
-            { id: 'heic-png', title: 'HEIC to PNG', desc: 'Convert Apple HEIC to PNG', icon: '📸', color: 'var(--accent-purple)', active: true },
+            // To PNG
+            { id: 'jpg-png', title: 'JPG to PNG', desc: 'Convert JPG images to PNG format', icon: '🖼️', color: 'var(--accent-green)', active: true },
+            { id: 'webp-png', title: 'WEBP to PNG', desc: 'Convert WebP images to PNG', icon: '🌐', color: 'var(--accent-green)', active: true },
+            { id: 'svg-png', title: 'SVG to PNG', desc: 'Rasterize SVG to PNG image', icon: '✏️', color: 'var(--accent-green)', active: true },
+            { id: 'heic-png', title: 'HEIC to PNG', desc: 'Convert Apple HEIC to PNG', icon: '📸', color: 'var(--accent-teal)', active: true },
+            // To WEBP
+            { id: 'jpg-webp', title: 'JPG to WEBP', desc: 'Convert JPG images to WebP format', icon: '🖼️', color: 'var(--accent-purple)', active: true },
+            { id: 'png-webp', title: 'PNG to WEBP', desc: 'Convert PNG images to WebP format', icon: '🖼️', color: 'var(--accent-purple)', active: true },
+            { id: 'svg-webp', title: 'SVG to WEBP', desc: 'Rasterize SVG to WebP image', icon: '✏️', color: 'var(--accent-purple)', active: true },
+            { id: 'heic-webp', title: 'HEIC to WEBP', desc: 'Convert Apple HEIC to WebP', icon: '📸', color: 'var(--accent-teal)', active: true },
         ],
         compress: [
             { id: 'image-compress', title: 'Image Compressor', desc: 'Reduce image file size while preserving quality', icon: '📐', color: 'var(--accent-green)', active: true },
@@ -76,7 +103,7 @@ const TOOLS = {
             { id: 'pdf-merge', title: 'Merge PDFs', desc: 'Combine multiple PDFs into one in your chosen order', icon: '🔗', color: 'var(--accent-blue)', active: true },
             { id: 'pdf-word', title: 'PDF to Word', desc: 'Convert PDF to editable Word document', icon: '📝', color: 'var(--accent-blue)', active: false },
             { id: 'word-pdf', title: 'Word to PDF', desc: 'Convert Word documents to PDF', icon: '📋', color: 'var(--accent-red)', active: false },
-            { id: 'pdf-png', title: 'PDF to PNG', desc: 'Convert PDF pages to PNG images', icon: '🖼️', color: 'var(--accent-green)', active: false },
+            { id: 'pdf-png', title: 'PDF to PNG', desc: 'Convert PDF pages to PNG images', icon: '🖼️', color: 'var(--accent-green)', active: true },
             { id: 'excel-pdf', title: 'Excel to PDF', desc: 'Convert spreadsheets to PDF', icon: '📊', color: 'var(--accent-green)', active: false },
         ],
         compress: [
@@ -115,9 +142,6 @@ function renderTools() {
         card.className = `tool-card ${tool.active ? '' : 'disabled'}`;
         card.style.setProperty('--card-accent', tool.color);
         card.innerHTML = `
-            <span class="tool-card-badge ${tool.active ? 'badge-active' : 'badge-soon'}">
-                ${tool.active ? '✓ Active' : '🔜 Soon'}
-            </span>
             <div class="tool-card-icon" style="background:${tool.color}15; color:${tool.color}">
                 ${tool.icon}
             </div>
@@ -160,14 +184,46 @@ function showPanel(toolId) {
         'yt-mp3': 'panel-yt-mp3',
         'tt-mp4': 'panel-tt-mp4',
         'tt-mp3': 'panel-tt-mp3',
-        'pdf-to-jpg': 'panel-pdf-to-jpg',
+        'mp4-mp3': 'panel-media-convert',
+        'mp4-m4a': 'panel-media-convert',
+        'mov-mp3': 'panel-media-convert',
+        'mov-m4a': 'panel-media-convert',
+        'webm-mp3': 'panel-media-convert',
+        'mkv-mp3': 'panel-media-convert',
+        'mp4-gif': 'panel-media-convert',
+        'mov-gif': 'panel-media-convert',
+        'webm-gif': 'panel-media-convert',
+        'mov-mp4': 'panel-media-convert',
+        'webm-mp4': 'panel-media-convert',
+        'mkv-mp4': 'panel-media-convert',
+        'avi-mp4': 'panel-media-convert',
+        'wav-mp3': 'panel-media-convert',
+        'wav-m4a': 'panel-media-convert',
+        'm4a-mp3': 'panel-media-convert',
+        'ogg-mp3': 'panel-media-convert',
+        'flac-mp3': 'panel-media-convert',
+        'pdf-to-jpg': 'panel-pdf-to-image',
+        'pdf-png': 'panel-pdf-to-image',
+        'pdf-word': 'panel-pdf-word',
+        'word-pdf': 'panel-word-pdf',
+        'excel-pdf': 'panel-excel-pdf',
         'images-to-pdf': 'panel-images-to-pdf',
         'pdf-extract': 'panel-pdf-extract',
         'pdf-merge': 'panel-pdf-merge',
         'pdf-compress': 'panel-pdf-compress',
         'image-compress': 'panel-image-compress',
-        'heic-jpg': 'panel-heic-jpg',
-        'heic-png': 'panel-heic-png',
+        'png-jpg': 'panel-img-convert',
+        'webp-jpg': 'panel-img-convert',
+        'svg-jpg': 'panel-img-convert',
+        'heic-jpg': 'panel-img-convert',
+        'jpg-png': 'panel-img-convert',
+        'webp-png': 'panel-img-convert',
+        'svg-png': 'panel-img-convert',
+        'heic-png': 'panel-img-convert',
+        'jpg-webp': 'panel-img-convert',
+        'png-webp': 'panel-img-convert',
+        'svg-webp': 'panel-img-convert',
+        'heic-webp': 'panel-img-convert',
         'ai-pdf': 'panel-ai-pdf',
         'ai-video': 'panel-ai-video',
     };
@@ -178,6 +234,91 @@ function showPanel(toolId) {
         if (panel) {
             panel.classList.add('active');
             currentPanel = toolId;
+            
+            // Configure generic image convert panel
+            if (panelId === 'panel-img-convert') {
+                const IMG_CONVERT_CONFIG = {
+                    'png-jpg':   { title: 'PNG to JPG',   accept: '.png', hint: 'Supports .png files', format: 'jpg', btnText: '🖼️ Convert to JPG', ext: 'PNG' },
+                    'webp-jpg':  { title: 'WEBP to JPG',  accept: '.webp', hint: 'Supports .webp files', format: 'jpg', btnText: '🖼️ Convert to JPG', ext: 'WEBP' },
+                    'svg-jpg':   { title: 'SVG to JPG',   accept: '.svg', hint: 'Supports .svg files', format: 'jpg', btnText: '🖼️ Convert to JPG', ext: 'SVG' },
+                    'heic-jpg':  { title: 'HEIC to JPG',  accept: '.heic,.heif', hint: 'Supports .heic files', format: 'jpg', btnText: '📸 Convert to JPG', ext: 'HEIC' },
+                    'jpg-png':   { title: 'JPG to PNG',   accept: '.jpg,.jpeg', hint: 'Supports .jpg, .jpeg files', format: 'png', btnText: '🖼️ Convert to PNG', ext: 'JPG' },
+                    'webp-png':  { title: 'WEBP to PNG',  accept: '.webp', hint: 'Supports .webp files', format: 'png', btnText: '🖼️ Convert to PNG', ext: 'WEBP' },
+                    'svg-png':   { title: 'SVG to PNG',   accept: '.svg', hint: 'Supports .svg files', format: 'png', btnText: '🖼️ Convert to PNG', ext: 'SVG' },
+                    'heic-png':  { title: 'HEIC to PNG',  accept: '.heic,.heif', hint: 'Supports .heic files', format: 'png', btnText: '📸 Convert to PNG', ext: 'HEIC' },
+                    'jpg-webp':  { title: 'JPG to WEBP',  accept: '.jpg,.jpeg', hint: 'Supports .jpg files', format: 'webp', btnText: '🌐 Convert to WEBP', ext: 'JPG' },
+                    'png-webp':  { title: 'PNG to WEBP',  accept: '.png', hint: 'Supports .png files', format: 'webp', btnText: '🌐 Convert to WEBP', ext: 'PNG' },
+                    'svg-webp':  { title: 'SVG to WEBP',  accept: '.svg', hint: 'Supports .svg files', format: 'webp', btnText: '🌐 Convert to WEBP', ext: 'SVG' },
+                    'heic-webp': { title: 'HEIC to WEBP', accept: '.heic,.heif', hint: 'Supports .heic files', format: 'webp', btnText: '📸 Convert to WEBP', ext: 'HEIC' },
+                };
+                const cfg = IMG_CONVERT_CONFIG[toolId];
+                if (cfg) {
+                    panel.querySelector('h2').textContent = cfg.title;
+                    const iconSpan = panel.querySelector('.tool-panel-title span');
+                    if (iconSpan) iconSpan.textContent = cfg.btnText.split(' ')[0];
+                    panel.querySelector('.upload-zone-hint').textContent = cfg.hint;
+                    panel.querySelector('input[type="file"]').setAttribute('accept', cfg.accept);
+                    panel.querySelector('.format-value').value = cfg.format;
+                    panel.querySelector('.btn-convert').innerHTML = cfg.btnText;
+                    
+                    // Clear previous files when switching tools
+                    if (panel._resetFiles) panel._resetFiles();
+                }
+            }
+
+            // Configure generic media convert panel
+            if (panelId === 'panel-media-convert') {
+                const MEDIA_CONVERT_CONFIG = {
+                    'mp4-mp3':  { title: 'MP4 to MP3',  accept: '.mp4',  hint: 'Supports .mp4 video files', format: 'mp3', btnText: '🎧 Convert to MP3' },
+                    'mp4-m4a':  { title: 'MP4 to M4A',  accept: '.mp4',  hint: 'Supports .mp4 video files', format: 'm4a', btnText: '🎧 Convert to M4A' },
+                    'mov-mp3':  { title: 'MOV to MP3',  accept: '.mov',  hint: 'Supports .mov video files', format: 'mp3', btnText: '🎧 Convert to MP3' },
+                    'mov-m4a':  { title: 'MOV to M4A',  accept: '.mov',  hint: 'Supports .mov video files', format: 'm4a', btnText: '🎧 Convert to M4A' },
+                    'webm-mp3': { title: 'WEBM to MP3', accept: '.webm', hint: 'Supports .webm video files', format: 'mp3', btnText: '🎧 Convert to MP3' },
+                    'mkv-mp3':  { title: 'MKV to MP3',  accept: '.mkv',  hint: 'Supports .mkv video files', format: 'mp3', btnText: '🎧 Convert to MP3' },
+                    'mp4-gif':  { title: 'MP4 to GIF',  accept: '.mp4',  hint: 'Supports .mp4 video files', format: 'gif', btnText: '🖼️ Convert to GIF' },
+                    'mov-gif':  { title: 'MOV to GIF',  accept: '.mov',  hint: 'Supports .mov video files', format: 'gif', btnText: '🖼️ Convert to GIF' },
+                    'webm-gif': { title: 'WEBM to GIF', accept: '.webm', hint: 'Supports .webm video files', format: 'gif', btnText: '🖼️ Convert to GIF' },
+                    'mov-mp4':  { title: 'MOV to MP4',  accept: '.mov',  hint: 'Supports .mov video files', format: 'mp4', btnText: '📹 Convert to MP4' },
+                    'webm-mp4': { title: 'WEBM to MP4', accept: '.webm', hint: 'Supports .webm video files', format: 'mp4', btnText: '📹 Convert to MP4' },
+                    'mkv-mp4':  { title: 'MKV to MP4',  accept: '.mkv',  hint: 'Supports .mkv video files', format: 'mp4', btnText: '📹 Convert to MP4' },
+                    'avi-mp4':  { title: 'AVI to MP4',  accept: '.avi',  hint: 'Supports .avi video files', format: 'mp4', btnText: '📹 Convert to MP4' },
+                    'wav-mp3':  { title: 'WAV to MP3',  accept: '.wav',  hint: 'Supports .wav audio files', format: 'mp3', btnText: '🎵 Convert to MP3' },
+                    'wav-m4a':  { title: 'WAV to M4A',  accept: '.wav',  hint: 'Supports .wav audio files', format: 'm4a', btnText: '🎵 Convert to M4A' },
+                    'm4a-mp3':  { title: 'M4A to MP3',  accept: '.m4a',  hint: 'Supports .m4a audio files', format: 'mp3', btnText: '🎵 Convert to MP3' },
+                    'ogg-mp3':  { title: 'OGG to MP3',  accept: '.ogg',  hint: 'Supports .ogg audio files', format: 'mp3', btnText: '🎵 Convert to MP3' },
+                    'flac-mp3': { title: 'FLAC to MP3', accept: '.flac', hint: 'Supports .flac audio files', format: 'mp3', btnText: '🎵 Convert to MP3' },
+                };
+                const cfg = MEDIA_CONVERT_CONFIG[toolId];
+                if (cfg) {
+                    panel.querySelector('h2').textContent = cfg.title;
+                    const iconSpan = panel.querySelector('.tool-panel-title span');
+                    if (iconSpan) iconSpan.textContent = cfg.btnText.split(' ')[0];
+                    panel.querySelector('.upload-zone-hint').textContent = cfg.hint;
+                    panel.querySelector('input[type="file"]').setAttribute('accept', cfg.accept);
+                    panel.querySelector('.format-value').value = cfg.format;
+                    panel.querySelector('.btn-convert').innerHTML = cfg.btnText;
+                    
+                    if (panel._resetFiles) panel._resetFiles();
+                }
+            }
+
+            // Configure generic PDF to Image panel
+            if (panelId === 'panel-pdf-to-image') {
+                const PDF_IMAGE_CONFIG = {
+                    'pdf-to-jpg': { title: 'PDF to JPG', format: 'jpeg', btnText: '📄 Convert to JPG', hint: 'Convert PDF pages to JPG images' },
+                    'pdf-png':    { title: 'PDF to PNG', format: 'png',  btnText: '📄 Convert to PNG', hint: 'Convert PDF pages to PNG images' },
+                };
+                const cfg = PDF_IMAGE_CONFIG[toolId];
+                if (cfg) {
+                    panel.querySelector('h2').textContent = cfg.title;
+                    panel.querySelector('.tool-panel-title span').textContent = '🖼️';
+                    panel.querySelector('.upload-zone-hint').textContent = cfg.hint;
+                    panel.querySelector('.format-value').value = cfg.format;
+                    panel.querySelector('.btn-convert').innerHTML = cfg.btnText;
+                    
+                    if (panel._resetFiles) panel._resetFiles();
+                }
+            }
         }
     }
 }
@@ -274,9 +415,6 @@ function renderSearchResults(results, query) {
                 <div class="search-result-desc">${highlightMatch(tool.desc, query)}</div>
             </div>
             <span class="search-result-category">${escapeHtml(tool.category)}</span>
-            <span class="search-result-badge ${tool.active ? 'badge-active' : 'badge-soon'}">
-                ${tool.active ? '✓ Active' : '🔜 Soon'}
-            </span>
         `;
         
         item.addEventListener('click', () => {
@@ -527,13 +665,18 @@ document.addEventListener('DOMContentLoaded', () => {
     initSearch();
 
     // Initialize tool handlers
-    initPdfToJpg();
+    if (typeof initPdfToImage === 'function') initPdfToImage();
+    if (typeof initPdfToWord === 'function') initPdfToWord();
+    if (typeof initWordToPdf === 'function') initWordToPdf();
+    if (typeof initExcelToPdf === 'function') initExcelToPdf();
     initImagesToPdf();
     initPdfExtract();
     if (typeof initPdfMerge === 'function') initPdfMerge();
     initPdfCompressor();
     initImageCompressor();
     if (typeof initHeicConvert === 'function') initHeicConvert();
+    if (typeof initImageConvert === 'function') initImageConvert();
+    if (typeof initMediaConvert === 'function') initMediaConvert();
     initMediaDownloader('yt-mp4');
     initMediaDownloader('yt-mp3');
     initMediaDownloader('tt-mp4');
