@@ -2,7 +2,7 @@
 
 **FileForge** is a fast, powerful, and privacy-first local web application for all your daily file operations. Built with **FastAPI** and **Vanilla JS**, it runs entirely on your local machine—meaning your files never leave your computer.
 
-*(Placeholder: 📸 [Insert a full screenshot of the main application here])*
+<img width="1916" height="940" alt="screenshot_main_app" src="https://github.com/user-attachments/assets/f92d956b-2a6b-4e7e-af70-95f9ccc53cf2" />
 
 ---
 
@@ -13,7 +13,7 @@
 - **Smart Compression:** Reduce image file sizes significantly while preserving visual quality.
 - **Batch Processing:** Drag and drop multiple files to convert them all at once. The system automatically zips the output for easy downloading.
 
-*(Placeholder: 🎞️ [Insert a short GIF demonstrating drag-and-drop batch image conversion here])*
+<img width="1918" height="940" alt="fileforge_drag-and-drop" src="https://github.com/user-attachments/assets/13d97605-eefb-4461-b0f4-078a05f8dae2" />
 
 ### 🎬 Video & Audio Tools
 - **Comprehensive Conversion:** Easily extract audio or convert videos. Supports **MP4, MOV, WEBM, MKV, AVI, WAV, MP3, M4A, OGG, FLAC**, and **GIF**.
@@ -25,7 +25,7 @@
 - **PDF to Image:** Instantly convert PDF pages to JPG or PNG images.
 - **PDF Compressor:** Shrink large PDF documents for easier sharing and emailing.
 
-*(Placeholder: 📸 [Insert a screenshot or GIF showing the drag-and-drop PDF merge and reordering feature here])*
+<img width="1918" height="940" alt="PDF_merge_reorder" src="https://github.com/user-attachments/assets/4ebbb9bc-65d0-4054-9502-bdabaac369c9" />
 
 ### 🤖 AI-Powered Tools (Integrated with Gemini)
 - **PDF Summarizer:** Condense long PDF documents into key takeaways and summaries.
