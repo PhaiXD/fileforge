@@ -83,7 +83,7 @@ python main.py
 ## 🛠️ Tech Stack
 - **Backend:** Python, FastAPI, Pillow (Image), PyMuPDF (PDF), FFmpeg (Media), yt-dlp
 - **Frontend:** HTML5, Vanilla JavaScript, CSS3 (CSS Variables, Grid, Flexbox)
-- **AI Integration:** Google Gemini 1.5 Pro / Flash
+- **AI Integration:** Google Gemini Pro / Flash
 
 ---
 
