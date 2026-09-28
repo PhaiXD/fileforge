@@ -16,7 +16,10 @@ async def _run_ffmpeg(args: list[str]) -> tuple[str, str, int]:
 async def convert_media(
     input_file_path: str,
     target_format: str,
-    original_filename: str
+    original_filename: str,
+    gif_width: Optional[str] = None,
+    gif_fps: Optional[str] = None,
+    gif_quality: Optional[str] = None
 ) -> tuple[str, str]:
     """
     Convert media using FFmpeg.
@@ -39,8 +42,22 @@ async def convert_media(
     video_formats = {"mp4", "mov", "webm", "mkv", "avi"}
     
     if target_format == "gif":
-        # Convert to GIF (scaled to width 480 for manageable file size)
-        args = ["-i", input_file_path, "-vf", "fps=10,scale=480:-1:flags=lanczos", "-loop", "0", output_file_path]
+        vf_args = []
+        if gif_fps and gif_fps != 'original':
+            vf_args.append(f"fps={gif_fps}")
+        if gif_width and gif_width != 'original':
+            vf_args.append(f"scale={gif_width}:-1:flags=lanczos")
+            
+        vf_str = ",".join(vf_args) + "," if vf_args else ""
+        
+        if gif_quality == 'high':
+            filter_complex = f"[0:v] {vf_str}split [a][b];[a] palettegen [p];[b][p] paletteuse"
+        elif gif_quality == 'low':
+            filter_complex = f"[0:v] {vf_str}split [a][b];[a] palettegen=max_colors=32 [p];[b][p] paletteuse=dither=bayer:bayer_scale=5"
+        else: # medium or default
+            filter_complex = f"[0:v] {vf_str}split [a][b];[a] palettegen=max_colors=128 [p];[b][p] paletteuse"
+
+        args = ["-i", input_file_path, "-filter_complex", filter_complex, "-loop", "0", output_file_path]
     elif target_format in audio_formats:
         # Extract audio / Convert to target audio format
         if target_format == "mp3":

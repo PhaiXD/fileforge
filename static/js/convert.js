@@ -401,6 +401,12 @@ function hideProgress(container) {
 }
 
 // --- Helper: Result area ---
+function hideResult(area) {
+    if (!area) return;
+    area.classList.remove('active', 'error');
+    area.innerHTML = '';
+}
+
 function showResult(area, success, message) {
     if (!area) return;
     area.className = `result-area active ${success ? '' : 'error'}`;
@@ -674,6 +680,21 @@ function initMediaConvert() {
                 singleForm.append('file', currentFiles[0]);
                 singleForm.append('target_format', targetFormat);
                 
+                if (targetFormat === 'gif') {
+                    const widthSelect = panel.querySelector('.gif-width-select');
+                    const fpsSelect = panel.querySelector('.gif-fps-select');
+                    const qualitySelect = panel.querySelector('.gif-quality-select');
+                    if (widthSelect && widthSelect.value !== 'original') {
+                        singleForm.append('gif_width', widthSelect.value);
+                    }
+                    if (fpsSelect && fpsSelect.value !== 'original') {
+                        singleForm.append('gif_fps', fpsSelect.value);
+                    }
+                    if (qualitySelect) {
+                        singleForm.append('gif_quality', qualitySelect.value);
+                    }
+                }
+                
                 const result = await uploadFiles('/api/media/convert', singleForm, (percent) => {
                     updateProgress(progressBar, progressText, percent, 'Converting...');
                 });
@@ -691,6 +712,21 @@ function initMediaConvert() {
                     const singleForm = new FormData();
                     singleForm.append('file', currentFiles[i]);
                     singleForm.append('target_format', targetFormat);
+                    
+                    if (targetFormat === 'gif') {
+                        const widthSelect = panel.querySelector('.gif-width-select');
+                        const fpsSelect = panel.querySelector('.gif-fps-select');
+                        const qualitySelect = panel.querySelector('.gif-quality-select');
+                        if (widthSelect && widthSelect.value !== 'original') {
+                            singleForm.append('gif_width', widthSelect.value);
+                        }
+                        if (fpsSelect && fpsSelect.value !== 'original') {
+                            singleForm.append('gif_fps', fpsSelect.value);
+                        }
+                        if (qualitySelect) {
+                            singleForm.append('gif_quality', qualitySelect.value);
+                        }
+                    }
                     
                     const result = await uploadFiles('/api/media/convert', singleForm);
                     if (result.error) {

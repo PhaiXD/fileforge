@@ -850,6 +850,7 @@ body {
     transition: all var(--transition-fast);
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 7px;
     font-family: var(--font-primary);
 }
@@ -876,6 +877,7 @@ body {
     transition: all var(--transition-fast);
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 7px;
     font-family: var(--font-primary);
 }
@@ -1033,6 +1035,8 @@ body {
     top: 0; left: 0;
     width: 100%; height: 100%;
     background: var(--bg-overlay);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 200;
     align-items: center;
     justify-content: center;

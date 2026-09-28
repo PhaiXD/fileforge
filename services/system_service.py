@@ -9,23 +9,11 @@ from typing import Any, Dict, Optional
 
 import httpx
 
-from config import APP_VERSION, BASE_DIR, GITHUB_API_URL, GITHUB_REPO_URL
+from config import APP_VERSION, BASE_DIR, GITHUB_API_URL, GITHUB_REPO_URL, TEMP_DIR
 
 
 async def get_current_version() -> str:
-    """Return the current app version, preferring git tags."""
-    try:
-        process = await asyncio.create_subprocess_exec(
-            "git", "describe", "--tags", "--always",
-            cwd=str(BASE_DIR),
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        stdout, _ = await process.communicate()
-        if process.returncode == 0:
-            return stdout.decode().strip()
-    except Exception:
-        pass
+    """Return the current app version."""
     return APP_VERSION
 
 
@@ -98,24 +86,116 @@ async def check_for_update() -> Dict[str, Any]:
         }
 
 
+import sys
+import os
+import zipfile
+import aiofiles
+
 async def perform_update() -> Dict[str, Any]:
     """
-    Perform a git pull to update the application from GitHub.
+    Perform an update. If running from source, do `git pull`.
+    If running as a frozen executable, download the latest release asset and replace the current executable.
     Returns the result of the operation.
     """
+    is_frozen = getattr(sys, 'frozen', False)
+    
+    if is_frozen:
+        try:
+            async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+                response = await client.get(
+                    f"{GITHUB_API_URL}/releases/latest",
+                    headers={"Accept": "application/vnd.github.v3+json"},
+                )
+                if response.status_code != 200:
+                    return {"success": False, "message": "Could not fetch latest release info.", "requires_restart": False}
+                
+                data = response.json()
+                assets = data.get("assets", [])
+                if not assets:
+                    return {"success": False, "message": "No release assets found.", "requires_restart": False}
+                
+                # Find zip or exe asset
+                target_asset = None
+                for asset in assets:
+                    if asset["name"].endswith(".zip") or asset["name"].endswith(".exe"):
+                        target_asset = asset
+                        break
+                
+                if not target_asset:
+                    return {"success": False, "message": "No suitable update file found (.zip or .exe).", "requires_restart": False}
+                
+                download_url = target_asset["browser_download_url"]
+                asset_name = target_asset["name"]
+                
+                update_dir = TEMP_DIR / "update"
+                update_dir.mkdir(parents=True, exist_ok=True)
+                download_path = update_dir / asset_name
+                
+                # Download
+                async with client.stream("GET", download_url) as r:
+                    r.raise_for_status()
+                    async with aiofiles.open(download_path, "wb") as f:
+                        async for chunk in r.aiter_bytes():
+                            await f.write(chunk)
+                
+                new_exe_path = download_path
+                if asset_name.endswith(".zip"):
+                    # Extract zip
+                    with zipfile.ZipFile(download_path, 'r') as zip_ref:
+                        zip_ref.extractall(update_dir)
+                    # Find exe recursively in case it's inside a folder in the zip
+                    extracted_exes = list(update_dir.rglob("*.exe"))
+                    if not extracted_exes:
+                        return {"success": False, "message": "No executable found inside the downloaded zip.", "requires_restart": False}
+                    new_exe_path = extracted_exes[0]
+                
+                # Replace current exe (The Windows File Lock workaround)
+                current_exe = Path(sys.executable)
+                old_exe = current_exe.with_name(f"{current_exe.stem}_old.exe")
+                
+                # Remove old backup if exists
+                if old_exe.exists():
+                    try:
+                        old_exe.unlink()
+                    except Exception:
+                        pass # Ignore if we can't remove an older backup
+                
+                # Rename current running exe
+                os.rename(current_exe, old_exe)
+                
+                # Copy new exe to current location
+                import shutil
+                shutil.copy2(new_exe_path, current_exe)
+                
+                return {
+                    "success": True,
+                    "message": "Update downloaded and installed successfully! Please restart the application.",
+                    "requires_restart": True,
+                }
+                
+        except Exception as e:
+            err_msg = str(e) or repr(e)
+            return {
+                "success": False,
+                "message": f"Update error ({type(e).__name__}): {err_msg}",
+                "requires_restart": False,
+            }
+    
+    # Not frozen, use git pull
     try:
-        process = await asyncio.create_subprocess_exec(
-            "git",
-            "pull",
-            "--rebase",
-            cwd=str(BASE_DIR),
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        stdout, stderr = await process.communicate()
+        def _run_git():
+            return subprocess.run(
+                ["git", "pull", "--rebase"],
+                cwd=str(BASE_DIR),
+                capture_output=True,
+                text=True,
+                check=False
+            )
+        
+        process = await asyncio.to_thread(_run_git)
 
-        stdout_text = stdout.decode("utf-8", errors="replace")
-        stderr_text = stderr.decode("utf-8", errors="replace")
+        stdout_text = process.stdout
+        stderr_text = process.stderr
 
         if process.returncode == 0:
             return {
@@ -137,9 +217,10 @@ async def perform_update() -> Dict[str, Any]:
             "requires_restart": False,
         }
     except Exception as e:
+        err_msg = str(e) or repr(e)
         return {
             "success": False,
-            "message": f"Update error: {str(e)}",
+            "message": f"Update error ({type(e).__name__}): {err_msg}",
             "requires_restart": False,
         }
 
@@ -152,36 +233,27 @@ async def check_dependencies() -> Dict[str, bool]:
 
     # Check yt-dlp
     try:
-        process = await asyncio.create_subprocess_exec(
-            "yt-dlp", "--version",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        await process.communicate()
+        def _check_ytdlp():
+            return subprocess.run(["yt-dlp", "--version"], capture_output=True)
+        process = await asyncio.to_thread(_check_ytdlp)
         deps["yt-dlp"] = process.returncode == 0
     except FileNotFoundError:
         deps["yt-dlp"] = False
 
     # Check ffmpeg
     try:
-        process = await asyncio.create_subprocess_exec(
-            "ffmpeg", "-version",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        await process.communicate()
+        def _check_ffmpeg():
+            return subprocess.run(["ffmpeg", "-version"], capture_output=True)
+        process = await asyncio.to_thread(_check_ffmpeg)
         deps["ffmpeg"] = process.returncode == 0
     except FileNotFoundError:
         deps["ffmpeg"] = False
 
     # Check git
     try:
-        process = await asyncio.create_subprocess_exec(
-            "git", "--version",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        await process.communicate()
+        def _check_git():
+            return subprocess.run(["git", "--version"], capture_output=True)
+        process = await asyncio.to_thread(_check_git)
         deps["git"] = process.returncode == 0
     except FileNotFoundError:
         deps["git"] = False

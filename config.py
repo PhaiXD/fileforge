@@ -6,11 +6,11 @@ from pathlib import Path
 
 # --- App Info ---
 APP_NAME = "FileForge"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.1.0"
 APP_DESCRIPTION = "Local file conversion, compression & media tools"
 
 # --- GitHub Repository (for auto-update) ---
-GITHUB_REPO_OWNER = "ADMIN"
+GITHUB_REPO_OWNER = "PhaiXD"
 GITHUB_REPO_NAME = "fileforge"
 GITHUB_REPO_URL = f"https://github.com/{GITHUB_REPO_OWNER}/{GITHUB_REPO_NAME}"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO_OWNER}/{GITHUB_REPO_NAME}"

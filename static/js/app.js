@@ -359,6 +359,11 @@ function showPanel(toolId) {
                     panel.querySelector('.btn-convert').innerHTML = cfg.btnText;
                     
                     if (panel._resetFiles) panel._resetFiles();
+                    
+                    const optionsContainer = panel.querySelector('#media-convert-options');
+                    if (optionsContainer) {
+                        optionsContainer.style.display = cfg.format === 'gif' ? 'flex' : 'none';
+                    }
                 }
             }
 
@@ -612,10 +617,10 @@ async function checkForUpdates() {
         }
 
         if (result.update_available) {
-            const banner = document.getElementById('update-banner');
-            if (banner) {
-                banner.querySelector('.update-version').textContent = `v${result.latest_version}`;
-                banner.classList.add('show');
+            const modal = document.getElementById('update-modal');
+            if (modal) {
+                modal.querySelector('.update-version').textContent = `v${result.latest_version}`;
+                modal.style.display = 'flex';
             }
         }
     } catch (err) {
@@ -624,18 +629,22 @@ async function checkForUpdates() {
 }
 
 async function performUpdate() {
-    const btn = document.querySelector('.update-banner-btn');
+    const btn = document.querySelector('.update-modal-btn');
     if (btn) {
-        btn.textContent = 'Updating...';
+        btn.innerHTML = '🔄 Updating...';
         btn.disabled = true;
     }
 
     try {
         const result = await fetchAPI('/api/system/update', { method: 'POST' });
         if (result.success) {
-            showToast('Updated successfully! Please restart the application.', 'success');
-            const banner = document.getElementById('update-banner');
-            if (banner) banner.classList.remove('show');
+            if (btn) btn.innerHTML = '✅ Done!';
+            setTimeout(() => {
+                showToast(result.message || 'Updated successfully! Please restart the application.', 'success');
+                const modal = document.getElementById('update-modal');
+                if (modal) modal.style.display = 'none';
+            }, 1000);
+            return;
         } else {
             showToast(result.message || 'Update failed', 'error');
         }
@@ -643,7 +652,7 @@ async function performUpdate() {
         showToast('Update failed', 'error');
     } finally {
         if (btn) {
-            btn.textContent = 'Update Now';
+            btn.innerHTML = 'Update Now';
             btn.disabled = false;
         }
     }
@@ -708,9 +717,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Update
-    document.querySelector('.update-banner-btn')?.addEventListener('click', performUpdate);
-    document.querySelector('.update-banner-close')?.addEventListener('click', () => {
-        document.getElementById('update-banner')?.classList.remove('show');
+    document.querySelector('.update-modal-btn')?.addEventListener('click', performUpdate);
+    document.querySelector('.update-modal-later')?.addEventListener('click', () => {
+        const modal = document.getElementById('update-modal');
+        if (modal) modal.style.display = 'none';
+    });
+    
+    // Generic Modal click outside to close
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('active');
+            }
+        });
     });
 
     // AI tool cards

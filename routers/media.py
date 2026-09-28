@@ -70,7 +70,10 @@ from services.video_service import convert_media
 @router.post("/convert")
 async def media_convert(
     file: UploadFile = File(...),
-    target_format: str = Form(...)
+    target_format: str = Form(...),
+    gif_width: str = Form(None),
+    gif_fps: str = Form(None),
+    gif_quality: str = Form(None)
 ):
     """
     Convert a media file (Video/Audio) locally using FFmpeg.
@@ -86,7 +89,14 @@ async def media_convert(
             shutil.copyfileobj(file.file, buffer)
             
         # Convert media
-        output_path, output_filename = await convert_media(input_path, target_format, file.filename)
+        output_path, output_filename = await convert_media(
+            input_path, 
+            target_format, 
+            file.filename,
+            gif_width=gif_width,
+            gif_fps=gif_fps,
+            gif_quality=gif_quality
+        )
         
         # Determine media type
         media_type = "application/octet-stream"

@@ -33,6 +33,18 @@ async def lifespan(app: FastAPI):
     # Startup: create temp directory
     TEMP_DIR.mkdir(parents=True, exist_ok=True)
     
+    # Clean up old exe if exists (from previous updates)
+    import sys, os
+    is_frozen = getattr(sys, 'frozen', False)
+    if is_frozen:
+        current_exe = Path(sys.executable)
+        old_exe = current_exe.with_name(f"{current_exe.stem}_old.exe")
+        if old_exe.exists():
+            try:
+                old_exe.unlink()
+            except Exception:
+                pass
+    
     # Open browser automatically after a short delay
     def open_browser():
         webbrowser.open(f"http://{HOST}:{PORT}")
