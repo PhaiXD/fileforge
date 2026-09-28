@@ -33,7 +33,7 @@
 
 ---
 
-## 🚀 HOW TO RUN
+## 🚀 HOW TO INSTALL
 
 FileForge can be run easily whether you are a general user wanting a ready-to-use app, or a developer wanting to tinker with the code.
 
