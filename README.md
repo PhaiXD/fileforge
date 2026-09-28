@@ -2,69 +2,69 @@
 
 **FileForge** is a fast, powerful, and privacy-first local web application for all your daily file operations. Built with **FastAPI** and **Vanilla JS**, it runs entirely on your local machine—meaning your files never leave your computer.
 
-*(ใส่ภาพ: 📸 [Screenshot หน้าจอหลักของโปรแกรม ที่เห็นเมนูต่างๆ ครบถ้วน] ตรงนี้)*
+*(Placeholder: 📸 [Insert a full screenshot of the main application here])*
 
 ---
 
-## ✨ Features (คุณสมบัติเด่น)
+## ✨ Features
 
 ### 🖼️ Image Tools
-- **Convert Anywhere:** แปลงไฟล์ภาพไปมาระหว่าง **JPG, PNG, WEBP, SVG, HEIC** และ **ICO** ได้อย่างอิสระ
-- **Smart Compression:** บีบอัดรูปภาพให้เล็กลงโดยที่ยังคงความคมชัด
-- **Batch Processing:** ลากวางหลายๆ ไฟล์พร้อมกันเพื่อแปลงทีเดียว ระบบจะบีบอัดเป็น `.zip` ให้อัตโนมัติ
+- **Convert Anywhere:** Seamlessly convert images between **JPG, PNG, WEBP, SVG, HEIC**, and **ICO** formats.
+- **Smart Compression:** Reduce image file sizes significantly while preserving visual quality.
+- **Batch Processing:** Drag and drop multiple files to convert them all at once. The system automatically zips the output for easy downloading.
 
-*(ใส่ GIF: 🎞️ [GIF สั้นๆ แสดงการลากไฟล์รูปหลายๆ ไฟล์ลงไปแปลงพร้อมกัน] ตรงนี้)*
+*(Placeholder: 🎞️ [Insert a short GIF demonstrating drag-and-drop batch image conversion here])*
 
 ### 🎬 Video & Audio Tools
-- **Comprehensive Conversion:** สกัดเสียง หรือแปลงวิดีโอง่ายๆ รองรับ **MP4, MOV, WEBM, MKV, AVI, WAV, MP3, M4A, OGG, FLAC** และ **GIF**
-- **Media Download:** ดาวน์โหลดวิดีโอและเสียงจากแพลตฟอร์มยอดฮิต (เช่น YouTube, TikTok) ได้รวดเร็วผ่าน `yt-dlp`
-- **Powered by FFmpeg:** เบื้องหลังใช้ FFmpeg ทำให้การแปลงไฟล์รวดเร็วและรองรับไฟล์แทบทุกประเภทบนโลก
+- **Comprehensive Conversion:** Easily extract audio or convert videos. Supports **MP4, MOV, WEBM, MKV, AVI, WAV, MP3, M4A, OGG, FLAC**, and **GIF**.
+- **Media Download:** Quickly download videos and audio from popular platforms (e.g., YouTube, TikTok) via `yt-dlp`.
+- **Powered by FFmpeg:** Uses FFmpeg under the hood for lightning-fast processing and broad format support.
 
 ### 📄 PDF & Documents
-- **PDF Extract & Merge:** แยกหน้า PDF ที่ต้องการ หรือจับรวมหลายๆ ไฟล์เข้าด้วยกัน พร้อมจัดเรียงลำดับได้อย่างอิสระ
-- **PDF to Image:** แปลง PDF เป็น JPG หรือ PNG ทันที
-- **PDF Compressor:** ย่อขนาดไฟล์เอกสาร PDF ให้ส่งอีเมลหรือแชร์ต่อได้ง่ายขึ้น
+- **PDF Extract & Merge:** Extract specific pages from a PDF or merge multiple files together. Rearrange page orders effortlessly.
+- **PDF to Image:** Instantly convert PDF pages to JPG or PNG images.
+- **PDF Compressor:** Shrink large PDF documents for easier sharing and emailing.
 
-*(ใส่ภาพ: 📸 [Screenshot หน้าจอการลากสลับจัดเรียง (Drag & Drop) ในฟังก์ชัน Merge PDFs] ตรงนี้)*
+*(Placeholder: 📸 [Insert a screenshot or GIF showing the drag-and-drop PDF merge and reordering feature here])*
 
 ### 🤖 AI-Powered Tools (Integrated with Gemini)
-- **PDF Summarizer:** สรุปเนื้อหาจากไฟล์ PDF แบบยาวๆ ให้เหลือแต่ใจความสำคัญ
-- **Video & Audio Summarizer:** ถอดเสียงจากวิดีโอหรือไฟล์เสียง และสรุปประเด็นสำคัญออกมาเป็นข้อๆ อย่างแม่นยำ
+- **PDF Summarizer:** Condense long PDF documents into key takeaways and summaries.
+- **Video & Audio Summarizer:** Transcribe and summarize key points from video or audio files with high accuracy.
 
 ---
 
-## 🚀 Getting Started (วิธีติดตั้งและใช้งาน)
+## 🚀 Getting Started
 
-เนื่องจาก FileForge ประมวลผลบนเครื่องของคุณเอง 100% จึงต้องมีการติดตั้งเครื่องมือเบื้องหลังบางส่วนก่อนเริ่มใช้งาน
+Since FileForge processes everything 100% locally, you will need to set up a few background dependencies first.
 
-### 1. Prerequisites (สิ่งที่ต้องมี)
+### 1. Prerequisites
 - **Python 3.10+**
-- **FFmpeg:** สำหรับประมวลผล Video/Audio (ต้อง [ติดตั้ง](https://ffmpeg.org/download.html) และเพิ่มเข้า PATH)
-- **Node.js / npm** (ถ้ามีการใช้ tailwind / build script อื่นๆ ในอนาคต)
+- **FFmpeg:** Required for Video/Audio processing. (Download and install from [ffmpeg.org](https://ffmpeg.org/download.html), and ensure it's added to your system's PATH)
+- **Node.js / npm** (Optional: for potential future build scripts or Tailwind integration)
 
 ### 2. Installation
-1. โคลนโปรเจกต์นี้ลงบนเครื่องของคุณ
+1. Clone this repository to your local machine:
    ```bash
    git clone https://github.com/yourusername/fileforge.git
    cd fileforge
    ```
-2. สร้าง Virtual Environment และติดตั้ง Dependencies
+2. Create a Virtual Environment and install dependencies:
    ```bash
    python -m venv venv
-   # สำหรับ Windows: venv\Scripts\activate
-   # สำหรับ Mac/Linux: source venv/bin/activate
+   # On Windows: venv\Scripts\activate
+   # On Mac/Linux: source venv/bin/activate
    pip install -r requirements.txt
    ```
-3. *(ทางเลือก)* ตั้งค่า API Key: คัดลอกไฟล์ `.env.example` เป็น `.env` และใส่คีย์ `GEMINI_API_KEY` ของคุณหากต้องการใช้ฟีเจอร์ AI
+3. *(Optional)* API Key Setup: Copy the `.env.example` file to `.env` and insert your `GEMINI_API_KEY` if you plan to use the AI-powered summarization features.
 
 ### 3. Run the App
-สั่งรันเซิร์ฟเวอร์ด้วยคำสั่ง:
+Start the server with the following command:
 ```bash
 python main.py
 ```
-> เซิร์ฟเวอร์จะเริ่มต้น และ**เบราว์เซอร์ของคุณจะถูกเปิดขึ้นมาที่ `http://localhost:8000` โดยอัตโนมัติ** 🎉
+> The server will start up, and **your default web browser will automatically open to `http://localhost:8000`**. 🎉
 
-*(ใส่ GIF: 🎞️ [GIF แสดงการพิมพ์ `python main.py` บน Terminal แล้วเด้งเปิดหน้าเบราว์เซอร์อัตโนมัติ] ตรงนี้)*
+*(Placeholder: 🎞️ [Insert a GIF showing `python main.py` being run in the terminal and the browser launching automatically])*
 
 ---
 
@@ -76,12 +76,12 @@ python main.py
 ---
 
 ## 🛡️ Privacy First
-FileForge ถูกออกแบบมาให้ประมวลผล **Local 100%** ไฟล์เอกสาร รูปภาพ หรือวิดีโอส่วนตัวของคุณจะไม่มีวันถูกอัปโหลดขึ้นไปยัง Cloud หรือเซิร์ฟเวอร์ภายนอก (ยกเว้นเมื่อคุณเลือกใช้งานฟีเจอร์ฝั่ง AI ที่จำเป็นต้องส่งไฟล์ไปให้โมเดลสรุป)
+FileForge is designed for **100% Local Processing**. Your private documents, images, and videos will never be uploaded to the cloud or any external servers (unless you specifically use the AI tools, which securely send data to the Gemini model for summarization).
 
 ---
 
 ## 🤝 Contributing
-Contributions are always welcome! สามารถส่ง Pull Request หรือเปิด Issues เพื่อเสนอไอเดียใหม่ๆ ได้เลย
+Contributions are always welcome! Feel free to submit Pull Requests or open Issues to suggest new ideas or report bugs.
 
 ## 📜 License
 Distributed under the MIT License. See `LICENSE` for more information.
