@@ -167,9 +167,18 @@ async def perform_update() -> Dict[str, Any]:
                 import shutil
                 shutil.copy2(new_exe_path, current_exe)
                 
+                # Schedule restart
+                import threading
+                def restart_app():
+                    import time
+                    time.sleep(2)
+                    subprocess.Popen([sys.executable])
+                    os._exit(0)
+                threading.Thread(target=restart_app, daemon=True).start()
+                
                 return {
                     "success": True,
-                    "message": "Update downloaded and installed successfully! Please restart the application.",
+                    "message": "Update installed successfully! Restarting application automatically...",
                     "requires_restart": True,
                 }
                 
@@ -198,9 +207,18 @@ async def perform_update() -> Dict[str, Any]:
         stderr_text = process.stderr
 
         if process.returncode == 0:
+            import threading
+            def restart_app():
+                import time
+                time.sleep(2)
+                # Restart the python process
+                subprocess.Popen([sys.executable] + sys.argv)
+                os._exit(0)
+            threading.Thread(target=restart_app, daemon=True).start()
+
             return {
                 "success": True,
-                "message": stdout_text.strip() or "Update complete!",
+                "message": stdout_text.strip() or "Update complete! Restarting...",
                 "requires_restart": True,
             }
         else:

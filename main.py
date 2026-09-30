@@ -98,6 +98,14 @@ async def serve_index():
 # --- Run Server ---
 if __name__ == "__main__":
     import sys
+    import io
+    
+    # Fix for uvicorn when running with console=False (no stdout/stderr)
+    if sys.stdout is None:
+        sys.stdout = io.StringIO()
+    if sys.stderr is None:
+        sys.stderr = io.StringIO()
+
     is_frozen = getattr(sys, 'frozen', False)
     
     if is_frozen:
