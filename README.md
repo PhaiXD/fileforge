@@ -1,5 +1,7 @@
 # <img width="25" height="25" alt="FileForge logo_white" src="https://github.com/user-attachments/assets/e5c9e441-09d6-4593-b71a-afd13b59c29a" /> FileForge
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 **FileForge** is a fast, powerful, and privacy-first local web application for all your daily file operations. Built with **FastAPI** and **Vanilla JS**, it runs entirely on your local machine—meaning your files never leave your computer.
 
 <img width="1916" height="940" alt="screenshot_main_app" src="https://github.com/user-attachments/assets/f92d956b-2a6b-4e7e-af70-95f9ccc53cf2" />
