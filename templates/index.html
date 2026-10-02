@@ -336,7 +336,7 @@
                 <input type="file" accept=".pdf" style="display:none">
             </div>
             <div class="file-list"></div>
-            <div style="margin-top:20px;">
+            <div style="margin-top:20px; display:flex; gap:24px; flex-wrap:wrap; align-items:end;">
                 <div class="option-group">
                     <label class="option-label">Compression Level</label>
                     <select class="option-select quality-select">
@@ -344,6 +344,10 @@
                         <option value="medium" selected>Medium Compression (Balanced)</option>
                         <option value="low">High Compression (Smallest Size)</option>
                     </select>
+                </div>
+                <div class="option-group">
+                    <label class="option-label">Target Size (KB, optional)</label>
+                    <input type="number" class="modal-input target-size-input" placeholder="e.g. 500" min="10" style="margin-bottom:0; max-width:200px;">
                 </div>
             </div>
             <div style="margin-top:24px;">
@@ -384,6 +388,10 @@
                 <div class="option-group">
                     <label class="option-label">Max Width (px, optional)</label>
                     <input type="number" class="modal-input max-width-input" placeholder="e.g. 1920" min="100" style="margin-bottom:0; max-width:200px;">
+                </div>
+                <div class="option-group">
+                    <label class="option-label">Target Size (KB, optional)</label>
+                    <input type="number" class="modal-input target-size-input" placeholder="e.g. 150" min="10" style="margin-bottom:0; max-width:200px;">
                 </div>
             </div>
             <div style="margin-top:24px;">

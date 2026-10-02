@@ -288,6 +288,7 @@ async def merge_images_to_pdf(
 async def compress_pdf(
     pdf_bytes: bytes,
     quality: str = "medium",
+    target_size_kb: Optional[int] = None,
 ) -> bytes:
     """
     Compress a PDF by reducing image quality and cleaning up.
@@ -300,54 +301,59 @@ async def compress_pdf(
         "high": {"image_quality": 85, "dpi": 150},
     }
     settings = quality_settings.get(quality, quality_settings["medium"])
+    target_bytes = (target_size_kb * 1024) if target_size_kb else None
 
-    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
-
-    for page_num in range(len(doc)):
-        page = doc[page_num]
-        image_list = page.get_images(full=True)
-
-        for img_index, img_info in enumerate(image_list):
-            xref = img_info[0]
-            try:
-                base_image = doc.extract_image(xref)
-                if base_image is None:
+    def _compress_with_params(img_qual, max_dpi):
+        doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+        for page_num in range(len(doc)):
+            page = doc[page_num]
+            image_list = page.get_images(full=True)
+            for img_index, img_info in enumerate(image_list):
+                xref = img_info[0]
+                try:
+                    base_image = doc.extract_image(xref)
+                    if base_image is None:
+                        continue
+                    image_bytes = base_image["image"]
+                    img = Image.open(io.BytesIO(image_bytes))
+                    max_dim = max_dpi * 10
+                    if max(img.size) > max_dim:
+                        img.thumbnail((max_dim, max_dim), Image.Resampling.LANCZOS)
+                    if img.mode != "RGB":
+                        img = img.convert("RGB")
+                    img_buffer = io.BytesIO()
+                    img.save(img_buffer, format="JPEG", quality=img_qual)
+                    img_buffer.seek(0)
+                    page.replace_image(xref, stream=img_buffer.read())
+                except Exception:
                     continue
+        output_buffer = io.BytesIO()
+        doc.save(output_buffer, garbage=4, deflate=True, clean=True)
+        doc.close()
+        output_buffer.seek(0)
+        return output_buffer.read()
 
-                image_bytes = base_image["image"]
-                img = Image.open(io.BytesIO(image_bytes))
+    if target_bytes:
+        low, high = 10, 85
+        best_bytes = None
+        max_dpi = 120 # Fix DPI for binary search
 
-                # Resize if larger than target DPI equivalent
-                max_dim = settings["dpi"] * 10
-                if max(img.size) > max_dim:
-                    img.thumbnail((max_dim, max_dim), Image.Resampling.LANCZOS)
-
-                # Convert to RGB for JPEG compression
-                if img.mode != "RGB":
-                    img = img.convert("RGB")
-
-                img_buffer = io.BytesIO()
-                img.save(img_buffer, format="JPEG", quality=settings["image_quality"])
-                img_buffer.seek(0)
-
-                # Replace image in PDF
-                page.replace_image(xref, stream=img_buffer.read())
-            except Exception:
-                # Skip images that can't be processed
-                continue
-
-    # Save with garbage collection and deflation
-    output_buffer = io.BytesIO()
-    doc.save(
-        output_buffer,
-        garbage=4,
-        deflate=True,
-        clean=True,
-    )
-    doc.close()
-
-    output_buffer.seek(0)
-    return output_buffer.read()
+        while low <= high:
+            mid = (low + high) // 2
+            compressed = _compress_with_params(mid, max_dpi)
+            
+            if len(compressed) <= target_bytes:
+                best_bytes = compressed
+                low = mid + 1
+            else:
+                high = mid - 1
+                
+        if best_bytes is None:
+            # Even lowest quality is too big, just return lowest
+            return _compress_with_params(10, 72)
+        return best_bytes
+    else:
+        return _compress_with_params(settings["image_quality"], settings["dpi"])
 
 
 async def extract_text_from_pdf(pdf_bytes: bytes) -> str:

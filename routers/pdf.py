@@ -3,7 +3,7 @@ FileForge — PDF Router
 API endpoints for PDF conversion, merging, and compression.
 """
 import io
-from typing import List
+from typing import List, Optional
 from urllib.parse import quote
 
 from fastapi import APIRouter, File, Form, UploadFile
@@ -108,6 +108,7 @@ async def images_to_pdf(
 async def compress_pdf_endpoint(
     file: UploadFile = File(...),
     quality: str = Form("medium"),
+    target_size_kb: Optional[int] = Form(None),
 ):
     """Compress a PDF file to reduce its size."""
     if not file.filename.lower().endswith(".pdf"):
@@ -117,7 +118,11 @@ async def compress_pdf_endpoint(
         pdf_bytes = await file.read()
         original_size = len(pdf_bytes)
 
-        compressed_bytes = await compress_pdf(pdf_bytes, quality=quality)
+        compressed_bytes = await compress_pdf(
+            pdf_bytes, 
+            quality=quality,
+            target_size_kb=target_size_kb
+        )
         compressed_size = len(compressed_bytes)
 
         reduction = round((1 - compressed_size / original_size) * 100, 1) if original_size > 0 else 0

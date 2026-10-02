@@ -19,6 +19,7 @@ async def compress_image(
     max_width: Optional[int] = None,
     max_height: Optional[int] = None,
     output_format: Optional[str] = None,
+    target_size_kb: Optional[int] = None,
 ) -> tuple[bytes, str]:
     """
     Compress an image by reducing quality and optionally resizing.
@@ -83,19 +84,47 @@ async def compress_image(
         background.paste(img, mask=img.split()[-1] if "A" in img.mode else None)
         img = background
 
-    # Save compressed image
-    output_buffer = io.BytesIO()
-    save_kwargs = {}
+    target_bytes = (target_size_kb * 1024) if target_size_kb else None
 
-    if fmt == "JPEG":
-        save_kwargs["quality"] = quality
-        save_kwargs["optimize"] = True
-    elif fmt == "PNG":
-        save_kwargs["optimize"] = True
-    elif fmt == "WEBP":
-        save_kwargs["quality"] = quality
+    def _save_with_quality(q):
+        buf = io.BytesIO()
+        sk = {}
+        if fmt == "JPEG":
+            sk["quality"] = q
+            sk["optimize"] = True
+        elif fmt == "PNG":
+            sk["optimize"] = True
+        elif fmt == "WEBP":
+            sk["quality"] = q
+        img.save(buf, format=fmt, **sk)
+        return buf
 
-    img.save(output_buffer, format=fmt, **save_kwargs)
+    if target_bytes and fmt in ("JPEG", "WEBP"):
+        # Binary search for optimal quality
+        low, high = 1, 100
+        best_buf = None
+        
+        # If target size is very small, start search from current quality to avoid unnecessary loops
+        high = min(100, quality if quality else 100)
+
+        while low <= high:
+            mid = (low + high) // 2
+            buf = _save_with_quality(mid)
+            size = buf.getbuffer().nbytes
+            
+            if size <= target_bytes:
+                best_buf = buf
+                low = mid + 1  # Try for better quality
+            else:
+                high = mid - 1
+                
+        if best_buf is None:
+            output_buffer = _save_with_quality(1)
+        else:
+            output_buffer = best_buf
+    else:
+        output_buffer = _save_with_quality(quality)
+
     output_buffer.seek(0)
 
     # Generate output filename

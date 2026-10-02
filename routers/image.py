@@ -29,6 +29,7 @@ async def compress_image_endpoint(
     quality: int = Form(75),
     max_width: Optional[int] = Form(None),
     max_height: Optional[int] = Form(None),
+    target_size_kb: Optional[int] = Form(None),
 ):
     """Compress an image file to reduce its size."""
     allowed_exts = ("jpg", "jpeg", "png", "webp", "bmp", "heic", "heif")
@@ -46,6 +47,7 @@ async def compress_image_endpoint(
             quality=quality,
             max_width=max_width,
             max_height=max_height,
+            target_size_kb=target_size_kb,
         )
         compressed_size = len(compressed_bytes)
         reduction = round((1 - compressed_size / original_size) * 100, 1) if original_size > 0 else 0
