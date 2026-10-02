@@ -4,6 +4,54 @@
  */
 
 /**
+ * Setup linked Target Size and Compression Percentage UI
+ */
+function setupCompressControls(panel, file) {
+    const controls = panel.querySelector('.compress-controls');
+    if (!controls) return;
+    
+    const slider = controls.querySelector('.target-size-slider');
+    const sizeDisplay = controls.querySelector('.target-size-display');
+    const percentDisplay = controls.querySelector('.compression-percent-display');
+    const hiddenInput = controls.querySelector('.target-size-input');
+    
+    if (!file) {
+        controls.style.opacity = '0.5';
+        controls.style.pointerEvents = 'none';
+        sizeDisplay.textContent = '--';
+        percentDisplay.textContent = '--';
+        return;
+    }
+    
+    const origKb = Math.max(1, Math.ceil(file.size / 1024));
+    controls.style.opacity = '1';
+    controls.style.pointerEvents = 'auto';
+    
+    slider.max = origKb;
+    slider.min = origKb > 10 ? 10 : 1;
+    slider.step = origKb > 1000 ? 10 : 1;
+    slider.value = Math.max(slider.min, Math.floor(origKb * 0.5));
+    
+    function updateDisplay() {
+        const val = parseInt(slider.value);
+        sizeDisplay.textContent = formatFileSize(val * 1024);
+        
+        let percent = 100 - Math.round((val / origKb) * 100);
+        if (percent < 0) percent = 0;
+        if (percent > 99 && val > 0) percent = 99; // Cap at 99% if not 0 bytes
+        
+        percentDisplay.textContent = percent + '%';
+        hiddenInput.value = val;
+    }
+    
+    slider.removeEventListener('input', slider._updateHandler);
+    slider._updateHandler = updateDisplay;
+    slider.addEventListener('input', updateDisplay);
+    
+    updateDisplay();
+}
+
+/**
  * Initialize PDF Compressor tool.
  */
 function initPdfCompressor() {
@@ -14,13 +62,12 @@ function initPdfCompressor() {
     const fileInput = panel.querySelector('input[type="file"]');
     const fileList = panel.querySelector('.file-list');
     const compressBtn = panel.querySelector('.btn-convert');
-    const qualitySelect = panel.querySelector('.quality-select');
     const progressContainer = panel.querySelector('.progress-container');
     const progressBar = panel.querySelector('.progress-bar');
     const progressText = panel.querySelector('.progress-text');
     const resultArea = panel.querySelector('.result-area');
-
     const targetSizeInput = panel.querySelector('.target-size-input');
+
     let selectedFile = null;
 
     setupUploadZone(uploadZone, fileInput, (file) => {
@@ -29,8 +76,11 @@ function initPdfCompressor() {
             return;
         }
         selectedFile = file;
+        setupCompressControls(panel, file);
+        
         renderFileList(fileList, [file], () => {
             selectedFile = null;
+            setupCompressControls(panel, null);
             renderFileList(fileList, []);
             compressBtn.disabled = true;
         });
@@ -42,7 +92,6 @@ function initPdfCompressor() {
 
         const formData = new FormData();
         formData.append('file', selectedFile);
-        formData.append('quality', qualitySelect?.value || 'medium');
         
         const targetSize = targetSizeInput?.value;
         if (targetSize && parseInt(targetSize) > 0) {
@@ -105,17 +154,6 @@ function initImageCompressor() {
     const targetSizeInput = panel.querySelector('.target-size-input');
     let selectedFile = null;
 
-    // Compression level labels: 1=Minimal, 2=Low, 3=Medium, 4=High, 5=Maximum
-    const levelLabels = { 1: 'Minimal', 2: 'Low', 3: 'Medium', 4: 'High', 5: 'Maximum' };
-    // Map compression level to quality: higher compression = lower quality
-    const levelToQuality = { 1: 90, 2: 75, 3: 60, 4: 40, 5: 20 };
-
-    if (compressRange) {
-        compressRange.addEventListener('input', () => {
-            compressValue.textContent = levelLabels[compressRange.value] || 'Medium';
-        });
-    }
-
     setupUploadZone(uploadZone, fileInput, (file) => {
         const validExts = ['.jpg', '.jpeg', '.png', '.webp', '.bmp'];
         const ext = '.' + file.name.split('.').pop().toLowerCase();
@@ -124,8 +162,11 @@ function initImageCompressor() {
             return;
         }
         selectedFile = file;
+        setupCompressControls(panel, file);
+        
         renderFileList(fileList, [file], () => {
             selectedFile = null;
+            setupCompressControls(panel, null);
             renderFileList(fileList, []);
             compressBtn.disabled = true;
         });
@@ -135,12 +176,8 @@ function initImageCompressor() {
     compressBtn.addEventListener('click', async () => {
         if (!selectedFile) return;
 
-        const level = parseInt(compressRange?.value || '3');
-        const quality = levelToQuality[level] || 60;
-
         const formData = new FormData();
         formData.append('file', selectedFile);
-        formData.append('quality', quality.toString());
 
         const maxWidth = maxWidthInput?.value;
         if (maxWidth && parseInt(maxWidth) > 0) {

@@ -349,8 +349,12 @@ async def compress_pdf(
                 high = mid - 1
                 
         if best_bytes is None:
-            # Even lowest quality is too big, just return lowest
-            return _compress_with_params(10, 72)
+            # Even lowest quality is too big, aggressively reduce DPI
+            for fallback_dpi in [72, 36, 18, 9]:
+                compressed = _compress_with_params(10, fallback_dpi)
+                if len(compressed) <= target_bytes:
+                    return compressed
+            return _compress_with_params(10, 9)
         return best_bytes
     else:
         return _compress_with_params(settings["image_quality"], settings["dpi"])

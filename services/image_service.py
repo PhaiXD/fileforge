@@ -119,7 +119,32 @@ async def compress_image(
                 high = mid - 1
                 
         if best_buf is None:
-            output_buffer = _save_with_quality(1)
+            # Even quality 1 is too big. We must scale down the image resolution.
+            scale = 0.8
+            current_img = img
+            while True:
+                new_w = max(10, int(current_img.width * scale))
+                new_h = max(10, int(current_img.height * scale))
+                if new_w <= 10 and new_h <= 10:
+                    # Can't shrink anymore
+                    buf = io.BytesIO()
+                    sk = {"quality": 1} if fmt in ("JPEG", "WEBP") else {}
+                    if fmt in ("JPEG", "PNG"): sk["optimize"] = True
+                    current_img.save(buf, format=fmt, **sk)
+                    output_buffer = buf
+                    break
+                
+                current_img = current_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+                buf = io.BytesIO()
+                sk = {"quality": 5} if fmt in ("JPEG", "WEBP") else {}
+                if fmt in ("JPEG", "PNG"): sk["optimize"] = True
+                current_img.save(buf, format=fmt, **sk)
+                
+                if buf.getbuffer().nbytes <= target_bytes:
+                    output_buffer = buf
+                    break
+                
+                scale *= 0.8
         else:
             output_buffer = best_buf
     else:

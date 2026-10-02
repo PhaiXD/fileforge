@@ -337,17 +337,17 @@
             </div>
             <div class="file-list"></div>
             <div style="margin-top:20px; display:flex; gap:24px; flex-wrap:wrap; align-items:end;">
-                <div class="option-group">
-                    <label class="option-label">Compression Level</label>
-                    <select class="option-select quality-select">
-                        <option value="high">Low Compression (Best Quality)</option>
-                        <option value="medium" selected>Medium Compression (Balanced)</option>
-                        <option value="low">High Compression (Smallest Size)</option>
-                    </select>
-                </div>
-                <div class="option-group">
-                    <label class="option-label">Target Size (KB, optional)</label>
-                    <input type="number" class="modal-input target-size-input" placeholder="e.g. 500" min="10" style="margin-bottom:0; max-width:200px;">
+                <div class="option-group compress-controls" style="width:100%; max-width:400px; opacity:0.5; pointer-events:none;">
+                    <label class="option-label" style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span>Target Size: <span class="target-size-display" style="font-weight:600; color:var(--text-primary);">--</span></span>
+                        <span>Compress: <span class="compression-percent-display" style="font-weight:600; color:var(--accent);">--</span></span>
+                    </label>
+                    <input type="range" class="option-range target-size-slider" min="10" max="100" value="50" step="10">
+                    <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-tertiary); margin-top:4px;">
+                        <span>High Compress (Small)</span>
+                        <span>Low Compress (Large)</span>
+                    </div>
+                    <input type="hidden" class="target-size-input">
                 </div>
             </div>
             <div style="margin-top:24px;">
@@ -377,21 +377,21 @@
             </div>
             <div class="file-list"></div>
             <div style="display:flex; gap:24px; margin-top:20px; flex-wrap:wrap; align-items:end;">
-                <div class="option-group">
-                    <label class="option-label">Compression: <span class="compress-value">Medium</span></label>
-                    <input type="range" min="1" max="5" value="3" step="1" class="option-range compress-range">
+                <div class="option-group compress-controls" style="width:100%; max-width:400px; opacity:0.5; pointer-events:none;">
+                    <label class="option-label" style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span>Target Size: <span class="target-size-display" style="font-weight:600; color:var(--text-primary);">--</span></span>
+                        <span>Compress: <span class="compression-percent-display" style="font-weight:600; color:var(--accent);">--</span></span>
+                    </label>
+                    <input type="range" class="option-range target-size-slider" min="10" max="100" value="50" step="10">
                     <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-tertiary); margin-top:4px;">
-                        <span>Low</span>
-                        <span>High</span>
+                        <span>High Compress (Small)</span>
+                        <span>Low Compress (Large)</span>
                     </div>
+                    <input type="hidden" class="target-size-input">
                 </div>
                 <div class="option-group">
                     <label class="option-label">Max Width (px, optional)</label>
-                    <input type="number" class="modal-input max-width-input" placeholder="e.g. 1920" min="100" style="margin-bottom:0; max-width:200px;">
-                </div>
-                <div class="option-group">
-                    <label class="option-label">Target Size (KB, optional)</label>
-                    <input type="number" class="modal-input target-size-input" placeholder="e.g. 150" min="10" style="margin-bottom:0; max-width:200px;">
+                    <input type="number" class="modal-input max-width-input" placeholder="e.g. 1920" min="100" style="margin-bottom:0; max-width:150px;">
                 </div>
             </div>
             <div style="margin-top:24px;">
