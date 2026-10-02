@@ -30,6 +30,7 @@ async def get_media_info(url: str) -> Dict[str, Any]:
         "--dump-json",
         "--no-download",
         "--no-warnings",
+        "--no-playlist",
         url,
     ]
     stdout, stderr, code = await _run_ytdlp(args)
@@ -151,6 +152,7 @@ async def get_subtitles(url: str) -> Optional[str]:
             "--skip-download",
             "-o", str(sub_dir / "subtitle"),
             "--no-warnings",
+            "--no-playlist",
             url,
         ]
         stdout, stderr, code = await _run_ytdlp(args)
