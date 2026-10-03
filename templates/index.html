@@ -80,6 +80,9 @@
             <button class="category-tab" data-category="pdf-docs">
                 <span class="tab-icon">📄</span> PDF & Documents
             </button>
+            <button class="category-tab store-tab-btn" data-category="store" style="margin-left:auto; background:var(--accent-purple-light); color:var(--accent-purple);">
+                <span class="tab-icon">🛒</span> Plugin Store
+            </button>
         </div>
 
         <!-- Mode Toggle -->
@@ -119,6 +122,30 @@
                         <div class="tool-card-desc">Summarize YouTube video content from subtitles or audio</div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- ==================== PLUGIN STORE SECTION ==================== -->
+        <section id="store-section" style="display:none; margin-top:16px;">
+            <div class="section-header">
+                <span class="section-icon">🛒</span>
+                <h2>Plugin Store</h2>
+                <span style="font-size:12px; color:var(--text-secondary);">Add new tools to FileForge</span>
+                <button id="store-refresh-btn" class="icon-btn" style="margin-left:auto; font-size:16px;" title="Refresh Store">🔄</button>
+            </div>
+            
+            <div id="store-loading" style="text-align:center; padding:40px; color:var(--text-secondary);">
+                <div style="font-size:24px; animation:spin 1s linear infinite; display:inline-block; margin-bottom:8px;">⏳</div>
+                <div>Connecting to Plugin Registry...</div>
+            </div>
+            
+            <div id="store-error" style="display:none; text-align:center; padding:40px; color:var(--accent-red); background:rgba(239,68,68,0.1); border-radius:12px;">
+                <div style="font-size:24px; margin-bottom:8px;">❌</div>
+                <div class="store-error-msg">Failed to load plugins.</div>
+            </div>
+
+            <div id="store-grid" class="tool-grid" style="display:none; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+                <!-- Plugin cards rendered by store.js -->
             </div>
         </section>
 
@@ -722,6 +749,8 @@
     <script src="/static/js/compress.js?v=1.4"></script>
     <script src="/static/js/media.js?v=1.4"></script>
     <script src="/static/js/ai.js?v=1.4"></script>
+    <script src="/static/js/store.js"></script>
+    <script src="/static/js/plugin-ui.js"></script>
     <script src="/static/js/app.js?v=1.4"></script>
 </body>
 </html>

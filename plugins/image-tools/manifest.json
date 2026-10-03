@@ -1,0 +1,146 @@
+﻿{
+  "id": "image-tools",
+  "name": "Image Tools (Essential)",
+  "version": "1.0.0",
+  "description": "Core image conversions",
+  "author": "PhaiXD",
+  "icon": "🖼️",
+  "min_core_version": "2.0.0",
+  "tools": [
+    {
+      "id": "png-jpg",
+      "name": "PNG to JPG",
+      "description": "Convert PNG images to JPG format",
+      "icon": "🖼️",
+      "category": "image",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".png"]
+      },
+      "command": "plugin.bat",
+      "args": ["png-jpg", "{input_file}", "{output_file}"],
+      "output_ext": ".jpg"
+    },
+    {
+      "id": "webp-jpg",
+      "name": "WEBP to JPG",
+      "description": "Convert WebP images to JPG format",
+      "icon": "🌐",
+      "category": "image",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".webp"]
+      },
+      "command": "plugin.bat",
+      "args": ["webp-jpg", "{input_file}", "{output_file}"],
+      "output_ext": ".jpg"
+    },
+    {
+      "id": "heic-jpg",
+      "name": "HEIC to JPG",
+      "description": "Convert Apple HEIC to JPG format",
+      "icon": "📸",
+      "category": "image",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".heic", ".heif"]
+      },
+      "command": "plugin.bat",
+      "args": ["heic-jpg", "{input_file}", "{output_file}"],
+      "output_ext": ".jpg"
+    },
+    {
+      "id": "jpg-png",
+      "name": "JPG to PNG",
+      "description": "Convert JPG images to PNG format",
+      "icon": "🖼️",
+      "category": "image",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".jpg", ".jpeg"]
+      },
+      "command": "plugin.bat",
+      "args": ["jpg-png", "{input_file}", "{output_file}"],
+      "output_ext": ".png"
+    },
+    {
+      "id": "webp-png",
+      "name": "WEBP to PNG",
+      "description": "Convert WebP images to PNG format",
+      "icon": "🌐",
+      "category": "image",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".webp"]
+      },
+      "command": "plugin.bat",
+      "args": ["webp-png", "{input_file}", "{output_file}"],
+      "output_ext": ".png"
+    },
+    {
+      "id": "heic-png",
+      "name": "HEIC to PNG",
+      "description": "Convert Apple HEIC to PNG format",
+      "icon": "📸",
+      "category": "image",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".heic", ".heif"]
+      },
+      "command": "plugin.bat",
+      "args": ["heic-png", "{input_file}", "{output_file}"],
+      "output_ext": ".png"
+    },
+    {
+      "id": "jpg-webp",
+      "name": "JPG to WEBP",
+      "description": "Convert JPG images to WebP format",
+      "icon": "🖼️",
+      "category": "image",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".jpg", ".jpeg"]
+      },
+      "command": "plugin.bat",
+      "args": ["jpg-webp", "{input_file}", "{output_file}"],
+      "output_ext": ".webp"
+    },
+    {
+      "id": "png-webp",
+      "name": "PNG to WEBP",
+      "description": "Convert PNG images to WebP format",
+      "icon": "🖼️",
+      "category": "image",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".png"]
+      },
+      "command": "plugin.bat",
+      "args": ["png-webp", "{input_file}", "{output_file}"],
+      "output_ext": ".webp"
+    },
+    {
+      "id": "heic-webp",
+      "name": "HEIC to WEBP",
+      "description": "Convert Apple HEIC to WebP format",
+      "icon": "📸",
+      "category": "image",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".heic", ".heif"]
+      },
+      "command": "plugin.bat",
+      "args": ["heic-webp", "{input_file}", "{output_file}"],
+      "output_ext": ".webp"
+    }
+  ]
+}

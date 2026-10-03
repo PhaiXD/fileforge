@@ -1162,6 +1162,29 @@ body {
 @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes indeterminate { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
+/* --- Plugin Dynamic UI Styles --- */
+.plugin-generated-panel {
+    animation: fadeIn 0.3s ease;
+}
+
+.plugin-text-input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.plugin-text-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
 /* --- Responsive --- */
 @media (max-width: 768px) {
     .navbar { padding: 0 16px; }

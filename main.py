@@ -22,7 +22,7 @@ from config import (
     TEMP_DIR,
     TEMPLATES_DIR,
 )
-from routers import pdf, image, media, ai, system
+from routers import pdf, image, media, ai, system, plugins
 
 import threading
 import webbrowser
@@ -86,6 +86,7 @@ app.include_router(image.router)
 app.include_router(media.router)
 app.include_router(ai.router)
 app.include_router(system.router)
+app.include_router(plugins.router)
 
 
 # --- Serve Frontend ---

@@ -6,7 +6,7 @@ from pathlib import Path
 
 # --- App Info ---
 APP_NAME = "FileForge"
-APP_VERSION = "1.1.1"
+APP_VERSION = "1.1.2"
 APP_DESCRIPTION = "Local file conversion, compression & media tools"
 
 # --- GitHub Repository (for auto-update) ---
@@ -28,6 +28,22 @@ else:
 TEMP_DIR = BASE_DIR / "temp"
 TEMPLATES_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
+
+# --- Plugin System Paths (v2.0) ---
+_APPDATA = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+DATA_DIR = _APPDATA / "FileForge"
+PLUGINS_DIR = DATA_DIR / "plugins"
+BUILTIN_PLUGINS_DIR = BASE_DIR / "plugins"
+CACHE_DIR = DATA_DIR / "cache"
+
+# --- Plugin Store ---
+PLUGIN_REGISTRY_OWNER = "PhaiXD"
+PLUGIN_REGISTRY_REPO = "fileforge-plugins"
+PLUGIN_REGISTRY_URL = (
+    f"https://raw.githubusercontent.com/{PLUGIN_REGISTRY_OWNER}"
+    f"/{PLUGIN_REGISTRY_REPO}/main/registry.json"
+)
+PLUGIN_REGISTRY_CACHE_TTL = 3600  # seconds (1 hour)
 
 # --- Server ---
 HOST = "127.0.0.1"

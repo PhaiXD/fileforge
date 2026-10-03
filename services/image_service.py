@@ -27,18 +27,7 @@ async def compress_image(
     """
     ext_lower = filename.lower().rsplit(".", 1)[-1] if "." in filename else ""
 
-    # Handle SVG input: convert to raster via cairosvg
-    if ext_lower == "svg":
-        try:
-            import cairosvg
-        except ImportError:
-            raise ValueError("cairosvg is required for SVG conversion. Install with: pip install cairosvg")
-
-        # Convert SVG to PNG bytes first, then open as PIL Image
-        png_bytes = cairosvg.svg2png(bytestring=image_bytes)
-        img = Image.open(io.BytesIO(png_bytes))
-    else:
-        img = Image.open(io.BytesIO(image_bytes))
+    img = Image.open(io.BytesIO(image_bytes))
 
     original_format = img.format or "JPEG"
 

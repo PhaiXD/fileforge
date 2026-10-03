@@ -1,0 +1,146 @@
+{
+  "id": "media-tools",
+  "name": "Media Downloader",
+  "version": "1.0.0",
+  "description": "YouTube, MP4, MP3, AV1",
+  "author": "PhaiXD",
+  "icon": "🎬",
+  "min_core_version": "2.0.0",
+  "tools": [
+    {
+      "id": "yt-mp4",
+      "name": "YouTube to MP4",
+      "description": "Download YouTube videos as MP4",
+      "icon": "🎬",
+      "category": "video-audio",
+      "mode": "convert",
+      "inputs": {
+        "type": "url",
+        "placeholder": "https://youtube.com/..."
+      },
+      "command": "plugin.bat",
+      "args": ["yt-mp4", "{input_file}", "{output_file}"],
+      "output_ext": ".mp4"
+    },
+    {
+      "id": "yt-mp3",
+      "name": "YouTube to MP3",
+      "description": "Extract audio from YouTube videos",
+      "icon": "🎵",
+      "category": "video-audio",
+      "mode": "convert",
+      "inputs": {
+        "type": "url",
+        "placeholder": "https://youtube.com/..."
+      },
+      "command": "plugin.bat",
+      "args": ["yt-mp3", "{input_file}", "{output_file}"],
+      "output_ext": ".mp3"
+    },
+    {
+      "id": "mp4-mp3",
+      "name": "MP4 to MP3",
+      "description": "Extract audio from MP4 video",
+      "icon": "🎧",
+      "category": "video-audio",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".mp4"]
+      },
+      "command": "plugin.bat",
+      "args": ["to-mp3", "{input_file}", "{output_file}"],
+      "output_ext": ".mp3"
+    },
+    {
+      "id": "mp4-m4a",
+      "name": "MP4 to M4A",
+      "description": "Extract audio from MP4 video (AAC)",
+      "icon": "🎧",
+      "category": "video-audio",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".mp4"]
+      },
+      "command": "plugin.bat",
+      "args": ["to-m4a", "{input_file}", "{output_file}"],
+      "output_ext": ".m4a"
+    },
+    {
+      "id": "mov-mp4",
+      "name": "MOV to MP4",
+      "description": "Convert QuickTime MOV to MP4",
+      "icon": "📹",
+      "category": "video-audio",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".mov"]
+      },
+      "command": "plugin.bat",
+      "args": ["to-mp4", "{input_file}", "{output_file}"],
+      "output_ext": ".mp4"
+    },
+    {
+      "id": "webm-mp4",
+      "name": "WEBM to MP4",
+      "description": "Convert WEBM to MP4",
+      "icon": "📹",
+      "category": "video-audio",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".webm"]
+      },
+      "command": "plugin.bat",
+      "args": ["to-mp4", "{input_file}", "{output_file}"],
+      "output_ext": ".mp4"
+    },
+    {
+      "id": "av1-mp4",
+      "name": "AV1 to MP4",
+      "description": "Convert AV1 to MP4",
+      "icon": "📹",
+      "category": "video-audio",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".av1"]
+      },
+      "command": "plugin.bat",
+      "args": ["to-mp4", "{input_file}", "{output_file}"],
+      "output_ext": ".mp4"
+    },
+    {
+      "id": "wav-mp3",
+      "name": "WAV to MP3",
+      "description": "Convert WAV audio to MP3",
+      "icon": "🎵",
+      "category": "video-audio",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".wav"]
+      },
+      "command": "plugin.bat",
+      "args": ["to-mp3", "{input_file}", "{output_file}"],
+      "output_ext": ".mp3"
+    },
+    {
+      "id": "mp4-gif",
+      "name": "MP4 to GIF",
+      "description": "Convert MP4 to animated GIF",
+      "icon": "🖼️",
+      "category": "video-audio",
+      "mode": "convert",
+      "inputs": {
+        "type": "file",
+        "accept": [".mp4"]
+      },
+      "command": "plugin.bat",
+      "args": ["to-gif", "{input_file}", "{output_file}"],
+      "output_ext": ".gif"
+    }
+  ]
+}
