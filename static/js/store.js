@@ -29,6 +29,8 @@ async function loadStore() {
             errorEl.style.display = 'block';
             errorEl.querySelector('.store-error-msg').innerText = 'No plugins found in the registry.';
         } else {
+            window.storePluginsData = data.plugins;
+            if (typeof renderTools === 'function') renderTools();
             data.plugins.forEach(plugin => {
                 gridEl.appendChild(createPluginCard(plugin));
             });
