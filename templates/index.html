@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -47,6 +47,12 @@
             <h1>FileForge</h1>
             <p>Convert, compress, download, and summarize — all locally on your machine.</p>
         </section>
+
+        <!-- Smart Convert Drop Zone -->
+        <div id="smart-convert-box" class="smart-convert-box">
+            <!-- Rendered by smart-convert.js -->
+        </div>
+        <input type="file" id="sc-file-input" multiple hidden>
 
         <div id="search-container" class="search-container" style="display:flex; gap: 8px; flex-wrap:wrap; align-items:center;">
             <div class="search-box" style="flex:1; min-width:200px;">
@@ -751,6 +757,7 @@
     <script src="/static/js/ai.js?v=1.4"></script>
     <script src="/static/js/store.js?v=2.4"></script>
     <script src="/static/js/plugin-ui.js?v=2.2.0"></script>
+    <script src="/static/js/smart-convert.js?v=1.0"></script>
     <script src="/static/js/app.js?v=2.5"></script>
 
     
