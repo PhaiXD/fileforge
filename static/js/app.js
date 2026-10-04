@@ -1,4 +1,4 @@
-﻿
+
 // ============================================================
 // Custom Modal (replaces browser alert/confirm)
 // ============================================================
@@ -152,11 +152,30 @@ window.showToolInfo = function(toolId, e) {
             pluginRef = plugin;
         }
     } else {
-        const tools = window.TOOLS[currentMode] || [];
-        toolInfo = tools.find(t => t.id === toolId);
+        // Search across all modes for native tools
+        for (const mode in window.TOOLS) {
+            const tools = window.TOOLS[mode] || [];
+            toolInfo = tools.find(t => t.id === toolId);
+            if (toolInfo) break;
+        }
     }
     
-    if (!toolInfo) return;
+    if (!toolInfo) {
+        // Might be a store tool
+        if (toolId.startsWith('store:')) {
+            const parts = toolId.split(':');
+            const pluginId = parts[1];
+            const tId = parts[2];
+            const plugin = window.storePluginsData?.find(p => p.id === pluginId);
+            if (plugin) {
+                if (tId) toolInfo = plugin.tools?.find(t => t.id === tId);
+                else toolInfo = plugin;
+                isPlugin = true;
+                pluginRef = plugin;
+            }
+        }
+        if (!toolInfo) return;
+    }
     
     const isBuiltin = pluginRef?._builtin || !isPlugin;
     
@@ -167,13 +186,16 @@ window.showToolInfo = function(toolId, e) {
             <div><strong>ID:</strong> ${toolInfo.id}</div>`;
             
     if (isPlugin && pluginRef) {
-        html += `<div><strong>Provided by:</strong> ${pluginRef.name} v${pluginRef.version}</div>
-                 <div><strong>Author:</strong> ${pluginRef.author}</div>`;
+        html += `<div><strong>Plugin Name:</strong> ${pluginRef.name}</div>
+                 <div><strong>Version:</strong> v${pluginRef.version || '1.0.0'}</div>
+                 <div><strong>Author:</strong> ${pluginRef.author || 'Unknown'}</div>`;
+    } else {
+        html += `<div><strong>Version:</strong> Built-in (Core)</div>`;
     }
     
     html += `</div>`;
     
-    if (isPlugin && !isBuiltin) {
+    if (isPlugin && !isBuiltin && !toolId.startsWith('store:')) {
         html += `<button onclick="uninstallPlugin('${pluginRef.id}')" class="btn-secondary" style="width:100%; border-color:var(--accent-red); color:var(--accent-red);">🗑️ Uninstall Plugin</button>`;
     } else if (isBuiltin) {
         html += `<div style="text-align:center; font-size:12px; color:var(--text-tertiary);">Core Built-in Tool</div>`;
@@ -1069,6 +1091,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (ctxMenu) {
         document.getElementById('ctx-info').onclick = (e) => {
+            document.getElementById('tool-context-menu').style.display = 'none';
             if (ctxToolId) {
                 if(typeof showToolInfo === 'function') showToolInfo(ctxToolId, e);
             }
@@ -1080,12 +1103,27 @@ document.addEventListener('DOMContentLoaded', () => {
               }
           };
         document.getElementById('ctx-uninstall').onclick = (e) => {
-            document.getElementById('tool-context-menu').style.display = 'none'; if (ctxToolId && ctxToolId.startsWith('plugin:')) {
+            document.getElementById('tool-context-menu').style.display = 'none';
+            if (!ctxToolId) return;
+            
+            if (ctxToolId.startsWith('plugin:')) {
                 const pluginId = ctxToolId.split(':')[1];
                 if(typeof uninstallPlugin === 'function') uninstallPlugin(pluginId);
+            } else if (!ctxToolId.startsWith('store:')) {
+                customConfirm('Are you sure you want to remove this built-in tool?', 'Remove Tool', '🗑️').then(ok => {
+                    if (ok) {
+                        let hidden = JSON.parse(localStorage.getItem('fileforge_hidden_native') || '[]');
+                        if (!hidden.includes(ctxToolId)) {
+                            hidden.push(ctxToolId);
+                            localStorage.setItem('fileforge_hidden_native', JSON.stringify(hidden));
+                        }
+                        renderTools();
+                    }
+                });
             }
         };
         document.getElementById('ctx-install').onclick = (e) => {
+            document.getElementById('tool-context-menu').style.display = 'none';
             if (ctxToolId && ctxToolId.startsWith('store:')) {
                 const pluginId = ctxToolId.split(':')[1];
                 if (typeof installPlugin === 'function') installPlugin(pluginId);
