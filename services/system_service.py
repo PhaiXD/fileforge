@@ -17,6 +17,31 @@ async def get_current_version() -> str:
     return APP_VERSION
 
 
+def is_newer_version(latest: str, current: str) -> bool:
+    """Compare two version strings, returns True if latest > current"""
+    try:
+        # Remove any non-numeric chars except dot
+        import re
+        latest_clean = re.sub(r'[^0-9\.]', '', latest)
+        current_clean = re.sub(r'[^0-9\.]', '', current)
+        
+        latest_parts = [int(x) for x in latest_clean.split('.') if x]
+        current_parts = [int(x) for x in current_clean.split('.') if x]
+        
+        length = max(len(latest_parts), len(current_parts))
+        latest_parts += [0] * (length - len(latest_parts))
+        current_parts += [0] * (length - len(current_parts))
+        
+        for l, c in zip(latest_parts, current_parts):
+            if l > c:
+                return True
+            elif l < c:
+                return False
+        return False
+    except Exception:
+        return latest != current and latest != ""
+
+
 async def check_for_update() -> Dict[str, Any]:
     """
     Check GitHub for the latest version by reading the remote config.py
@@ -36,10 +61,8 @@ async def check_for_update() -> Dict[str, Any]:
                 data = response.json()
                 latest_version = data.get("tag_name", "").lstrip("v")
                 
-                # Check if update is available (simple string comparison, assumes semantic versioning)
-                # Remove "v" prefix from current version if it exists
                 curr_ver = current_version.lstrip("v")
-                update_available = latest_version != curr_ver and latest_version != ""
+                update_available = is_newer_version(latest_version, curr_ver)
                 
                 return {
                     "current_version": current_version,
@@ -63,7 +86,7 @@ async def check_for_update() -> Dict[str, Any]:
                     return {
                         "current_version": current_version,
                         "latest_version": latest_tag,
-                        "update_available": latest_tag != curr_ver and latest_tag != "",
+                        "update_available": is_newer_version(latest_tag, curr_ver),
                         "release_notes": "",
                         "release_url": f"{GITHUB_REPO_URL}/releases",
                     }
