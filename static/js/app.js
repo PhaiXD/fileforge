@@ -1104,9 +1104,7 @@ function getInstalledToolIds() {
         nativeTools = nativeTools.filter(t => !hiddenNative.includes(t.id));
     } catch(e) {}
     // Also include other modes just in case
-    Object.values(window.TOOLS).forEach(toolArray => {
-        toolArray.forEach(t => installedToolIds.add(t.id));
-    });
+    Object.values(window.TOOLS).forEach(toolArray => { if(Array.isArray(toolArray)) { toolArray.forEach(t => installedToolIds.add(t.id)); } });
     if (window.installedPluginsData) {
         window.installedPluginsData.forEach(plugin => {
             if (plugin.tools) {
@@ -1116,4 +1114,5 @@ function getInstalledToolIds() {
     }
     return installedToolIds;
 }
+
 
