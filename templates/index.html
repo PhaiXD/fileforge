@@ -34,10 +34,34 @@
             <span class="navbar-version">v{{ version }}</span>
         </a>
         <div class="navbar-actions">
+            <button id="btn-github" class="icon-btn" title="GitHub">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </button>
             <button id="btn-settings" class="icon-btn" title="Settings">⚙️</button>
             <button id="theme-toggle" class="icon-btn" title="Toggle Theme">🌙</button>
         </div>
     </nav>
+
+    <!-- GitHub Popup -->
+    <div id="github-popup" class="github-popup" style="display:none;">
+        <div class="github-popup-inner">
+            <h3 style="margin:0 0 12px; font-size:16px; color:var(--text-primary);">📂 Open Source on GitHub</h3>
+            <a href="https://github.com/PhaiXD/fileforge" target="_blank" class="github-link-card">
+                <div class="github-link-icon">🔧</div>
+                <div>
+                    <div class="github-link-title">FileForge — Core</div>
+                    <div class="github-link-desc">Main application: local file conversion, compression, media tools & AI summarization.</div>
+                </div>
+            </a>
+            <a href="https://github.com/PhaiXD/fileforge-plugins" target="_blank" class="github-link-card">
+                <div class="github-link-icon">🧩</div>
+                <div>
+                    <div class="github-link-title">FileForge — Plugins</div>
+                    <div class="github-link-desc">Community plugin repository: additional format converters and tools.</div>
+                </div>
+            </a>
+        </div>
+    </div>
 
     
 <main class="main-content">
@@ -45,11 +69,16 @@
 
         <section class="hero">
             <h1>FileForge</h1>
-            <p>Convert, compress, download, and summarize — all locally on your machine.</p>
+            <div class="hero-tagline-wrapper">
+                <p class="hero-tagline active">Convert, compress, download, and summarize — all locally on your machine.</p>
+                <p class="hero-tagline">Your all-in-one file toolkit — fast, free, and privacy-first.</p>
+                <p class="hero-tagline">Transform any file format with a single click — no uploads, no limits.</p>
+                <p class="hero-tagline">PDF, images, video, audio — convert them all offline.</p>
+            </div>
         </section>
 
         <!-- Smart Convert Drop Zone -->
-        <div id="smart-convert-box" class="smart-convert-box">
+        <div id="smart-convert-box" class="smart-convert-box" style="margin-top:48px; margin-bottom:48px;">
             <!-- Rendered by smart-convert.js -->
         </div>
         <input type="file" id="sc-file-input" multiple hidden>
@@ -758,7 +787,7 @@
     <script src="/static/js/store.js?v=2.4"></script>
     <script src="/static/js/plugin-ui.js?v=2.2.0"></script>
     <script src="/static/js/smart-convert.js?v=1.0"></script>
-    <script src="/static/js/app.js?v=2.5"></script>
+    <script src="/static/js/app.js?v=2.6"></script>
 
     
     <!-- Custom Modal (replaces browser alert/confirm) -->

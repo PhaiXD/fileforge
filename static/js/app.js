@@ -1097,6 +1097,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.id === 'settings-modal') hideSettingsModal();
     });
 
+    // GitHub popup
+    const ghBtn = document.getElementById('btn-github');
+    const ghPopup = document.getElementById('github-popup');
+    if (ghBtn && ghPopup) {
+        ghBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            ghPopup.style.display = ghPopup.style.display === 'none' ? 'block' : 'none';
+        });
+        document.addEventListener('click', (e) => {
+            if (!ghPopup.contains(e.target) && e.target !== ghBtn) {
+                ghPopup.style.display = 'none';
+            }
+        });
+    }
+
+    // Rotating tagline
+    const taglines = document.querySelectorAll('.hero-tagline');
+    if (taglines.length > 1) {
+        let currentIdx = 0;
+        setInterval(() => {
+            taglines[currentIdx].classList.remove('active');
+            currentIdx = (currentIdx + 1) % taglines.length;
+            taglines[currentIdx].classList.add('active');
+        }, 4000);
+    }
+
     // Update
     document.querySelector('.update-modal-btn')?.addEventListener('click', performUpdate);
     document.querySelector('.update-modal-later')?.addEventListener('click', () => {
