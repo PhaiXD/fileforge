@@ -74,42 +74,46 @@ let currentMode = 'convert';
 let currentPanel = null;
 let ctxToolId = null;
 let ctxIsStore = false;
+let toolsCurrentPage = 1;
+const TOOLS_PER_PAGE = 24;
 
 window.TOOLS = {
     convert: [
-        { id: 'yt-mp4', title: 'YouTube to MP4', desc: 'Download YouTube videos as MP4', icon: '🎬', color: 'var(--accent-red)', active: true },
-        { id: 'yt-mp3', title: 'YouTube to MP3', desc: 'Extract audio from YouTube videos', icon: '🎵', color: 'var(--accent-red)', active: true },
-        { id: 'mp4-mp3', title: 'MP4 to MP3', desc: 'Extract audio from MP4 video', icon: '🎧', color: 'var(--accent-blue)', active: true },
-        { id: 'mp4-m4a', title: 'MP4 to M4A', desc: 'Extract audio from MP4 video (AAC)', icon: '🎧', color: 'var(--accent-blue)', active: true },
-        { id: 'mov-mp4', title: 'MOV to MP4', desc: 'Convert QuickTime MOV to MP4', icon: '📹', color: 'var(--accent-green)', active: true },
-        { id: 'webm-mp4', title: 'WEBM to MP4', desc: 'Convert WEBM to MP4', icon: '📹', color: 'var(--accent-green)', active: true },
-        { id: 'av1-mp4', title: 'AV1 to MP4', desc: 'Convert AV1 to MP4', icon: '📹', color: 'var(--accent-green)', active: true },
-        { id: 'wav-mp3', title: 'WAV to MP3', desc: 'Convert WAV audio to MP3', icon: '🎵', color: 'var(--accent-teal)', active: true },
-        { id: 'mp4-gif', title: 'MP4 to GIF', desc: 'Convert MP4 to animated GIF', icon: '🖼️', color: 'var(--accent-yellow)', active: true },
-        { id: 'png-jpg', title: 'PNG to JPG', desc: 'Convert PNG images to JPG format', icon: '🖼️', color: 'var(--accent-blue)', active: true },
-        { id: 'webp-jpg', title: 'WEBP to JPG', desc: 'Convert WebP images to JPG format', icon: '🌐', color: 'var(--accent-blue)', active: true },
-        { id: 'heic-jpg', title: 'HEIC to JPG', desc: 'Convert Apple HEIC to JPG', icon: '📸', color: 'var(--accent-teal)', active: true },
-        { id: 'jpg-png', title: 'JPG to PNG', desc: 'Convert JPG images to PNG format', icon: '🖼️', color: 'var(--accent-green)', active: true },
-        { id: 'webp-png', title: 'WEBP to PNG', desc: 'Convert WebP images to PNG', icon: '🌐', color: 'var(--accent-green)', active: true },
-        { id: 'heic-png', title: 'HEIC to PNG', desc: 'Convert Apple HEIC to PNG', icon: '📸', color: 'var(--accent-teal)', active: true },
-        { id: 'jpg-webp', title: 'JPG to WEBP', desc: 'Convert JPG images to WebP format', icon: '🖼️', color: 'var(--accent-purple)', active: true },
-        { id: 'png-webp', title: 'PNG to WEBP', desc: 'Convert PNG images to WebP format', icon: '🖼️', color: 'var(--accent-purple)', active: true },
-        { id: 'image-pdf', title: 'Image to PDF', desc: 'Convert image files to PDF format', icon: '📄', color: 'var(--accent-green)', active: true },
-        { id: 'images-to-pdf', title: 'Merge Images to PDF', desc: 'Merge multiple images into a single PDF file', icon: '📑', color: 'var(--accent-blue)', active: true },
-        { id: 'pdf-to-jpg', title: 'PDF to JPG', desc: 'Convert PDF pages to JPG images', icon: '📄', color: 'var(--accent-red)', active: true },
-        { id: 'pdf-extract', title: 'Extract PDF Pages', desc: 'Split or extract specific pages from a PDF', icon: '✂️', color: 'var(--accent-purple)', active: true },
-        { id: 'pdf-merge', title: 'Merge PDFs', desc: 'Combine multiple PDFs into one', icon: '🔗', color: 'var(--accent-blue)', active: true },
-        { id: 'pdf-png', title: 'PDF to PNG', desc: 'Convert PDF pages to PNG images', icon: '🖼️', color: 'var(--accent-green)', active: true },
+        { id: 'mp4-mp3', title: 'MP4 to MP3', desc: 'Extract audio from MP4 video', icon: '🎧', color: 'var(--accent-blue)', active: true, tags: ['video','audio'] },
+        { id: 'mp4-m4a', title: 'MP4 to M4A', desc: 'Extract audio from MP4 video (AAC)', icon: '🎧', color: 'var(--accent-blue)', active: true, tags: ['video','audio'] },
+        { id: 'mov-mp4', title: 'MOV to MP4', desc: 'Convert QuickTime MOV to MP4', icon: '📹', color: 'var(--accent-green)', active: true, tags: ['video'] },
+        { id: 'webm-mp4', title: 'WEBM to MP4', desc: 'Convert WEBM to MP4', icon: '📹', color: 'var(--accent-green)', active: true, tags: ['video'] },
+        { id: 'av1-mp4', title: 'AV1 to MP4', desc: 'Convert AV1 to MP4', icon: '📹', color: 'var(--accent-green)', active: true, tags: ['video'] },
+        { id: 'wav-mp3', title: 'WAV to MP3', desc: 'Convert WAV audio to MP3', icon: '🎵', color: 'var(--accent-teal)', active: true, tags: ['audio'] },
+        { id: 'mp4-gif', title: 'MP4 to GIF', desc: 'Convert MP4 to animated GIF', icon: '🖼️', color: 'var(--accent-yellow)', active: true, tags: ['video','image'] },
+        { id: 'png-jpg', title: 'PNG to JPG', desc: 'Convert PNG images to JPG format', icon: '🖼️', color: 'var(--accent-blue)', active: true, tags: ['image'] },
+        { id: 'webp-jpg', title: 'WEBP to JPG', desc: 'Convert WebP images to JPG format', icon: '🌐', color: 'var(--accent-blue)', active: true, tags: ['image'] },
+        { id: 'heic-jpg', title: 'HEIC to JPG', desc: 'Convert Apple HEIC to JPG', icon: '📸', color: 'var(--accent-teal)', active: true, tags: ['image'] },
+        { id: 'jpg-png', title: 'JPG to PNG', desc: 'Convert JPG images to PNG format', icon: '🖼️', color: 'var(--accent-green)', active: true, tags: ['image'] },
+        { id: 'webp-png', title: 'WEBP to PNG', desc: 'Convert WebP images to PNG', icon: '🌐', color: 'var(--accent-green)', active: true, tags: ['image'] },
+        { id: 'heic-png', title: 'HEIC to PNG', desc: 'Convert Apple HEIC to PNG', icon: '📸', color: 'var(--accent-teal)', active: true, tags: ['image'] },
+        { id: 'jpg-webp', title: 'JPG to WEBP', desc: 'Convert JPG images to WebP format', icon: '🖼️', color: 'var(--accent-purple)', active: true, tags: ['image'] },
+        { id: 'png-webp', title: 'PNG to WEBP', desc: 'Convert PNG images to WebP format', icon: '🖼️', color: 'var(--accent-purple)', active: true, tags: ['image'] },
+        { id: 'image-pdf', title: 'Image to PDF', desc: 'Convert image files to PDF format', icon: '📄', color: 'var(--accent-green)', active: true, tags: ['image','document'] },
+        { id: 'images-to-pdf', title: 'Merge Images to PDF', desc: 'Merge multiple images into a single PDF file', icon: '📑', color: 'var(--accent-blue)', active: true, tags: ['image','document'] },
+        { id: 'pdf-to-jpg', title: 'PDF to JPG', desc: 'Convert PDF pages to JPG images', icon: '📄', color: 'var(--accent-red)', active: true, tags: ['document','image'] },
+        { id: 'pdf-extract', title: 'Extract PDF Pages', desc: 'Split or extract specific pages from a PDF', icon: '✂️', color: 'var(--accent-purple)', active: true, tags: ['document'] },
+        { id: 'pdf-merge', title: 'Merge PDFs', desc: 'Combine multiple PDFs into one', icon: '🔗', color: 'var(--accent-blue)', active: true, tags: ['document'] },
+        { id: 'pdf-png', title: 'PDF to PNG', desc: 'Convert PDF pages to PNG images', icon: '🖼️', color: 'var(--accent-green)', active: true, tags: ['document','image'] },
     ],
     compress: [
-        { id: 'video-compress', title: 'Video Compressor', desc: 'Reduce video file size', icon: '🗜️', color: 'var(--accent-blue)', active: false },
-        { id: 'audio-compress', title: 'Audio Compressor', desc: 'Reduce audio file size', icon: '🔉', color: 'var(--accent-teal)', active: false },
-        { id: 'image-compress', title: 'Image Compressor', desc: 'Reduce image file size while preserving quality', icon: '📐', color: 'var(--accent-green)', active: true },
-        { id: 'pdf-compress', title: 'PDF Compressor', desc: 'Reduce PDF file size for sharing', icon: '📦', color: 'var(--accent-red)', active: true },
+        { id: 'video-compress', title: 'Video Compressor', desc: 'Reduce video file size', icon: '🗜️', color: 'var(--accent-blue)', active: false, tags: ['video'] },
+        { id: 'audio-compress', title: 'Audio Compressor', desc: 'Reduce audio file size', icon: '🔉', color: 'var(--accent-teal)', active: false, tags: ['audio'] },
+        { id: 'image-compress', title: 'Image Compressor', desc: 'Reduce image file size while preserving quality', icon: '📐', color: 'var(--accent-green)', active: true, tags: ['image'] },
+        { id: 'pdf-compress', title: 'PDF Compressor', desc: 'Reduce PDF file size for sharing', icon: '📦', color: 'var(--accent-red)', active: true, tags: ['document'] },
+    ],
+    fetch: [
+        { id: 'yt-mp4', title: 'YouTube to MP4', desc: 'Download YouTube videos as MP4', icon: '🎬', color: 'var(--accent-red)', active: true, tags: ['video'] },
+        { id: 'yt-mp3', title: 'YouTube to MP3', desc: 'Extract audio from YouTube videos', icon: '🎵', color: 'var(--accent-red)', active: true, tags: ['audio','video'] },
     ],
     ai: [
-        { id: 'ai-pdf', title: 'Summarize PDF', desc: 'Extract and summarize PDF content using AI', icon: '📄', color: 'var(--accent-purple)', active: true },
-        { id: 'ai-video', title: 'Summarize Video', desc: 'Summarize YouTube video content from subtitles or audio', icon: '🎬', color: 'var(--accent-purple)', active: true },
+        { id: 'ai-pdf', title: 'Summarize PDF', desc: 'Extract and summarize PDF content using AI', icon: '📄', color: 'var(--accent-purple)', active: true, tags: ['document'] },
+        { id: 'ai-video', title: 'Summarize Video', desc: 'Summarize YouTube video content from subtitles or audio', icon: '🎬', color: 'var(--accent-purple)', active: true, tags: ['video'] },
     ]
 };
 
@@ -191,33 +195,19 @@ window.showToolInfo = function(toolId, e) {
         html += `<div><strong>Version:</strong> Built-in (Core)</div>`;
     }
     
-    html += `</div>`;
-    
-    if (isPlugin && !isBuiltin && !toolId.startsWith('store:')) {
-        html += `<button onclick="uninstallPlugin('${pluginRef.id}')" class="btn-secondary" style="width:100%; border-color:var(--accent-red); color:var(--accent-red);">🗑️ Uninstall Plugin</button>`;
-    } else if (isBuiltin) {
-        html += `<div style="text-align:center; font-size:12px; color:var(--text-tertiary);">Core Built-in Tool</div>`;
-    }
-    
-    html += `</div>`;
+    html += `</div></div>`;
     
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
-    modal.style.display = 'flex';
-    modal.style.alignItems = 'center';
-    modal.style.justifyContent = 'center';
-    modal.style.position = 'fixed';
-    modal.style.top = '0';
-    modal.style.left = '0';
-    modal.style.right = '0';
-    modal.style.bottom = '0';
-    modal.style.background = 'rgba(0,0,0,0.5)';
-    modal.style.zIndex = '9999';
+    modal.style.cssText = 'display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;';
     
     modal.innerHTML = `<div class="modal-content" style="background:var(--bg-primary); padding:24px; border-radius:12px; width:90%; max-width:400px; box-shadow:0 10px 40px rgba(0,0,0,0.2);">
         ${html}
         <button onclick="this.parentElement.parentElement.remove()" class="btn-primary" style="margin-top:16px; width:100%;">Close</button>
     </div>`;
+    
+    // Click outside to close
+    modal.addEventListener('click', (ev) => { if (ev.target === modal) modal.remove(); });
     
     document.body.appendChild(modal);
 }
@@ -321,9 +311,14 @@ function renderTools() {
     const searchInput = document.getElementById('search-input');
     const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
     
+    // Reset page to 1 when search query changes (handled by input event listener below, but this is renderTools)
+    
     // Get active tags from left sidebar
     const activeTags = Array.from(document.querySelectorAll('.tag-filter:checked')).map(cb => cb.value.toLowerCase());
     
+    const recent = getRecentTools();
+    const favs = getFavorites();
+
     const filterBySearch = (tools) => {
         return tools.filter(t => {
             const searchableText = (t.title + " " + (t.desc || "") + " " + (t.tags?t.tags.join(' '):"") + " " + t.id).toLowerCase();
@@ -350,10 +345,6 @@ function renderTools() {
     mergedTools = filterBySearch(mergedTools);
     storeTools = filterBySearch(storeTools);
 
-    storeTools = filterBySearch(storeTools);
-
-    const recent = getRecentTools();
-    const favs = getFavorites();
     const favOnly = document.getElementById('fav-filter')?.checked;
 
     if (favOnly) {
@@ -380,9 +371,10 @@ function renderTools() {
 
     const renderCard = (tool, isStore = false) => {
         const isFav = favs.includes(tool.id);
-        return `<div class="tool-card ${isStore ? 'store-item' : ''}" data-tool="${tool.id}" style="--card-accent: ${tool.color}; ${isStore ? 'background:var(--bg-secondary); border-style:dashed;' : ''}">
+        const tColor = tool.color || 'var(--accent-purple)';
+        return `<div class="tool-card ${isStore ? 'store-item' : ''}" data-tool="${tool.id}" style="--card-accent: ${tColor}; ${isStore ? 'background:var(--bg-secondary); border-style:dashed;' : ''}">
             ${isFav ? '<div style="position:absolute; top:8px; right:8px; font-size:12px; z-index:2;" title="Favorite">⭐</div>' : ''}
-            <div class="tool-card-icon" style="background: color-mix(in srgb, ${tool.color} 15%, transparent); color: ${tool.color}">
+            <div class="tool-card-icon" style="background: color-mix(in srgb, ${tColor} 15%, transparent); color: ${tColor}">
                 ${tool.icon}
             </div>
             <div class="tool-card-content">
@@ -395,24 +387,28 @@ function renderTools() {
         </div>`;
     };
 
-    // Limit to 24 tools initially, show See More if needed
-    const MAX_VISIBLE = 24;
-    const showAll = grid.dataset.showAll === 'true';
-    const visibleTools = showAll ? mergedTools : mergedTools.slice(0, MAX_VISIBLE);
-    grid.innerHTML = visibleTools.map(t => renderCard(t, false)).join('');
+    // Pagination for main grid
+    const totalPages = Math.max(1, Math.ceil(mergedTools.length / TOOLS_PER_PAGE));
+    if (toolsCurrentPage > totalPages) toolsCurrentPage = totalPages;
+    if (toolsCurrentPage < 1) toolsCurrentPage = 1;
     
-    const seeMoreDiv = document.getElementById('tools-see-more');
-    if (seeMoreDiv) {
-        if (mergedTools.length > MAX_VISIBLE && !showAll) {
-            seeMoreDiv.style.display = 'block';
-            const remaining = mergedTools.length - MAX_VISIBLE;
-            seeMoreDiv.querySelector('button').textContent = 'See More (' + remaining + ' more)';
-            seeMoreDiv.querySelector('button').onclick = () => {
-                grid.dataset.showAll = 'true';
-                renderTools();
-            };
+    const startIdx = (toolsCurrentPage - 1) * TOOLS_PER_PAGE;
+    const pageItems = mergedTools.slice(startIdx, startIdx + TOOLS_PER_PAGE);
+    
+    grid.innerHTML = pageItems.map(t => renderCard(t, false)).join('');
+    
+    // Update pagination controls
+    const paginationEl = document.getElementById('tools-pagination');
+    if (paginationEl) {
+        if (totalPages <= 1) {
+            paginationEl.style.display = 'none';
         } else {
-            seeMoreDiv.style.display = 'none';
+            paginationEl.style.display = 'block';
+            document.getElementById('tools-page-info').textContent = `Page ${toolsCurrentPage} of ${totalPages} (${mergedTools.length} tools)`;
+            document.getElementById('tools-page-prev').disabled = toolsCurrentPage <= 1;
+            document.getElementById('tools-page-next').disabled = toolsCurrentPage >= totalPages;
+            document.getElementById('tools-page-prev').onclick = () => { toolsCurrentPage--; renderTools(); };
+            document.getElementById('tools-page-next').onclick = () => { toolsCurrentPage++; renderTools(); };
         }
     }
     
@@ -519,6 +515,7 @@ function showPanel(toolId) {
         'webm-gif': 'panel-media-convert',
         'mov-mp4': 'panel-media-convert',
         'webm-mp4': 'panel-media-convert',
+        'av1-mp4': 'panel-media-convert',
         'wav-mp3': 'panel-media-convert',
         'wav-m4a': 'panel-media-convert',
         'm4a-mp3': 'panel-media-convert',
@@ -597,6 +594,7 @@ function showPanel(toolId) {
                     'mov-mp4':  { title: 'MOV to MP4',  accept: '.mov',  hint: 'Supports .mov video files', format: 'mp4', btnText: '📹 Convert to MP4' },
                     'webm-mp4': { title: 'WEBM to MP4', accept: '.webm', hint: 'Supports .webm video files', format: 'mp4', btnText: '📹 Convert to MP4' },
                     'mkv-mp4':  { title: 'MKV to MP4',  accept: '.mkv',  hint: 'Supports .mkv video files', format: 'mp4', btnText: '📹 Convert to MP4' },
+                    'av1-mp4':  { title: 'AV1 to MP4',  accept: '.mp4,.webm,.mkv',  hint: 'Supports AV1 video files', format: 'mp4', btnText: '📹 Convert to MP4' },
                     'avi-mp4':  { title: 'AVI to MP4',  accept: '.avi',  hint: 'Supports .avi video files', format: 'mp4', btnText: '📹 Convert to MP4' },
                     'wav-mp3':  { title: 'WAV to MP3',  accept: '.wav',  hint: 'Supports .wav audio files', format: 'mp3', btnText: '🎵 Convert to MP3' },
                     'wav-m4a':  { title: 'WAV to M4A',  accept: '.wav',  hint: 'Supports .wav audio files', format: 'm4a', btnText: '🎵 Convert to M4A' },
@@ -676,20 +674,43 @@ const AI_TOOLS = [
 
 function getAllTools() {
     const allTools = [];
-    for (const [category, modes] of Object.entries(window.TOOLS)) {
-        for (const [mode, tools] of Object.entries(modes)) {
+    for (const [mode, tools] of Object.entries(window.TOOLS)) {
+        if (Array.isArray(tools)) {
             tools.forEach(tool => {
                 allTools.push({
                     ...tool,
-                    category: CATEGORY_LABELS[category] || category,
-                    categoryKey: category,
+                    category: mode,
+                    categoryKey: mode,
                     mode: mode,
                 });
             });
         }
     }
-    // Also add AI tools
-    AI_TOOLS.forEach(t => allTools.push({ ...t }));
+    
+    // Also include plugin tools
+    if (window.installedPluginsData) {
+        window.installedPluginsData.forEach(plugin => {
+            if (plugin.tools) {
+                plugin.tools.forEach(tool => {
+                    allTools.push({
+                        ...tool,
+                        title: tool.name,
+                        desc: tool.description,
+                        icon: tool.icon || plugin.icon || '🧩',
+                        color: 'var(--accent-purple)',
+                        category: 'Plugin',
+                        categoryKey: 'plugin',
+                        mode: tool.mode,
+                        is_plugin: true,
+                        plugin_id: plugin.id,
+                        pluginData: plugin,
+                        toolData: tool
+                    });
+                });
+            }
+        });
+    }
+    
     return allTools;
 }
 
@@ -733,7 +754,7 @@ function renderSearchResults(results, query) {
         const item = document.createElement('div');
         item.className = 'search-result-item';
         item.innerHTML = `
-            <div class="search-result-icon" style="background:${tool.color}15; color:${tool.color};">
+            <div class="search-result-icon" style="background: color-mix(in srgb, ${tool.color} 15%, transparent); color:${tool.color};">
                 ${tool.icon}
             </div>
             <div class="search-result-info">
@@ -773,9 +794,9 @@ function renderSearchResults(results, query) {
 }
 
 function initSearch() {
-    document.getElementById('search-input')?.addEventListener('input', renderTools);
-    document.getElementById('fav-filter')?.addEventListener('change', renderTools);
-    document.querySelectorAll('.tag-filter').forEach(cb => cb.addEventListener('change', renderTools));
+    document.getElementById('search-input')?.addEventListener('input', () => { toolsCurrentPage = 1; renderTools(); });
+    document.getElementById('fav-filter')?.addEventListener('change', () => { toolsCurrentPage = 1; renderTools(); });
+    document.querySelectorAll('.tag-filter').forEach(cb => cb.addEventListener('change', () => { toolsCurrentPage = 1; renderTools(); }));
     const input = document.getElementById('search-input');
     const clearBtn = document.getElementById('search-clear');
     const resultsContainer = document.getElementById('search-results');

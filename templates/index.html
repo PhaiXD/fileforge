@@ -61,6 +61,7 @@
             <div class="mode-toggle-group">
                 <button class="mode-toggle-btn active" data-mode="convert">🔄 Convert</button>
                 <button class="mode-toggle-btn" data-mode="compress">🗜️ Compress</button>
+                <button class="mode-toggle-btn" data-mode="fetch">📥 Fetch</button>
                 <button class="mode-toggle-btn" data-mode="ai">🤖 AI Tools</button>
             </div>
         </div>
@@ -91,8 +92,12 @@
             <div id="tool-grid" class="tool-grid">
                 <!-- Dynamically rendered by JS -->
             </div>
-            <div id="tools-see-more" style="display:none; text-align:center; margin-top:16px;">
-                <button id="btn-see-more-tools" class="btn-secondary" style="padding:8px 24px; border-radius:20px; cursor:pointer;">See More ▾</button>
+            <div id="tools-pagination" style="display:none; margin-top:24px; text-align:center;">
+                <div style="display:inline-flex; align-items:center; gap:8px; background:var(--bg-secondary); padding:8px 16px; border-radius:12px;">
+                    <button id="tools-page-prev" class="btn-secondary" style="padding:6px 12px; border-radius:8px;">← Prev</button>
+                    <span id="tools-page-info" style="color:var(--text-secondary); font-size:14px; min-width:100px;">Page 1 of 1</span>
+                    <button id="tools-page-next" class="btn-secondary" style="padding:6px 12px; border-radius:8px;">Next →</button>
+                </div>
             </div>
             
             <hr style="border:0; border-top:1px solid var(--border-color); margin: 32px 0;">
@@ -129,8 +134,16 @@
                 <div class="store-error-msg">Failed to load plugins.</div>
             </div>
 
-            <div id="store-grid" class="tool-grid" style="display:none; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+            <div id="store-grid" class="tool-grid" style="display:none;">
                 <!-- Plugin cards rendered by store.js -->
+            </div>
+
+            <div id="store-pagination" style="display:none; margin-top:24px; text-align:center;">
+                <div style="display:inline-flex; align-items:center; gap:8px; background:var(--bg-secondary); padding:8px 16px; border-radius:12px;">
+                    <button id="store-page-prev" class="btn-secondary" style="padding:6px 12px; border-radius:8px;">← Prev</button>
+                    <span id="store-page-info" style="color:var(--text-secondary); font-size:14px; min-width:100px;">Page 1 of 1</span>
+                    <button id="store-page-next" class="btn-secondary" style="padding:6px 12px; border-radius:8px;">Next →</button>
+                </div>
             </div>
         </section>
         </div>
@@ -736,9 +749,9 @@
     <script src="/static/js/compress.js?v=1.4"></script>
     <script src="/static/js/media.js?v=1.4"></script>
     <script src="/static/js/ai.js?v=1.4"></script>
-    <script src="/static/js/store.js?v=2.0.2"></script>
-    <script src="/static/js/plugin-ui.js?v=2.0.3"></script>
-    <script src="/static/js/app.js?v=2.0.5"></script>
+    <script src="/static/js/store.js?v=2.2.0"></script>
+    <script src="/static/js/plugin-ui.js?v=2.2.0"></script>
+    <script src="/static/js/app.js?v=2.2.0"></script>
 
     
     <!-- Custom Modal (replaces browser alert/confirm) -->

@@ -4,6 +4,8 @@
 
 let isStoreLoading = false;
 let storeToolsList = [];
+let storeCurrentPage = 1;
+const STORE_PER_PAGE = 12;
 
 async function loadStore() {
     if (isStoreLoading) return;
@@ -70,13 +72,11 @@ function renderStoreTools() {
     const searchInput = document.getElementById('store-search-input');
     const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
     
-    // Also use the active sidebar categories for the store!
+    // Also use the active sidebar categories for the store
     const activeTags = Array.from(document.querySelectorAll('.tag-filter:checked')).map(cb => cb.value.toLowerCase());
     
     const filtered = storeToolsList.filter(t => {
-        // Only show tools that match the current mode (Convert/Compress/AI)
-        if (typeof currentMode !== 'undefined' && t.mode && t.mode !== currentMode) return false;
-
+        // Don't filter by mode in the full store page — show all
         const searchableText = (t.name + " " + (t.description || "") + " " + t.category).toLowerCase();
         
         if (query) {
@@ -85,20 +85,43 @@ function renderStoreTools() {
         }
         
         if (activeTags.length > 0) {
-            if (!activeTags.every(tag => searchableText.includes(tag))) return false;
+            const catTags = activeTags.filter(tag => tag !== 'favorite');
+            if (catTags.length > 0 && !catTags.every(tag => searchableText.includes(tag))) return false;
         }
         
         return true;
     });
     
+    // Pagination
+    const totalPages = Math.max(1, Math.ceil(filtered.length / STORE_PER_PAGE));
+    if (storeCurrentPage > totalPages) storeCurrentPage = totalPages;
+    if (storeCurrentPage < 1) storeCurrentPage = 1;
+    
+    const startIdx = (storeCurrentPage - 1) * STORE_PER_PAGE;
+    const pageItems = filtered.slice(startIdx, startIdx + STORE_PER_PAGE);
+    
     if (filtered.length === 0) {
         gridEl.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-secondary);">No tools match your criteria.</div>';
-        return;
+    } else {
+        pageItems.forEach(tool => {
+            gridEl.appendChild(createStoreToolCard(tool));
+        });
     }
     
-    filtered.forEach(tool => {
-        gridEl.appendChild(createStoreToolCard(tool));
-    });
+    // Update pagination controls
+    const paginationEl = document.getElementById('store-pagination');
+    if (paginationEl) {
+        if (totalPages <= 1) {
+            paginationEl.style.display = 'none';
+        } else {
+            paginationEl.style.display = 'block';
+            document.getElementById('store-page-info').textContent = `Page ${storeCurrentPage} of ${totalPages} (${filtered.length} tools)`;
+            document.getElementById('store-page-prev').disabled = storeCurrentPage <= 1;
+            document.getElementById('store-page-next').disabled = storeCurrentPage >= totalPages;
+            document.getElementById('store-page-prev').onclick = () => { storeCurrentPage--; renderStoreTools(); };
+            document.getElementById('store-page-next').onclick = () => { storeCurrentPage++; renderStoreTools(); };
+        }
+    }
 }
 
 
@@ -113,7 +136,7 @@ function createStoreToolCard(tool) {
     let btnHtml = `<button class="btn-primary btn-sm" onclick="installPlugin('${plugin.id}', this)">Install</button>`;
 
     card.innerHTML = `
-        <div class="tool-card-icon" style="background:var(--accent-purple-light); color:var(--accent-purple)">
+        <div class="tool-card-icon" style="background: color-mix(in srgb, var(--accent-purple) 15%, transparent); color: var(--accent-purple)">
             ${tool.icon || '📦'}
         </div>
         <div class="tool-card-content" style="flex:1;">
@@ -210,6 +233,6 @@ async function uninstallPlugin(pluginId, btn) {
 document.addEventListener('DOMContentLoaded', () => {
     const storeSearch = document.getElementById('store-search-input');
     if (storeSearch) {
-        storeSearch.addEventListener('input', renderStoreTools);
+        storeSearch.addEventListener('input', () => { storeCurrentPage = 1; renderStoreTools(); });
     }
 });

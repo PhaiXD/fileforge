@@ -323,5 +323,12 @@ async function executePluginTool(e, pluginId, toolId) {
     }
 }
 
+// renderPluginPanel is called from app.js when a plugin tool card is clicked
+function renderPluginPanel(plugin, tool) {
+    if (plugin && tool) {
+        openPluginTool(plugin.id, tool.id);
+    }
+}
+
 // Call on startup
 document.addEventListener('DOMContentLoaded', loadInstalledPlugins);

@@ -6,7 +6,7 @@ from pathlib import Path
 
 # --- App Info ---
 APP_NAME = "FileForge"
-APP_VERSION = "1.1.2"
+APP_VERSION = "2.0.0"
 APP_DESCRIPTION = "Local file conversion, compression & media tools"
 
 # --- GitHub Repository (for auto-update) ---
