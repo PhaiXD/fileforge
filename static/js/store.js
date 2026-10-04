@@ -88,9 +88,11 @@ function createPluginCard(plugin) {
 }
 
 async function installPlugin(pluginId, btn) {
-    const originalText = btn.innerText;
-    btn.disabled = true;
-    btn.innerText = 'Installing...';
+    const originalText = btn ? btn.innerText : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Installing...';
+    }
     
     const formData = new FormData();
     formData.append('plugin_id', pluginId);
@@ -107,13 +109,13 @@ async function installPlugin(pluginId, btn) {
             loadStore();
         } else {
             alert('Installation failed: ' + (data.error || 'Unknown error'));
-            btn.disabled = false;
-            btn.innerText = originalText;
+            if(btn) btn.disabled = false;
+            if(btn) btn.innerText = originalText;
         }
     } catch (err) {
         alert('Installation failed: ' + err.message);
-        btn.disabled = false;
-        btn.innerText = originalText;
+        if(btn) btn.disabled = false;
+        if(btn) btn.innerText = originalText;
     }
 }
 
@@ -134,13 +136,13 @@ async function uninstallPlugin(pluginId, btn) {
             loadStore();
         } else {
             alert('Uninstall failed: ' + (data.error || 'Unknown error'));
-            btn.disabled = false;
-            btn.innerText = originalText;
+            if(btn) btn.disabled = false;
+            if(btn) btn.innerText = originalText;
         }
     } catch (err) {
         alert('Uninstall failed: ' + err.message);
-        btn.disabled = false;
-        btn.innerText = originalText;
+        if(btn) btn.disabled = false;
+        if(btn) btn.innerText = originalText;
     }
 }
 

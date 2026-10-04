@@ -124,26 +124,26 @@ window.showToolInfo = function(toolId, e) {
     
     const isBuiltin = pluginRef?._builtin || !isPlugin;
     
-    let html = <div style="text-align:left;">
-        <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px;"> </h3>
-        <p style="color:var(--text-secondary); margin-bottom:16px;"></p>
+    let html = `<div style="text-align:left;">
+        <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">${toolInfo.icon || 'ℹ️'} ${toolInfo.title || toolInfo.name}</h3>
+        <p style="color:var(--text-secondary); margin-bottom:16px;">${toolInfo.desc || toolInfo.description}</p>
         <div style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px; background:var(--bg-secondary); padding:8px; border-radius:8px;">
-            <div><strong>ID:</strong> </div>;
+            <div><strong>ID:</strong> ${toolInfo.id}</div>`;
             
     if (isPlugin && pluginRef) {
-        html += <div><strong>Provided by:</strong>  v</div>
-                 <div><strong>Author:</strong> </div>;
+        html += `<div><strong>Provided by:</strong> ${pluginRef.name} v${pluginRef.version}</div>
+                 <div><strong>Author:</strong> ${pluginRef.author}</div>`;
     }
     
-    html += </div>;
+    html += `</div>`;
     
     if (isPlugin && !isBuiltin) {
-        html += <button onclick="uninstallPlugin('')" class="btn-secondary" style="width:100%; border-color:var(--accent-red); color:var(--accent-red);">🗑️ Uninstall Plugin</button>;
+        html += `<button onclick="uninstallPlugin('${pluginRef.id}')" class="btn-secondary" style="width:100%; border-color:var(--accent-red); color:var(--accent-red);">🗑️ Uninstall Plugin</button>`;
     } else if (isBuiltin) {
-        html += <div style="text-align:center; font-size:12px; color:var(--text-tertiary);">Core Built-in Tool</div>;
+        html += `<div style="text-align:center; font-size:12px; color:var(--text-tertiary);">Core Built-in Tool</div>`;
     }
     
-    html += </div>;
+    html += `</div>`;
     
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
@@ -158,10 +158,10 @@ window.showToolInfo = function(toolId, e) {
     modal.style.background = 'rgba(0,0,0,0.5)';
     modal.style.zIndex = '9999';
     
-    modal.innerHTML = <div class="modal-content" style="background:var(--bg-primary); padding:24px; border-radius:12px; width:90%; max-width:400px; box-shadow:0 10px 40px rgba(0,0,0,0.2);">
-        
+    modal.innerHTML = `<div class="modal-content" style="background:var(--bg-primary); padding:24px; border-radius:12px; width:90%; max-width:400px; box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+        ${html}
         <button onclick="this.parentElement.parentElement.remove()" class="btn-primary" style="margin-top:16px; width:100%;">Close</button>
-    </div>;
+    </div>`;
     
     document.body.appendChild(modal);
 }
@@ -224,17 +224,19 @@ function renderTools() {
                 // If it has tools defined, add them individually. If not, add the plugin as a whole.
                 if (plugin.tools && plugin.tools.length > 0) {
                     plugin.tools.forEach(t => {
-                        storeTools.push({
-                            id: 'store:' + plugin.id + ':' + t.id,
-                            title: t.name,
-                            desc: t.description,
-                            icon: t.icon || plugin.icon || '🧩',
-                            color: 'var(--text-tertiary)',
-                            active: true,
-                            isStore: true,
-                            pluginData: plugin,
-                            toolData: t
-                        });
+                        if (t.mode === currentMode || currentMode === 'convert') {
+                            storeTools.push({
+                                id: 'store:' + plugin.id + ':' + t.id,
+                                title: t.name,
+                                desc: t.description,
+                                icon: t.icon || plugin.icon || '🧩',
+                                color: 'var(--text-tertiary)',
+                                active: true,
+                                isStore: true,
+                                pluginData: plugin,
+                                toolData: t
+                            });
+                        }
                     });
                 } else {
                     storeTools.push({
@@ -255,16 +257,35 @@ function renderTools() {
     const searchInput = document.getElementById('search-input');
     const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
     
+    // Get active tags from left sidebar
+    const activeTags = Array.from(document.querySelectorAll('.tag-filter:checked')).map(cb => cb.value.toLowerCase());
+    
     const filterBySearch = (tools) => {
-        if (!query) return tools;
-        const terms = query.split(/\s+/);
         return tools.filter(t => {
-            const searchableText = (t.title + " " + (t.desc || "") + " " + t.id).toLowerCase();
-            return terms.every(term => searchableText.includes(term));
+            const searchableText = (t.title + " " + (t.desc || "") + " " + (t.tags?t.tags.join(' '):"") + " " + t.id).toLowerCase();
+            
+            // Must match all active category tags (except favorite)
+            const catTags = activeTags.filter(tag => tag !== 'favorite');
+            const hasFav = activeTags.includes('favorite');
+            
+            if (hasFav && !favs.includes(t.id)) return false;
+            
+            const tagsMatch = catTags.length === 0 || catTags.every(tag => searchableText.includes(tag));
+            if (!tagsMatch) return false;
+            
+            // Must match search query
+            if (query) {
+                const terms = query.split(/\s+/);
+                return terms.every(term => searchableText.includes(term));
+            }
+            
+            return true;
         });
     };
 
     mergedTools = filterBySearch(mergedTools);
+    storeTools = filterBySearch(storeTools);
+
     storeTools = filterBySearch(storeTools);
 
     const recent = getRecentTools();
@@ -295,23 +316,19 @@ function renderTools() {
 
     const renderCard = (tool, isStore = false) => {
         const isFav = favs.includes(tool.id);
-        return <div class="tool-card  " data-tool="" style="--card-accent: ; ">
-            <div style="position:absolute; top:8px; right:8px; display:flex; gap:4px; z-index:2;">
-                <button class="fav-btn" onclick="toggleFavorite('', event)" style="background:none; border:none; cursor:pointer; font-size:16px; opacity:; transition:0.2s;" title="Toggle Favorite">⭐</button>
-                <button class="info-btn" onclick="showToolInfo('', event)" style="background:none; border:none; cursor:pointer; font-size:16px; opacity:0.3; transition:0.2s;" title="Info">ℹ️</button>
-            </div>
-            <div class="tool-card-icon" style="background: color-mix(in srgb,  15%, transparent); color: ">
-                
+        return `<div class="tool-card ${isStore ? 'store-item' : ''}" data-tool="${tool.id}" style="--card-accent: ${tool.color}; ${isStore ? 'background:var(--bg-secondary); border-style:dashed;' : ''}">
+            ${isFav ? '<div style="position:absolute; top:8px; right:8px; font-size:12px; z-index:2;" title="Favorite">⭐</div>' : ''}
+            <div class="tool-card-icon" style="background: color-mix(in srgb, ${tool.color} 15%, transparent); color: ${tool.color}">
+                ${tool.icon}
             </div>
             <div class="tool-card-content">
                 <div class="tool-card-title" style="display:flex; justify-content:space-between; align-items:center;">
-                    
-                    
+                    ${tool.title}
+                    ${isStore ? '<span style="font-size:12px; background:var(--accent); color:#fff; padding:2px 8px; border-radius:12px;">Get</span>' : ''}
                 </div>
-                <div class="tool-card-desc"></div>
+                <div class="tool-card-desc">${tool.desc}</div>
             </div>
-            
-        </div>;
+        </div>`;
     };
 
     grid.innerHTML = mergedTools.map(t => renderCard(t, false)).join('');
@@ -328,6 +345,23 @@ function renderTools() {
         if(!container) return;
         container.querySelectorAll('.tool-card').forEach(card => {
             if (!card.classList.contains('disabled')) {
+                // Right click
+                card.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    ctxToolId = card.dataset.tool;
+                    ctxIsStore = ctxToolId.startsWith('store:');
+                    
+                    const ctxMenu = document.getElementById('tool-context-menu');
+                    if (ctxMenu) {
+                        ctxMenu.style.display = 'block';
+                        ctxMenu.style.left = e.clientX + 'px';
+                        ctxMenu.style.top = e.clientY + 'px';
+                        
+                        document.getElementById('ctx-uninstall').style.display = ctxToolId.startsWith('plugin:') ? 'flex' : 'none';
+                        document.getElementById('ctx-install').style.display = ctxIsStore ? 'flex' : 'none';
+                    }
+                });
+
                 card.addEventListener('click', (e) => {
                     if(e.target.closest('.fav-btn') || e.target.closest('.info-btn')) return;
                     const toolId = card.dataset.tool;
@@ -336,7 +370,7 @@ function renderTools() {
                         // Go to store or prompt install
                         const parts = toolId.split(':');
                         const pluginId = parts[1];
-                        if (confirm(Do you want to install ?)) {
+                        if (confirm(`Do you want to install ${pluginId}?`)) {
                             if(typeof installPlugin === 'function') installPlugin(pluginId);
                         }
                         return;
@@ -641,7 +675,10 @@ function renderSearchResults(results, query) {
     container.style.display = 'block';
 }
 
-function initSearch() {\n    document.getElementById('search-input')?.addEventListener('input', renderTools);\n    document.getElementById('fav-filter')?.addEventListener('change', renderTools);
+function initSearch() {
+    document.getElementById('search-input')?.addEventListener('input', renderTools);
+    document.getElementById('fav-filter')?.addEventListener('change', renderTools);
+    document.querySelectorAll('.tag-filter').forEach(cb => cb.addEventListener('change', renderTools));
     const input = document.getElementById('search-input');
     const clearBtn = document.getElementById('search-clear');
     const resultsContainer = document.getElementById('search-results');
@@ -819,6 +856,8 @@ function showToast(message, type = 'info', duration = 4000) {
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    let ctxToolId = null;
+    let ctxIsStore = false;
     initTheme();
     initSearch();
     
@@ -869,8 +908,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     renderTools();
-});
-
+    
     document.querySelectorAll('.mode-toggle-btn').forEach(btn => {
         btn.addEventListener('click', () => switchMode(btn.dataset.mode));
     });
@@ -944,6 +982,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check for updates
     checkForUpdates();
+
+
+    // Context Menu Handlers
+    const ctxMenu = document.getElementById('tool-context-menu');
+    document.addEventListener('click', () => { if(ctxMenu) ctxMenu.style.display = 'none'; });
+    
+    if (ctxMenu) {
+        document.getElementById('ctx-info').onclick = (e) => {
+            if (ctxToolId) {
+                if(typeof showToolInfo === 'function') showToolInfo(ctxToolId, e);
+            }
+        };
+        document.getElementById('ctx-fav').onclick = (e) => {
+            if (ctxToolId) {
+                if(typeof toggleFavorite === 'function') toggleFavorite(ctxToolId, e);
+            }
+        };
+        document.getElementById('ctx-uninstall').onclick = (e) => {
+            if (ctxToolId && ctxToolId.startsWith('plugin:')) {
+                const pluginId = ctxToolId.split(':')[1];
+                if(typeof uninstallPlugin === 'function') uninstallPlugin(pluginId);
+            }
+        };
+        document.getElementById('ctx-install').onclick = (e) => {
+            if (ctxToolId && ctxToolId.startsWith('store:')) {
+                const pluginId = ctxToolId.split(':')[1];
+                if (typeof installPlugin === 'function') installPlugin(pluginId);
+            }
+        };
+    }
 
     console.log('🔥 FileForge initialized');
 });

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -39,7 +39,10 @@
         </div>
     </nav>
 
-    <main class="main-content">
+    
+<main class="main-content">
+
+
         <section class="hero">
             <h1>FileForge</h1>
             <p>Convert, compress, download, and summarize — all locally on your machine.</p>
@@ -51,13 +54,7 @@
                 <input type="text" id="search-input" class="search-input" placeholder="Search tools... (e.g. PNG JPG)" autocomplete="off">
                 <button id="search-clear" class="search-clear" style="display:none;">✕</button>
             </div>
-            <div class="filter-options" style="display:flex; gap:12px; align-items:center;">
-                <label style="cursor:pointer; display:flex; align-items:center; gap:6px; color:var(--text-secondary);">
-                    <input type="checkbox" id="fav-filter" style="accent-color:var(--accent);">
-                    <span style="font-size:14px; font-weight:500;">⭐ Favorites Only</span>
-                </label>
             </div>
-        </div>
         <div id="search-results" class="search-results" style="display:none;"></div>
 
         <div class="mode-toggle">
@@ -68,7 +65,66 @@
             </div>
         </div>
 
-        <section id="tool-grid-section">
+        
+        <div class="layout-container" style="display:flex; gap:24px; margin-top:24px; align-items:flex-start;">
+            <aside class="sidebar-filters" style="width:260px; flex-shrink:0; position:sticky; top:24px; background:var(--bg-primary); border:1px solid var(--border-color); border-radius:12px; padding:16px;">
+                <h3 style="font-size: 14px; color: var(--text-tertiary); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;">Categories</h3>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label class="category-filter-label" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding: 6px 8px; border-radius: 8px; transition: 0.2s;">
+                        <input type="checkbox" id="fav-filter" class="tag-filter" value="FAVORITE" style="accent-color:var(--accent); width:16px; height:16px; cursor:pointer;">
+                        <span>⭐</span> <span style="font-size:14px; font-weight:500;">Favorites</span>
+                    </label>
+                    <label class="category-filter-label" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding: 6px 8px; border-radius: 8px; transition: 0.2s;">
+                        <input type="checkbox" class="tag-filter" value="Document" style="accent-color:var(--accent); width:16px; height:16px; cursor:pointer;">
+                        <span>📄</span> <span style="font-size:14px;">Document & Text</span>
+                    </label>
+                    <label class="category-filter-label" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding: 6px 8px; border-radius: 8px; transition: 0.2s;">
+                        <input type="checkbox" class="tag-filter" value="Image" style="accent-color:var(--accent); width:16px; height:16px; cursor:pointer;">
+                        <span>🖼️</span> <span style="font-size:14px;">Image & Graphic</span>
+                    </label>
+                    <label class="category-filter-label" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding: 6px 8px; border-radius: 8px; transition: 0.2s;">
+                        <input type="checkbox" class="tag-filter" value="Audio" style="accent-color:var(--accent); width:16px; height:16px; cursor:pointer;">
+                        <span>🎵</span> <span style="font-size:14px;">Audio</span>
+                    </label>
+                    <label class="category-filter-label" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding: 6px 8px; border-radius: 8px; transition: 0.2s;">
+                        <input type="checkbox" class="tag-filter" value="Video" style="accent-color:var(--accent); width:16px; height:16px; cursor:pointer;">
+                        <span>🎥</span> <span style="font-size:14px;">Video & Multimedia</span>
+                    </label>
+                    <label class="category-filter-label" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding: 6px 8px; border-radius: 8px; transition: 0.2s;">
+                        <input type="checkbox" class="tag-filter" value="Spreadsheet" style="accent-color:var(--accent); width:16px; height:16px; cursor:pointer;">
+                        <span>📊</span> <span style="font-size:14px;">Spreadsheet & Data</span>
+                    </label>
+                    <label class="category-filter-label" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding: 6px 8px; border-radius: 8px; transition: 0.2s;">
+                        <input type="checkbox" class="tag-filter" value="Archive" style="accent-color:var(--accent); width:16px; height:16px; cursor:pointer;">
+                        <span>📦</span> <span style="font-size:14px;">Archive & Compressed</span>
+                    </label>
+                    <label class="category-filter-label" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding: 6px 8px; border-radius: 8px; transition: 0.2s;">
+                        <input type="checkbox" class="tag-filter" value="Developer" style="accent-color:var(--accent); width:16px; height:16px; cursor:pointer;">
+                        <span>💻</span> <span style="font-size:14px;">Developer & Code</span>
+                    </label>
+                    <label class="category-filter-label" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding: 6px 8px; border-radius: 8px; transition: 0.2s;">
+                        <input type="checkbox" class="tag-filter" value="E-book" style="accent-color:var(--accent); width:16px; height:16px; cursor:pointer;">
+                        <span>📚</span> <span style="font-size:14px;">E-book</span>
+                    </label>
+                    <label class="category-filter-label" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding: 6px 8px; border-radius: 8px; transition: 0.2s;">
+                        <input type="checkbox" class="tag-filter" value="Fonts" style="accent-color:var(--accent); width:16px; height:16px; cursor:pointer;">
+                        <span>🅰️</span> <span style="font-size:14px;">Fonts</span>
+                    </label>
+                    <label class="category-filter-label" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding: 6px 8px; border-radius: 8px; transition: 0.2s;">
+                        <input type="checkbox" class="tag-filter" value="3D Models" style="accent-color:var(--accent); width:16px; height:16px; cursor:pointer;">
+                        <span>🧊</span> <span style="font-size:14px;">3D Models</span>
+                    </label>
+                </div>
+                <style>
+                    .category-filter-label:hover { background: var(--bg-secondary); }
+                    @media (max-width: 899px) { 
+                        .layout-container { flex-direction: column; }
+                        .sidebar-filters { width: 100% !important; position: static !important; }
+                    }
+                </style>
+            </aside>
+            <section id="tool-grid-section" style="flex:1; min-width:0;">
+
             <h2 style="font-size:18px; margin-bottom:16px; color:var(--text-secondary);">Your Tools</h2>
             <div id="tool-grid" class="tool-grid">
                 <!-- Dynamically rendered by JS -->
@@ -84,6 +140,7 @@
                 <button id="btn-more-plugins" class="btn-primary" style="background:var(--accent-purple); border-color:var(--accent-purple);">Browse Full Store 🛒</button>
             </div>
         </section>
+        </div>
 
         <!-- FULL STORE PAGE SECTION -->
         <section id="store-page-section" style="display:none;">
@@ -717,5 +774,13 @@
     <script src="/static/js/store.js"></script>
     <script src="/static/js/plugin-ui.js"></script>
     <script src="/static/js/app.js?v=1.4"></script>
+
+    <!-- Context Menu -->
+    <div id="tool-context-menu" style="display:none; position:fixed; background:var(--bg-primary); border:1px solid var(--border-color); box-shadow:0 8px 24px rgba(0,0,0,0.2); border-radius:8px; padding:8px 0; z-index:9999; min-width:160px;">
+        <button id="ctx-info" style="width:100%; text-align:left; padding:8px 16px; background:none; border:none; color:var(--text-primary); cursor:pointer; font-size:14px; display:flex; gap:8px; align-items:center;"><span>ℹ️</span> Info</button>
+        <button id="ctx-fav" style="width:100%; text-align:left; padding:8px 16px; background:none; border:none; color:var(--text-primary); cursor:pointer; font-size:14px; display:flex; gap:8px; align-items:center;"><span>⭐</span> Toggle Favorite</button>
+        <button id="ctx-uninstall" style="width:100%; text-align:left; padding:8px 16px; background:none; border:none; color:var(--accent-red); cursor:pointer; font-size:14px; display:flex; gap:8px; align-items:center;"><span>🗑️</span> Uninstall</button>
+        <button id="ctx-install" style="width:100%; text-align:left; padding:8px 16px; background:none; border:none; color:var(--accent-purple); cursor:pointer; font-size:14px; display:flex; gap:8px; align-items:center; display:none;"><span>📥</span> Install</button>
+    </div>
 </body>
 </html>
