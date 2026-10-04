@@ -1,4 +1,4 @@
-/**
+﻿/**
  * FileForge — Plugin Store Frontend
  */
 
@@ -166,7 +166,7 @@ async function installPlugin(pluginId, btn) {
 
 async function uninstallPlugin(pluginId, btn) {
     const originalText = btn ? btn.innerText : '';
-    const ok = await customConfirm('Are you sure you want to uninstall this plugin pack?', 'Uninstall', '\u26a0\ufe0f');
+    const ok = await customConfirm('Are you sure you want to uninstall this tool?', 'Uninstall', '\u26a0\ufe0f');
     if (!ok) return;
 
     if (btn) {
