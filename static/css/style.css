@@ -73,19 +73,19 @@
     
     --accent: #0a84ff;
     --accent-hover: #409cff;
-    --accent-light: #0a84ff18;
+    --accent-light: #0a84ff26;
     --accent-green: #30d158;
-    --accent-green-light: #30d15818;
+    --accent-green-light: #30d15826;
     --accent-red: #ff453a;
-    --accent-red-light: #ff453a18;
+    --accent-red-light: #ff453a26;
     --accent-yellow: #ffd60a;
-    --accent-yellow-light: #ffd60a18;
+    --accent-yellow-light: #ffd60a26;
     --accent-purple: #bf5af2;
-    --accent-purple-light: #bf5af218;
+    --accent-purple-light: #bf5af226;
     --accent-teal: #64d2ff;
-    --accent-teal-light: #64d2ff18;
+    --accent-teal-light: #64d2ff26;
     --accent-orange: #ff9f0a;
-    --accent-orange-light: #ff9f0a18;
+    --accent-orange-light: #ff9f0a26;
     
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
     --shadow-md: 0 4px 14px rgba(0,0,0,0.4);
