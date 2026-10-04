@@ -254,19 +254,24 @@ function renderTools() {
     }
     
     // Add uninstalled store plugins to storeTools
+    let installedToolIds = new Set();
+    mergedTools.forEach(t => {
+        if (t.isPlugin && t.toolData) installedToolIds.add(t.toolData.id);
+        else installedToolIds.add(t.id);
+    });
+
     if (window.storePluginsData && storeUninstalledGrid) {
         window.storePluginsData.forEach(plugin => {
-            const isInstalled = window.installedPluginsData?.some(p => p.id === plugin.id);
-            if (!isInstalled) {
-                // If it has tools defined, add them individually. If not, add the plugin as a whole.
-                if (plugin.tools && plugin.tools.length > 0) {
-                    plugin.tools.forEach(t => {
-                        if (t.mode === currentMode || currentMode === 'convert') {
+            if (plugin.tools && plugin.tools.length > 0) {
+                plugin.tools.forEach(t => {
+                    if (t.mode === currentMode || currentMode === 'convert') {
+                        // Check if this specific tool is already installed!
+                        if (!installedToolIds.has(t.id)) {
                             storeTools.push({
                                 id: 'store:' + plugin.id + ':' + t.id,
                                 title: t.name,
                                 desc: t.description,
-                                icon: t.icon || plugin.icon || '🧩',
+                                icon: t.icon || plugin.icon || '📦',
                                 color: 'var(--text-tertiary)',
                                 active: true,
                                 isStore: true,
@@ -274,8 +279,10 @@ function renderTools() {
                                 toolData: t
                             });
                         }
-                    });
-                } else {
+                    }
+                });
+            } else {
+                if (!installedToolIds.has(plugin.id)) {
                     storeTools.push({
                         id: 'store:' + plugin.id,
                         title: plugin.name,
@@ -425,9 +432,20 @@ function renderTools() {
                     if (toolId.startsWith('store:')) {
                         const parts = toolId.split(':');
                         const pluginId = parts[1];
-                        customConfirm('Do you want to install <strong>' + parts[1] + '</strong>?', 'Install Tool').then(function(ok) {
+                        
+                        let toolIcon = '📦';
+                        let toolName = parts[1];
+                        if (window.storePluginsData) {
+                            const pData = window.storePluginsData.find(p => p.id === pluginId);
+                            if (pData && pData.tools && pData.tools.length > 0) {
+                                toolIcon = pData.tools[0].icon || pData.icon || '📦';
+                                toolName = pData.tools[0].name || pData.name || toolName;
+                            }
+                        }
+                        customConfirm('Do you want to install <strong>' + toolName + '</strong>?', 'Install Tool', toolIcon).then(function(ok) {
                             if (ok && typeof installPlugin === 'function') installPlugin(pluginId);
                         });
+    
                         return;
                     }
 
@@ -748,9 +766,10 @@ function initSearch() {
         clearBtn.style.display = query ? 'flex' : 'none';
         
         if (!query) {
-            resultsContainer.style.display = 'none';
-            return;
-        }
+              resultsContainer.style.display = 'none';
+              renderTools();
+              return;
+          }
         
         const results = searchTools(query);
         renderSearchResults(results, query);
@@ -760,6 +779,7 @@ function initSearch() {
         input.value = '';
         clearBtn.style.display = 'none';
         resultsContainer.style.display = 'none';
+        renderTools();
         input.focus();
     });
     
@@ -1054,12 +1074,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         document.getElementById('ctx-fav').onclick = (e) => {
-            if (ctxToolId) {
-                if(typeof toggleFavorite === 'function') toggleFavorite(ctxToolId, e);
-            }
-        };
+              document.getElementById('tool-context-menu').style.display = 'none';
+              if (ctxToolId) {
+                  if(typeof toggleFavorite === 'function') toggleFavorite(ctxToolId, e);
+              }
+          };
         document.getElementById('ctx-uninstall').onclick = (e) => {
-            if (ctxToolId && ctxToolId.startsWith('plugin:')) {
+            document.getElementById('tool-context-menu').style.display = 'none'; if (ctxToolId && ctxToolId.startsWith('plugin:')) {
                 const pluginId = ctxToolId.split(':')[1];
                 if(typeof uninstallPlugin === 'function') uninstallPlugin(pluginId);
             }
