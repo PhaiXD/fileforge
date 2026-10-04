@@ -1,4 +1,4 @@
-
+﻿
 // ============================================================
 // Custom Modal (replaces browser alert/confirm)
 // ============================================================
@@ -219,6 +219,7 @@ function updateRecentTool(toolId) {
 }
 
 function renderTools() {
+    if (typeof renderStoreTools === 'function') renderStoreTools();
     const grid = document.getElementById('tool-grid');
     const storeUninstalledGrid = document.getElementById('store-uninstalled-grid');
     if (!grid) return;
@@ -424,7 +425,7 @@ function renderTools() {
                     if (toolId.startsWith('store:')) {
                         const parts = toolId.split(':');
                         const pluginId = parts[1];
-                        customConfirm('Install plugin <strong>' + pluginId + '</strong>?', 'Install Plugin', '\U0001f4e5').then(function(ok) {
+                        customConfirm('Do you want to install <strong>' + parts[1] + '</strong>?', 'Install Tool').then(function(ok) {
                             if (ok && typeof installPlugin === 'function') installPlugin(pluginId);
                         });
                         return;
