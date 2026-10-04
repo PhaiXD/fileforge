@@ -202,6 +202,19 @@ class PluginManager:
         if entry is None:
             raise ValueError(f"Plugin '{plugin_id}' not found in registry")
 
+        # LOCAL DEVELOPMENT BYPASS
+        local_dev_dir = Path(r"C:\Users\ADMIN\Documents\GitHub\fileforge-plugins\plugins") / plugin_id
+        target_dir = PLUGINS_DIR / plugin_id
+        
+        if local_dev_dir.exists() and local_dev_dir.is_dir():
+            print(f"[PluginManager] Local dev repo found for {plugin_id}, copying directly...")
+            if target_dir.exists():
+                shutil.rmtree(target_dir)
+            shutil.copytree(local_dev_dir, target_dir)
+            
+            self.scan()
+            return self.get_plugin(plugin_id)
+
         download_url = entry.get("download_url")
         if not download_url:
             raise ValueError(f"Plugin '{plugin_id}' has no download URL")
@@ -215,19 +228,6 @@ class PluginManager:
                 f"Plugin requires FileForge >= {min_core}, "
                 f"but you are running {APP_VERSION}"
             )
-
-        # LOCAL DEVELOPMENT BYPASS
-        local_dev_dir = Path(r"C:\Users\ADMIN\Documents\GitHub\fileforge-plugins\plugins") / plugin_id
-        target_dir = PLUGINS_DIR / plugin_id
-        
-        if local_dev_dir.exists() and local_dev_dir.is_dir():
-            print(f"[PluginManager] Local dev repo found for {plugin_id}, copying directly...")
-            if target_dir.exists():
-                shutil.rmtree(target_dir)
-            shutil.copytree(local_dev_dir, target_dir)
-            
-            self.scan()
-            return self.get_plugin(plugin_id)
 
         # Download
         print(f"[PluginManager] Downloading {plugin_id} from {download_url}")

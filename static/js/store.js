@@ -74,6 +74,9 @@ function renderStoreTools() {
     const activeTags = Array.from(document.querySelectorAll('.tag-filter:checked')).map(cb => cb.value.toLowerCase());
     
     const filtered = storeToolsList.filter(t => {
+        // Only show tools that match the current mode (Convert/Compress/AI)
+        if (typeof currentMode !== 'undefined' && t.mode && t.mode !== currentMode) return false;
+
         const searchableText = (t.name + " " + (t.description || "") + " " + t.category).toLowerCase();
         
         if (query) {
@@ -177,13 +180,9 @@ async function uninstallPlugin(pluginId, btn) {
         btn.innerText = 'Uninstalling...';
     }
     
-    const formData = new FormData();
-    formData.append('plugin_id', pluginId);
-    
     try {
-        const response = await fetch('/api/plugins/uninstall', {
-            method: 'POST',
-            body: formData
+        const response = await fetch('/api/plugins/' + pluginId + '/uninstall', {
+            method: 'POST'
         });
         const data = await response.json();
         if (data.success) {

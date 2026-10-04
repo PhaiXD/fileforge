@@ -11,42 +11,12 @@ async function loadInstalledPlugins() {
         
         if (data.success) {
             installedPlugins = {};
+            window.installedPluginsData = data.plugins; // Needed by app.js renderTools & showToolInfo
             data.plugins.forEach(p => {
                 installedPlugins[p.id] = p;
-                
-                // Inject plugin tools into the global TOOLS object in app.js
-                // so they show up seamlessly alongside core tools.
-                if (p.tools && Array.isArray(p.tools)) {
-                    p.tools.forEach(tool => {
-                        const category = tool.category || 'image';
-                        const mode = tool.mode || 'convert';
-                        
-                        // Ensure category and mode exist in global TOOLS
-                        if (!window.TOOLS[category]) window.TOOLS[category] = { convert: [], compress: [] };
-                        if (!window.TOOLS[category][mode]) window.TOOLS[category][mode] = [];
-                        
-                        // Check if it already exists to avoid duplicates on re-scan
-                        const existingIdx = window.TOOLS[category][mode].findIndex(t => t.id === tool.id);
-                        const mappedTool = {
-                            id: tool.id,
-                            title: tool.name,
-                            desc: tool.description,
-                            icon: tool.icon || '🔌',
-                            color: tool.color || 'var(--accent-purple)',
-                            active: true,
-                            is_plugin: true,
-                            plugin_id: p.id
-                        };
-                        
-                        if (existingIdx >= 0) {
-                            window.TOOLS[category][mode][existingIdx] = mappedTool;
-                        } else {
-                            window.TOOLS[category][mode].push(mappedTool);
-                        }
-                    });
-                }
             });
-            // Re-render the tool grid if we are currently looking at it
+            // Re-render the tool grid — renderTools() in app.js handles
+            // merging plugin tools from window.installedPluginsData
             if (typeof renderTools === 'function') {
                 renderTools();
             }

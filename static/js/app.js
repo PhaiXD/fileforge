@@ -72,6 +72,8 @@ function toggleTheme() {
 
 let currentMode = 'convert';
 let currentPanel = null;
+let ctxToolId = null;
+let ctxIsStore = false;
 
 window.TOOLS = {
     convert: [
@@ -153,11 +155,7 @@ window.showToolInfo = function(toolId, e) {
         }
     } else {
         // Search across all modes for native tools
-        for (const mode in window.TOOLS) {
-            const tools = window.TOOLS[mode] || [];
-            toolInfo = tools.find(t => t.id === toolId);
-            if (toolInfo) break;
-        }
+        Object.keys(window.TOOLS).forEach(mode => { const tools = window.TOOLS[mode] || []; if(Array.isArray(tools)) { const found = tools.find(t => t.id === toolId); if(found) toolInfo = found; } });
     }
     
     if (!toolInfo) {
@@ -957,8 +955,7 @@ function showToast(message, type = 'info', duration = 4000) {
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    let ctxToolId = null;
-    let ctxIsStore = false;
+    // ctxToolId and ctxIsStore are global (declared near currentMode)
     initTheme();
     initSearch();
     
@@ -1136,21 +1133,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function getInstalledToolIds() {
     let installedToolIds = new Set();
-    let nativeTools = window.TOOLS[currentMode] || [];
-    try {
-        const hiddenNative = JSON.parse(localStorage.getItem('fileforge_hidden_native') || '[]');
-        nativeTools = nativeTools.filter(t => !hiddenNative.includes(t.id));
-    } catch(e) {}
-    // Also include other modes just in case
-    Object.values(window.TOOLS).forEach(toolArray => { if(Array.isArray(toolArray)) { toolArray.forEach(t => installedToolIds.add(t.id)); } });
+    // Collect all native tool IDs across all modes
+    Object.values(window.TOOLS).forEach(toolArray => {
+        if (Array.isArray(toolArray)) {
+            toolArray.forEach(t => installedToolIds.add(t.id));
+        }
+    });
+    // Collect plugin tool IDs (both raw IDs and prefixed IDs)
     if (window.installedPluginsData) {
         window.installedPluginsData.forEach(plugin => {
             if (plugin.tools) {
-                plugin.tools.forEach(t => installedToolIds.add(t.id));
+                plugin.tools.forEach(t => {
+                    installedToolIds.add(t.id);  // raw ID like 'mp4-mp3'
+                    installedToolIds.add('plugin:' + plugin.id + ':' + t.id);  // prefixed ID
+                });
             }
         });
     }
+    // Remove hidden native tools
+    try {
+        const hiddenNative = JSON.parse(localStorage.getItem('fileforge_hidden_native') || '[]');
+        hiddenNative.forEach(id => installedToolIds.delete(id));
+    } catch(e) {}
     return installedToolIds;
 }
+
 
 
