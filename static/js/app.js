@@ -1,3 +1,39 @@
+
+// ============================================================
+// Custom Modal (replaces browser alert/confirm)
+// ============================================================
+
+function customAlert(message, title, icon) {
+    title = title || 'FileForge';
+    icon = icon || '\u2139\ufe0f';
+    return new Promise(function(resolve) {
+        var modal = document.getElementById('custom-modal');
+        document.getElementById('modal-icon').textContent = icon;
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-body').innerHTML = message;
+        document.getElementById('modal-actions').innerHTML = '<button class="custom-modal-btn primary" id="modal-ok">OK</button>';
+        modal.style.display = 'flex';
+        document.getElementById('modal-ok').onclick = function() { modal.style.display = 'none'; resolve(); };
+        modal.onclick = function(e) { if (e.target === modal) { modal.style.display = 'none'; resolve(); } };
+    });
+}
+
+function customConfirm(message, title, icon) {
+    title = title || 'Confirm';
+    icon = icon || '\u2753';
+    return new Promise(function(resolve) {
+        var modal = document.getElementById('custom-modal');
+        document.getElementById('modal-icon').textContent = icon;
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-body').innerHTML = message;
+        document.getElementById('modal-actions').innerHTML = '<button class="custom-modal-btn secondary" id="modal-cancel">Cancel</button><button class="custom-modal-btn primary" id="modal-confirm">Confirm</button>';
+        modal.style.display = 'flex';
+        document.getElementById('modal-confirm').onclick = function() { modal.style.display = 'none'; resolve(true); };
+        document.getElementById('modal-cancel').onclick = function() { modal.style.display = 'none'; resolve(false); };
+        modal.onclick = function(e) { if (e.target === modal) { modal.style.display = 'none'; resolve(false); } };
+    });
+}
+
 /**
  * FileForge — Main Application Logic
  * Theme management, navigation, settings, and initialization.
@@ -331,7 +367,26 @@ function renderTools() {
         </div>`;
     };
 
-    grid.innerHTML = mergedTools.map(t => renderCard(t, false)).join('');
+    // Limit to 24 tools initially, show See More if needed
+    const MAX_VISIBLE = 24;
+    const showAll = grid.dataset.showAll === 'true';
+    const visibleTools = showAll ? mergedTools : mergedTools.slice(0, MAX_VISIBLE);
+    grid.innerHTML = visibleTools.map(t => renderCard(t, false)).join('');
+    
+    const seeMoreDiv = document.getElementById('tools-see-more');
+    if (seeMoreDiv) {
+        if (mergedTools.length > MAX_VISIBLE && !showAll) {
+            seeMoreDiv.style.display = 'block';
+            const remaining = mergedTools.length - MAX_VISIBLE;
+            seeMoreDiv.querySelector('button').textContent = 'See More (' + remaining + ' more)';
+            seeMoreDiv.querySelector('button').onclick = () => {
+                grid.dataset.showAll = 'true';
+                renderTools();
+            };
+        } else {
+            seeMoreDiv.style.display = 'none';
+        }
+    }
     
     if (storeUninstalledGrid) {
         // limit to 6 for the main page
@@ -367,12 +422,11 @@ function renderTools() {
                     const toolId = card.dataset.tool;
                     
                     if (toolId.startsWith('store:')) {
-                        // Go to store or prompt install
                         const parts = toolId.split(':');
                         const pluginId = parts[1];
-                        if (confirm(`Do you want to install ${pluginId}?`)) {
-                            if(typeof installPlugin === 'function') installPlugin(pluginId);
-                        }
+                        customConfirm('Install plugin <strong>' + pluginId + '</strong>?', 'Install Plugin', '\U0001f4e5').then(function(ok) {
+                            if (ok && typeof installPlugin === 'function') installPlugin(pluginId);
+                        });
                         return;
                     }
 
@@ -404,6 +458,8 @@ function renderTools() {
 function showPanel(toolId) {
     // Hide grid, show tool panel
     document.getElementById('tool-grid-section').style.display = 'none';
+    const sidebar = document.getElementById('sidebar-filters');
+    if (sidebar) sidebar.style.display = 'none';
     const aiSection = document.getElementById('ai-section');
     if (aiSection) aiSection.style.display = 'none';
 
@@ -552,6 +608,8 @@ function showPanel(toolId) {
 function hidePanel() {
     document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('tool-grid-section').style.display = 'block';
+    const sidebar = document.getElementById('sidebar-filters');
+    if (sidebar) sidebar.style.display = '';
     const aiSection = document.getElementById('ai-section');
     if (aiSection && currentMode === 'convert') {
         aiSection.style.display = 'block';

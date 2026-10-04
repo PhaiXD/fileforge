@@ -108,7 +108,9 @@ class PluginManager:
         Uses a local cache file with a configurable TTL to avoid
         hitting GitHub on every request.
         """
-                # Override for local testing
+        cache_path = CACHE_DIR / "registry.json"
+
+        # Override for local testing
         local_registry = Path(r"C:\Users\ADMIN\Documents\GitHub\fileforge-plugins\registry.json")
         if local_registry.exists():
             try:
@@ -118,7 +120,6 @@ class PluginManager:
             except Exception as e:
                 print(f"[PluginManager] Failed to read local registry: {e}")
 
-        cache_path = CACHE_DIR / "registry.json"
 
         # Check cache freshness
         if not force_refresh and cache_path.exists():
