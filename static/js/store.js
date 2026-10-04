@@ -144,8 +144,11 @@ function createStoreToolCard(tool) {
     
     let btnHtml = `<button class="btn-primary btn-sm" onclick="installPlugin('${plugin.id}', this)">Install</button>`;
 
+    const tColor = 'var(--accent-purple)';
+    const bg = 'var(--accent-purple-light)';
+
     card.innerHTML = `
-        <div class="tool-card-icon" style="background: color-mix(in srgb, var(--accent-purple) 15%, transparent); color: var(--accent-purple)">
+        <div class="tool-card-icon" style="background: ${bg}; color: ${tColor}">
             ${tool.icon || '📦'}
         </div>
         <div class="tool-card-content" style="flex:1;">

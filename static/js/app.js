@@ -79,15 +79,15 @@ const TOOLS_PER_PAGE = 24;
 
 window.TOOLS = {
     convert: [
-        { id: 'mp4-mp3', title: 'MP4 to MP3', desc: 'Extract audio from MP4 video', icon: '🎧', color: 'var(--accent-blue)', active: true, tags: ['video','audio'] },
-        { id: 'mp4-m4a', title: 'MP4 to M4A', desc: 'Extract audio from MP4 video (AAC)', icon: '🎧', color: 'var(--accent-blue)', active: true, tags: ['video','audio'] },
+        { id: 'mp4-mp3', title: 'MP4 to MP3', desc: 'Extract audio from MP4 video', icon: '🎧', color: 'var(--accent)', active: true, tags: ['video','audio'] },
+        { id: 'mp4-m4a', title: 'MP4 to M4A', desc: 'Extract audio from MP4 video (AAC)', icon: '🎧', color: 'var(--accent)', active: true, tags: ['video','audio'] },
         { id: 'mov-mp4', title: 'MOV to MP4', desc: 'Convert QuickTime MOV to MP4', icon: '📹', color: 'var(--accent-green)', active: true, tags: ['video'] },
         { id: 'webm-mp4', title: 'WEBM to MP4', desc: 'Convert WEBM to MP4', icon: '📹', color: 'var(--accent-green)', active: true, tags: ['video'] },
         { id: 'av1-mp4', title: 'AV1 to MP4', desc: 'Convert AV1 to MP4', icon: '📹', color: 'var(--accent-green)', active: true, tags: ['video'] },
         { id: 'wav-mp3', title: 'WAV to MP3', desc: 'Convert WAV audio to MP3', icon: '🎵', color: 'var(--accent-teal)', active: true, tags: ['audio'] },
         { id: 'mp4-gif', title: 'MP4 to GIF', desc: 'Convert MP4 to animated GIF', icon: '🖼️', color: 'var(--accent-yellow)', active: true, tags: ['video','image'] },
-        { id: 'png-jpg', title: 'PNG to JPG', desc: 'Convert PNG images to JPG format', icon: '🖼️', color: 'var(--accent-blue)', active: true, tags: ['image'] },
-        { id: 'webp-jpg', title: 'WEBP to JPG', desc: 'Convert WebP images to JPG format', icon: '🌐', color: 'var(--accent-blue)', active: true, tags: ['image'] },
+        { id: 'png-jpg', title: 'PNG to JPG', desc: 'Convert PNG images to JPG format', icon: '🖼️', color: 'var(--accent)', active: true, tags: ['image'] },
+        { id: 'webp-jpg', title: 'WEBP to JPG', desc: 'Convert WebP images to JPG format', icon: '🌐', color: 'var(--accent)', active: true, tags: ['image'] },
         { id: 'heic-jpg', title: 'HEIC to JPG', desc: 'Convert Apple HEIC to JPG', icon: '📸', color: 'var(--accent-teal)', active: true, tags: ['image'] },
         { id: 'jpg-png', title: 'JPG to PNG', desc: 'Convert JPG images to PNG format', icon: '🖼️', color: 'var(--accent-green)', active: true, tags: ['image'] },
         { id: 'webp-png', title: 'WEBP to PNG', desc: 'Convert WebP images to PNG', icon: '🌐', color: 'var(--accent-green)', active: true, tags: ['image'] },
@@ -96,14 +96,14 @@ window.TOOLS = {
         { id: 'png-webp', title: 'PNG to WEBP', desc: 'Convert PNG images to WebP format', icon: '🖼️', color: 'var(--accent-purple)', active: true, tags: ['image'] },
         { id: 'heic-webp', title: 'HEIC to WEBP', desc: 'Convert Apple HEIC to WebP', icon: '📸', color: 'var(--accent-teal)', active: true, tags: ['image'] },
         { id: 'image-pdf', title: 'Image to PDF', desc: 'Convert image files to PDF format', icon: '📄', color: 'var(--accent-green)', active: true, tags: ['image','document'] },
-        { id: 'images-to-pdf', title: 'Merge Images to PDF', desc: 'Merge multiple images into a single PDF file', icon: '📑', color: 'var(--accent-blue)', active: true, tags: ['image','document'] },
+        { id: 'images-to-pdf', title: 'Merge Images to PDF', desc: 'Merge multiple images into a single PDF file', icon: '📑', color: 'var(--accent)', active: true, tags: ['image','document'] },
         { id: 'pdf-to-jpg', title: 'PDF to JPG', desc: 'Convert PDF pages to JPG images', icon: '📄', color: 'var(--accent-red)', active: true, tags: ['document','image'] },
         { id: 'pdf-extract', title: 'Extract PDF Pages', desc: 'Split or extract specific pages from a PDF', icon: '✂️', color: 'var(--accent-purple)', active: true, tags: ['document'] },
-        { id: 'pdf-merge', title: 'Merge PDFs', desc: 'Combine multiple PDFs into one', icon: '🔗', color: 'var(--accent-blue)', active: true, tags: ['document'] },
+        { id: 'pdf-merge', title: 'Merge PDFs', desc: 'Combine multiple PDFs into one', icon: '🔗', color: 'var(--accent)', active: true, tags: ['document'] },
         { id: 'pdf-png', title: 'PDF to PNG', desc: 'Convert PDF pages to PNG images', icon: '🖼️', color: 'var(--accent-green)', active: true, tags: ['document','image'] },
     ],
     compress: [
-        { id: 'video-compress', title: 'Video Compressor', desc: 'Reduce video file size', icon: '🗜️', color: 'var(--accent-blue)', active: false, tags: ['video'] },
+        { id: 'video-compress', title: 'Video Compressor', desc: 'Reduce video file size', icon: '🗜️', color: 'var(--accent)', active: false, tags: ['video'] },
         { id: 'audio-compress', title: 'Audio Compressor', desc: 'Reduce audio file size', icon: '🔉', color: 'var(--accent-teal)', active: false, tags: ['audio'] },
         { id: 'image-compress', title: 'Image Compressor', desc: 'Reduce image file size while preserving quality', icon: '📐', color: 'var(--accent-green)', active: true, tags: ['image'] },
         { id: 'pdf-compress', title: 'PDF Compressor', desc: 'Reduce PDF file size for sharing', icon: '📦', color: 'var(--accent-red)', active: true, tags: ['document'] },
@@ -410,9 +410,10 @@ function renderTools() {
     const renderCard = (tool, isStore = false) => {
         const isFav = favs.includes(tool.id);
         const tColor = tool.color || 'var(--accent-purple)';
+        const bg = tColor.includes('var(') ? tColor.replace(')', '-light)') : tColor + '15';
         return `<div class="tool-card ${isStore ? 'store-item' : ''}" data-tool="${tool.id}" style="--card-accent: ${tColor}; ${isStore ? 'background:var(--bg-secondary); border-style:dashed;' : ''}">
             ${isFav ? '<div style="position:absolute; top:8px; right:8px; font-size:12px; z-index:2;" title="Favorite">⭐</div>' : ''}
-            <div class="tool-card-icon" style="background: color-mix(in srgb, ${tColor} 15%, transparent); color: ${tColor}">
+            <div class="tool-card-icon" style="background: ${bg}; color: ${tColor}">
                 ${tool.icon}
             </div>
             <div class="tool-card-content">
@@ -799,8 +800,10 @@ function renderSearchResults(results, query) {
     results.forEach(tool => {
         const item = document.createElement('div');
         item.className = 'search-result-item';
+        const tColor = tool.color || 'var(--accent-purple)';
+        const bg = tColor.includes('var(') ? tColor.replace(')', '-light)') : tColor + '15';
         item.innerHTML = `
-            <div class="search-result-icon" style="background: color-mix(in srgb, ${tool.color} 15%, transparent); color:${tool.color};">
+            <div class="search-result-icon" style="background: ${bg}; color:${tColor};">
                 ${tool.icon}
             </div>
             <div class="search-result-info">
