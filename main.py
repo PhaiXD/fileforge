@@ -7,11 +7,10 @@ import uvicorn
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse, HTMLResponse
 
 from config import (
     APP_DESCRIPTION,
@@ -81,9 +80,6 @@ app.add_middleware(
 # --- Mount Static Files ---
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-# --- Jinja2 Templates ---
-jinja_templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
-
 # --- Include Routers ---
 app.include_router(pdf.router)
 app.include_router(image.router)
@@ -94,10 +90,13 @@ app.include_router(plugins.router)
 
 
 # --- Serve Frontend ---
-@app.get("/")
-async def serve_index(request: Request):
+@app.get("/", response_class=HTMLResponse)
+async def serve_index():
     """Serve the main frontend page."""
-    return jinja_templates.TemplateResponse("index.html", {"request": request, "version": APP_VERSION})
+    html_path = TEMPLATES_DIR / "index.html"
+    content = html_path.read_text(encoding="utf-8")
+    content = content.replace("{{ version }}", APP_VERSION)
+    return HTMLResponse(content=content)
 
 
 # --- Run Server ---
