@@ -115,11 +115,20 @@ function renderStoreTools() {
             paginationEl.style.display = 'none';
         } else {
             paginationEl.style.display = 'block';
-            document.getElementById('store-page-info').textContent = `Page ${storeCurrentPage} of ${totalPages} (${filtered.length} tools)`;
-            document.getElementById('store-page-prev').disabled = storeCurrentPage <= 1;
-            document.getElementById('store-page-next').disabled = storeCurrentPage >= totalPages;
-            document.getElementById('store-page-prev').onclick = () => { storeCurrentPage--; renderStoreTools(); };
-            document.getElementById('store-page-next').onclick = () => { storeCurrentPage++; renderStoreTools(); };
+            const pageContainer = paginationEl.querySelector('div');
+            if (typeof window.buildPaginationHTML === 'function') {
+                pageContainer.innerHTML = window.buildPaginationHTML(storeCurrentPage, totalPages);
+                
+                pageContainer.querySelectorAll('.btn-page').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const page = parseInt(e.target.dataset.page);
+                        if (!isNaN(page)) {
+                            storeCurrentPage = page;
+                            renderStoreTools();
+                        }
+                    });
+                });
+            }
         }
     }
 }

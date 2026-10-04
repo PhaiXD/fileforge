@@ -882,6 +882,28 @@ body {
     font-family: var(--font-primary);
 }
 
+.btn-secondary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-page {
+    padding: 6px 12px;
+    border-radius: 8px;
+    min-width: 32px;
+    height: 32px;
+}
+
+.btn-page-current {
+    background: var(--accent-purple);
+    color: white;
+}
+
+.page-ellipsis {
+    color: var(--text-secondary);
+    padding: 0 4px;
+}
+
 .btn-secondary:hover { background: var(--border-color); }
 
 /* --- Options --- */

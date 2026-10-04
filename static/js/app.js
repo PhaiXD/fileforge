@@ -94,6 +94,7 @@ window.TOOLS = {
         { id: 'heic-png', title: 'HEIC to PNG', desc: 'Convert Apple HEIC to PNG', icon: '📸', color: 'var(--accent-teal)', active: true, tags: ['image'] },
         { id: 'jpg-webp', title: 'JPG to WEBP', desc: 'Convert JPG images to WebP format', icon: '🖼️', color: 'var(--accent-purple)', active: true, tags: ['image'] },
         { id: 'png-webp', title: 'PNG to WEBP', desc: 'Convert PNG images to WebP format', icon: '🖼️', color: 'var(--accent-purple)', active: true, tags: ['image'] },
+        { id: 'heic-webp', title: 'HEIC to WEBP', desc: 'Convert Apple HEIC to WebP', icon: '📸', color: 'var(--accent-teal)', active: true, tags: ['image'] },
         { id: 'image-pdf', title: 'Image to PDF', desc: 'Convert image files to PDF format', icon: '📄', color: 'var(--accent-green)', active: true, tags: ['image','document'] },
         { id: 'images-to-pdf', title: 'Merge Images to PDF', desc: 'Merge multiple images into a single PDF file', icon: '📑', color: 'var(--accent-blue)', active: true, tags: ['image','document'] },
         { id: 'pdf-to-jpg', title: 'PDF to JPG', desc: 'Convert PDF pages to JPG images', icon: '📄', color: 'var(--accent-red)', active: true, tags: ['document','image'] },
@@ -227,6 +228,43 @@ function updateRecentTool(toolId) {
     recent = recent.slice(0, 50); // Keep top 50
     localStorage.setItem('fileforge_recent_tools', JSON.stringify(recent));
 }
+
+window.buildPaginationHTML = function(currentPage, totalPages) {
+    let html = '';
+    
+    // Prev
+    const prevDisabled = currentPage <= 1 ? 'disabled' : '';
+    html += `<button class="btn-secondary btn-page" data-page="${currentPage - 1}" ${prevDisabled}>&larr;</button>`;
+    
+    // Page numbers
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    if (endPage - startPage < 4) {
+        startPage = Math.max(1, endPage - 4);
+    }
+    
+    if (startPage > 1) {
+        html += `<button class="btn-secondary btn-page" data-page="1">1</button>`;
+        if (startPage > 2) html += `<span class="page-ellipsis">...</span>`;
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        const isCurrent = i === currentPage;
+        const currentClass = isCurrent ? 'btn-page-current' : '';
+        html += `<button class="btn-secondary btn-page ${currentClass}" data-page="${i}" ${isCurrent ? 'disabled style="opacity:1;"' : ''}>${i}</button>`;
+    }
+    
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) html += `<span class="page-ellipsis">...</span>`;
+        html += `<button class="btn-secondary btn-page" data-page="${totalPages}">${totalPages}</button>`;
+    }
+    
+    // Next
+    const nextDisabled = currentPage >= totalPages ? 'disabled' : '';
+    html += `<button class="btn-secondary btn-page" data-page="${currentPage + 1}" ${nextDisabled}>&rarr;</button>`;
+    
+    return html;
+};
 
 function renderTools() {
     if (typeof renderStoreTools === 'function') renderStoreTools();
@@ -404,11 +442,19 @@ function renderTools() {
             paginationEl.style.display = 'none';
         } else {
             paginationEl.style.display = 'block';
-            document.getElementById('tools-page-info').textContent = `Page ${toolsCurrentPage} of ${totalPages} (${mergedTools.length} tools)`;
-            document.getElementById('tools-page-prev').disabled = toolsCurrentPage <= 1;
-            document.getElementById('tools-page-next').disabled = toolsCurrentPage >= totalPages;
-            document.getElementById('tools-page-prev').onclick = () => { toolsCurrentPage--; renderTools(); };
-            document.getElementById('tools-page-next').onclick = () => { toolsCurrentPage++; renderTools(); };
+            const pageContainer = paginationEl.querySelector('div');
+            pageContainer.innerHTML = window.buildPaginationHTML(toolsCurrentPage, totalPages);
+            
+            // Add click listeners to page buttons
+            pageContainer.querySelectorAll('.btn-page').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const page = parseInt(e.target.dataset.page);
+                    if (!isNaN(page)) {
+                        toolsCurrentPage = page;
+                        renderTools();
+                    }
+                });
+            });
         }
     }
     
