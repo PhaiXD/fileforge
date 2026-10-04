@@ -225,6 +225,10 @@ function renderTools() {
     if (!grid) return;
 
     let nativeTools = window.TOOLS[currentMode] || [];
+    try {
+        const hiddenNative = JSON.parse(localStorage.getItem('fileforge_hidden_native') || '[]');
+        nativeTools = nativeTools.filter(t => !hiddenNative.includes(t.id));
+    } catch(e) {}
     let mergedTools = [...nativeTools];
     let storeTools = [];
     
@@ -233,7 +237,7 @@ function renderTools() {
         window.installedPluginsData.forEach(plugin => {
             if (plugin.tools) {
                 plugin.tools.forEach(t => {
-                    if (t.mode === currentMode || currentMode === 'convert') {
+                    if (t.mode === currentMode) {
                         if (!mergedTools.find(nt => nt.id === t.id)) {
                             mergedTools.push({
                                 id: 'plugin:' + plugin.id + ':' + t.id,
@@ -254,17 +258,13 @@ function renderTools() {
     }
     
     // Add uninstalled store plugins to storeTools
-    let installedToolIds = new Set();
-    mergedTools.forEach(t => {
-        if (t.isPlugin && t.toolData) installedToolIds.add(t.toolData.id);
-        else installedToolIds.add(t.id);
-    });
+    let installedToolIds = getInstalledToolIds();
 
     if (window.storePluginsData && storeUninstalledGrid) {
         window.storePluginsData.forEach(plugin => {
             if (plugin.tools && plugin.tools.length > 0) {
                 plugin.tools.forEach(t => {
-                    if (t.mode === currentMode || currentMode === 'convert') {
+                    if (t.mode === currentMode) {
                         // Check if this specific tool is already installed!
                         if (!installedToolIds.has(t.id)) {
                             storeTools.push({
@@ -420,7 +420,7 @@ function renderTools() {
                         ctxMenu.style.left = e.clientX + 'px';
                         ctxMenu.style.top = e.clientY + 'px';
                         
-                        document.getElementById('ctx-uninstall').style.display = ctxToolId.startsWith('plugin:') ? 'flex' : 'none';
+                        document.getElementById('ctx-uninstall').style.display = 'flex';
                         document.getElementById('ctx-install').style.display = ctxIsStore ? 'flex' : 'none';
                     }
                 });
@@ -630,7 +630,7 @@ function hidePanel() {
     const sidebar = document.getElementById('sidebar-filters');
     if (sidebar) sidebar.style.display = '';
     const aiSection = document.getElementById('ai-section');
-    if (aiSection && currentMode === 'convert') {
+    if (aiSection && currentMode === 'ai') {
         aiSection.style.display = 'block';
     }
     currentPanel = null;
@@ -1095,3 +1095,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log('🔥 FileForge initialized');
 });
+
+function getInstalledToolIds() {
+    let installedToolIds = new Set();
+    let nativeTools = window.TOOLS[currentMode] || [];
+    try {
+        const hiddenNative = JSON.parse(localStorage.getItem('fileforge_hidden_native') || '[]');
+        nativeTools = nativeTools.filter(t => !hiddenNative.includes(t.id));
+    } catch(e) {}
+    // Also include other modes just in case
+    Object.values(window.TOOLS).forEach(toolArray => {
+        toolArray.forEach(t => installedToolIds.add(t.id));
+    });
+    if (window.installedPluginsData) {
+        window.installedPluginsData.forEach(plugin => {
+            if (plugin.tools) {
+                plugin.tools.forEach(t => installedToolIds.add(t.id));
+            }
+        });
+    }
+    return installedToolIds;
+}
+

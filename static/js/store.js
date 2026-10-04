@@ -1,4 +1,4 @@
-﻿/**
+/**
  * FileForge — Plugin Store Frontend
  */
 
@@ -36,13 +36,16 @@ async function loadStore() {
             // Unbundle tools
             storeToolsList = [];
             data.plugins.forEach(plugin => {
-                if (plugin.tools && plugin.tools.length > 0 && !plugin.installed) {
+                if (plugin.tools && plugin.tools.length > 0 ) {
                     plugin.tools.forEach(tool => {
-                        storeToolsList.push({
-                            ...tool,
-                            plugin_parent: plugin,
-                            plugin_id: plugin.id
-                        });
+                        const installedIds = typeof getInstalledToolIds === 'function' ? getInstalledToolIds() : new Set();
+                        if (!installedIds.has(tool.id)) {
+                            storeToolsList.push({
+                                ...tool,
+                                plugin_parent: plugin,
+                                plugin_id: plugin.id
+                            });
+                        }
                     });
                 }
             });
