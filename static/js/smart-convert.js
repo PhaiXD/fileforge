@@ -454,12 +454,19 @@
                 return new Promise((resolve) => {
                     const btnZip = document.getElementById('btn-download-zip');
                     const btnMult = document.getElementById('btn-download-multiple');
+                    const btnClose = modal.querySelector('.btn-cancel');
                     
                     const cleanup = () => {
                         modal.style.display = 'none';
                         btnZip.removeEventListener('click', onZip);
                         btnMult.removeEventListener('click', onMult);
+                        if (btnClose) btnClose.removeEventListener('click', onCancel);
                         modal.removeEventListener('click', onModalClick);
+                    };
+
+                    const onCancel = () => {
+                        cleanup();
+                        resolve();
                     };
 
                     const onZip = async () => {
@@ -485,6 +492,7 @@
 
                     btnZip.addEventListener('click', onZip);
                     btnMult.addEventListener('click', onMult);
+                    if (btnClose) btnClose.addEventListener('click', onCancel);
                     modal.addEventListener('click', onModalClick);
                 });
             }
