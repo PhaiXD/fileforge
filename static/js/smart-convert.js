@@ -445,8 +445,100 @@
 
     async function convertAll() {
         const toConvert = files.filter(f => f.selectedTarget && f.status !== 'done' && f.status !== 'converting');
+        if (toConvert.length === 0) return;
+
+        if (toConvert.length > 1 && window.currentMode !== 'ai') {
+            const modal = document.getElementById('modal-zip-download');
+            if (modal) {
+                modal.style.display = 'flex';
+                return new Promise((resolve) => {
+                    const btnZip = document.getElementById('btn-download-zip');
+                    const btnMult = document.getElementById('btn-download-multiple');
+                    
+                    const cleanup = () => {
+                        modal.style.display = 'none';
+                        btnZip.removeEventListener('click', onZip);
+                        btnMult.removeEventListener('click', onMult);
+                        modal.removeEventListener('click', onModalClick);
+                    };
+
+                    const onZip = async () => {
+                        cleanup();
+                        await processAllAsZip(toConvert);
+                        resolve();
+                    };
+
+                    const onMult = async () => {
+                        cleanup();
+                        for (const item of toConvert) {
+                            await convertSingle(item.id);
+                        }
+                        resolve();
+                    };
+
+                    const onModalClick = (e) => {
+                        if (e.target === modal) {
+                            cleanup();
+                            resolve(); // cancelled
+                        }
+                    };
+
+                    btnZip.addEventListener('click', onZip);
+                    btnMult.addEventListener('click', onMult);
+                    modal.addEventListener('click', onModalClick);
+                });
+            }
+        }
+
         for (const item of toConvert) {
             await convertSingle(item.id);
+        }
+    }
+
+    async function processAllAsZip(toConvert) {
+        if (!window.JSZip) {
+            showToast('JSZip library not loaded.', 'error');
+            return;
+        }
+
+        const zip = new JSZip();
+        let hasError = false;
+
+        for (const item of toConvert) {
+            item.status = 'converting';
+            render();
+            try {
+                const blob = await callConvertAPI(item.file, item.ext, item.selectedTarget, item.compressionQuality);
+                let outName = item.file.name;
+                if (window.currentMode === 'compress') outName = item.file.name.replace(/\.[^/.]+$/, "") + "-compressed." + item.ext;
+                else outName = replaceExtension(item.file.name, item.selectedTarget);
+                
+                zip.file(outName, blob);
+                item.status = 'done';
+            } catch (err) {
+                console.error('Action error:', err);
+                item.status = 'error';
+                showToast(`Error handling ${item.file.name}: ${err.message}`, 'error');
+                hasError = true;
+            }
+            render();
+        }
+
+        if (toConvert.some(f => f.status === 'done')) {
+            showToast('Zipping files...', 'info');
+            try {
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+                downloadBlob(zipBlob, `FileForge_Batch_${Date.now()}.zip`);
+            } catch (err) {
+                console.error('ZIP error:', err);
+                showToast('Failed to generate ZIP.', 'error');
+            }
+        }
+        
+        if (hasError) {
+            showToast('Some files failed to process.', 'warning');
+        } else {
+            showToast('Batch process complete!', 'success');
         }
     }
 
