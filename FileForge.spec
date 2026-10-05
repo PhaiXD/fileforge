@@ -42,6 +42,7 @@ a = Analysis(
     datas=[
         ('static', 'static'),
         ('templates', 'templates'),
+        ('plugins', 'plugins'),
     ],
     hiddenimports=[
         # ── FastAPI / Uvicorn / ASGI stack ──
