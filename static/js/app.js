@@ -1059,6 +1059,8 @@ document.addEventListener('DOMContentLoaded', () => {
             toolGridSection.style.display = 'none';
             modeToggle.style.display = 'none';
             searchContainer.style.display = 'none';
+            const scBox = document.getElementById('smart-convert-box');
+            if (scBox) scBox.style.display = 'none';
             storePageSection.style.display = 'block';
             window.scrollTo(0,0);
         });
@@ -1070,6 +1072,8 @@ document.addEventListener('DOMContentLoaded', () => {
             toolGridSection.style.display = 'block';
             modeToggle.style.display = 'flex';
             searchContainer.style.display = 'flex';
+            const scBox = document.getElementById('smart-convert-box');
+            if (scBox) scBox.style.display = (window.currentMode === 'fetch') ? 'none' : 'block';
         });
     }
 
