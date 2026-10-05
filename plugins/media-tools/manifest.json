@@ -8,36 +8,6 @@
   "min_core_version": "2.0.0",
   "tools": [
     {
-      "id": "yt-mp4",
-      "name": "YouTube to MP4",
-      "description": "Download YouTube videos as MP4",
-      "icon": "🎬",
-      "category": "video-audio",
-      "mode": "convert",
-      "inputs": {
-        "type": "url",
-        "placeholder": "https://youtube.com/..."
-      },
-      "command": "plugin.bat",
-      "args": ["yt-mp4", "{input_file}", "{output_file}"],
-      "output_ext": ".mp4"
-    },
-    {
-      "id": "yt-mp3",
-      "name": "YouTube to MP3",
-      "description": "Extract audio from YouTube videos",
-      "icon": "🎵",
-      "category": "video-audio",
-      "mode": "convert",
-      "inputs": {
-        "type": "url",
-        "placeholder": "https://youtube.com/..."
-      },
-      "command": "plugin.bat",
-      "args": ["yt-mp3", "{input_file}", "{output_file}"],
-      "output_ext": ".mp3"
-    },
-    {
       "id": "mp4-mp3",
       "name": "MP4 to MP3",
       "description": "Extract audio from MP4 video",

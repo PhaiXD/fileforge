@@ -108,10 +108,7 @@ window.TOOLS = {
         { id: 'image-compress', title: 'Image Compressor', desc: 'Reduce image file size while preserving quality', icon: '📐', color: 'var(--accent-green)', active: true, tags: ['image'] },
         { id: 'pdf-compress', title: 'PDF Compressor', desc: 'Reduce PDF file size for sharing', icon: '📦', color: 'var(--accent-red)', active: true, tags: ['document'] },
     ],
-    fetch: [
-        { id: 'yt-mp4', title: 'YouTube to MP4', desc: 'Download YouTube videos as MP4', icon: '🎬', color: 'var(--accent-red)', active: true, tags: ['video'] },
-        { id: 'yt-mp3', title: 'YouTube to MP3', desc: 'Extract audio from YouTube videos', icon: '🎵', color: 'var(--accent-red)', active: true, tags: ['audio','video'] },
-    ],
+    fetch: [],
     ai: [
         { id: 'ai-pdf', title: 'Summarize PDF', desc: 'Extract and summarize PDF content using AI', icon: '📄', color: 'var(--accent-purple)', active: true, tags: ['document'] },
         { id: 'ai-video', title: 'Summarize Video', desc: 'Summarize YouTube video content from subtitles or audio', icon: '🎬', color: 'var(--accent-purple)', active: true, tags: ['video'] },
@@ -544,6 +541,9 @@ function showPanel(toolId) {
     if (sidebar) sidebar.style.display = 'none';
     const aiSection = document.getElementById('ai-section');
     if (aiSection) aiSection.style.display = 'none';
+    
+    const scBox = document.getElementById('smart-convert-box');
+    if (scBox) scBox.style.display = 'none';
 
     // Hide all panels
     document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
@@ -698,6 +698,12 @@ function hidePanel() {
     if (aiSection && currentMode === 'ai') {
         aiSection.style.display = 'block';
     }
+    
+    const scBox = document.getElementById('smart-convert-box');
+    if (scBox && currentMode === 'convert') {
+        scBox.style.display = '';
+    }
+    
     currentPanel = null;
     
     // Re-render tools to update recent usage sorting
@@ -1167,10 +1173,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof initHeicConvert === 'function') initHeicConvert();
     if (typeof initImageConvert === 'function') initImageConvert();
     if (typeof initMediaConvert === 'function') initMediaConvert();
-    initMediaDownloader('yt-mp4');
-    initMediaDownloader('yt-mp3');
-    initMediaDownloader('tt-mp4');
-    initMediaDownloader('tt-mp3');
     initPdfSummarizer();
     initVideoSummarizer();
 
