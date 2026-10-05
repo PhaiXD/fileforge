@@ -96,6 +96,7 @@
             <div class="mode-toggle-group">
                 <button class="mode-toggle-btn active" data-mode="convert">🔄 Convert</button>
                 <button class="mode-toggle-btn" data-mode="compress">🗜️ Compress</button>
+                <button class="mode-toggle-btn" data-mode="fetch">📥 Fetch</button>
                 <button class="mode-toggle-btn" data-mode="ai">🤖 AI Tools</button>
             </div>
         </div>
@@ -550,6 +551,61 @@
             <div class="result-area"></div>
         </div>
 
+        <!-- ===== YouTube to MP4 ===== -->
+        <div id="panel-yt-mp4" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">🎬</span>
+                    <h2>YouTube to MP4</h2>
+                </div>
+                <button class="tool-panel-back" onclick="hidePanel()">← Back to Tools</button>
+            </div>
+            <div class="url-input-group">
+                <input type="text" class="url-input" placeholder="Paste YouTube URL here...">
+                <button class="btn-secondary btn-fetch-info">Fetch Info</button>
+            </div>
+            <div class="media-info" style="display:none"></div>
+            <div class="option-group" style="display:none;">
+                <label class="option-label">Quality</label>
+                <select class="option-select quality-select"></select>
+            </div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>⬇️ Download MP4</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
+
+        <!-- ===== YouTube to MP3 ===== -->
+        <div id="panel-yt-mp3" class="tool-panel">
+            <div class="tool-panel-header">
+                <div class="tool-panel-title">
+                    <span style="font-size:28px">🎵</span>
+                    <h2>YouTube to MP3</h2>
+                </div>
+                <button class="tool-panel-back" onclick="hidePanel()">← Back to Tools</button>
+            </div>
+            <div class="url-input-group">
+                <input type="text" class="url-input" placeholder="Paste YouTube URL here...">
+                <button class="btn-secondary btn-fetch-info">Fetch Info</button>
+            </div>
+            <div class="media-info" style="display:none"></div>
+            <div class="option-group" style="display:none;">
+                <label class="option-label">Quality</label>
+                <select class="option-select quality-select"></select>
+            </div>
+            <div style="margin-top:24px;">
+                <button class="btn-primary btn-convert" disabled>⬇️ Download MP3</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-wrapper"><div class="progress-bar" style="width:0%"></div></div>
+                <div class="progress-text">Starting...</div>
+            </div>
+            <div class="result-area"></div>
+        </div>
 
         <!-- ===== AI: Summarize PDF ===== -->
         <div id="panel-ai-pdf" class="tool-panel">
@@ -676,7 +732,7 @@
     <script src="/static/js/store.js?v=2.4"></script>
     <script src="/static/js/plugin-ui.js?v=2.2.0"></script>
     <script src="/static/js/smart-convert.js?v=1.0"></script>
-    <script src="/static/js/app.js?v=2.7"></script>
+    <script src="/static/js/app.js?v=2.8"></script>
 
     
     <!-- Custom Modal (replaces browser alert/confirm) -->

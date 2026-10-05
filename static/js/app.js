@@ -1173,6 +1173,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof initHeicConvert === 'function') initHeicConvert();
     if (typeof initImageConvert === 'function') initImageConvert();
     if (typeof initMediaConvert === 'function') initMediaConvert();
+    if (typeof initMediaDownloader === 'function') {
+        initMediaDownloader('yt-mp4');
+        initMediaDownloader('yt-mp3');
+    }
     initPdfSummarizer();
     initVideoSummarizer();
 
