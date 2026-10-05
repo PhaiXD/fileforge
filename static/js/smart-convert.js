@@ -100,6 +100,10 @@
     }
 
     function renderEmpty(box) {
+        let actionWord = 'convert';
+        if (window.currentMode === 'compress') actionWord = 'compress';
+        if (window.currentMode === 'ai') actionWord = 'summarize';
+
         box.innerHTML = `
             <div class="sc-empty">
                 <div class="sc-upload-icon">
@@ -109,7 +113,7 @@
                         <line x1="12" y1="3" x2="12" y2="15"/>
                     </svg>
                 </div>
-                <h3 class="sc-title">Select your file to convert</h3>
+                <h3 class="sc-title">Select your file to ${actionWord}</h3>
                 <p class="sc-subtitle">or drop your file here.</p>
                 <button class="sc-select-btn" id="sc-select-btn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -132,6 +136,10 @@
             const targetBtnClass = f.selectedTarget ? 'sc-format-selected' : '';
 
             let statusHtml = '';
+            let actionLabel = 'Convert';
+            if (window.currentMode === 'compress') actionLabel = 'Compress';
+            if (window.currentMode === 'ai') actionLabel = 'Summarize';
+
             if (f.status === 'converting') {
                 statusHtml = '<div class="sc-spinner"></div>';
             } else if (f.status === 'done') {
@@ -139,13 +147,26 @@
             } else if (f.status === 'error') {
                 statusHtml = '<span class="sc-error-badge">❌</span>';
             } else {
-                statusHtml = `<button class="sc-convert-btn" data-id="${f.id}" title="Convert this file">
+                statusHtml = `<button class="sc-convert-btn" data-id="${f.id}" title="${actionLabel} this file">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
                         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
                     </svg>
-                    Convert
+                    ${actionLabel}
                 </button>`;
+            }
+
+            let formatUI = '';
+            if (window.currentMode === 'compress') {
+                formatUI = `<div class="sc-quality-wrap" style="display:inline-flex; align-items:center; gap:8px;">
+                    <span style="font-size:12px; color:var(--text-secondary);">Quality:</span>
+                    <input type="range" class="sc-quality-slider" data-id="${f.id}" min="10" max="100" value="${f.compressionQuality}" style="width:80px; accent-color:var(--accent);">
+                    <span class="sc-quality-label" id="sc-quality-lbl-${f.id}" style="font-size:12px; min-width:30px; color:var(--text-primary); font-weight:600;">${f.compressionQuality}%</span>
+                </div>`;
+            } else if (window.currentMode === 'ai') {
+                formatUI = `<span class="sc-ai-badge" style="font-size:12px; font-weight:600; padding:4px 8px; border-radius:12px; background:var(--accent-purple)15; color:var(--accent-purple);">✨ AI Summarize</span>`;
+            } else {
+                formatUI = `<button class="sc-format-btn ${targetBtnClass}" data-id="${f.id}">${targetLabel} ▾</button>`;
             }
 
             return `
@@ -161,18 +182,21 @@
                             ${extUpper}
                         </span>
                         <span class="sc-arrow">→</span>
-                        <button class="sc-format-btn ${targetBtnClass}" data-id="${f.id}">
-                            ${targetLabel} ▾
-                        </button>
+                        ${formatUI}
                         <button class="sc-remove-btn" data-id="${f.id}" title="Remove">✕</button>
                     </div>
                 </div>
             `;
         }).join('');
 
-        const allSelected = files.every(f => f.selectedTarget);
+        let allAction = 'Convert All';
+        if (window.currentMode === 'compress') allAction = 'Compress All';
+        if (window.currentMode === 'ai') allAction = 'Summarize All';
+
+        const allSelected = (window.currentMode === 'compress' || window.currentMode === 'ai') ? true : files.every(f => f.selectedTarget);
         const anyConverting = files.some(f => f.status === 'converting');
         const convertAllDisabled = !allSelected || anyConverting ? 'disabled' : '';
+        const pendingCount = files.filter(f => (f.selectedTarget || window.currentMode !== 'convert') && f.status !== 'done').length;
 
         box.innerHTML = `
             <div class="sc-file-list">
@@ -185,7 +209,7 @@
                         <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
                         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
                     </svg>
-                    Convert All (${files.filter(f => f.selectedTarget && f.status !== 'done').length})
+                    ${allAction} (${pendingCount})
                 </button>
             </div>
         `;
@@ -218,6 +242,18 @@
                 e.stopPropagation();
                 const id = parseInt(btn.dataset.id);
                 toggleFormatDropdown(id, btn);
+            });
+        });
+
+        box.querySelectorAll('.sc-quality-slider').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const id = parseInt(slider.dataset.id);
+                const fileItem = files.find(f => f.id === id);
+                if (fileItem) {
+                    fileItem.compressionQuality = parseInt(e.target.value);
+                    const lbl = document.getElementById('sc-quality-lbl-' + id);
+                    if (lbl) lbl.textContent = fileItem.compressionQuality + '%';
+                }
             });
         });
     }
@@ -343,16 +379,31 @@
     function handleFiles(fileList) {
         for (const file of fileList) {
             const ext = getExtension(file.name);
-            if (!FORMAT_MAP[ext]) {
-                showToast(`"${file.name}" — unsupported format`, 'warning');
-                continue;
+            
+            if (window.currentMode === 'compress') {
+                if (!['jpg','jpeg','png','webp','heic','heif','pdf'].includes(ext)) {
+                    showToast(`"${file.name}" — unsupported for compression`, 'warning');
+                    continue;
+                }
+            } else if (window.currentMode === 'ai') {
+                if (ext !== 'pdf') {
+                    showToast(`"${file.name}" — AI currently supports PDF only`, 'warning');
+                    continue;
+                }
+            } else {
+                if (!FORMAT_MAP[ext]) {
+                    showToast(`"${file.name}" — unsupported format`, 'warning');
+                    continue;
+                }
             }
+
             files.push({
                 id: fileIdCounter++,
                 file: file,
                 ext: ext,
-                selectedTarget: null,
-                status: null, // null, 'converting', 'done', 'error'
+                selectedTarget: (window.currentMode === 'compress' || window.currentMode === 'ai') ? 'auto' : null,
+                compressionQuality: 80, // Default quality for compress
+                status: null,
             });
         }
         render();
@@ -361,19 +412,33 @@
     // ─── Convert Logic ─────────────────────────────────────────
     async function convertSingle(id) {
         const item = files.find(f => f.id === id);
-        if (!item || !item.selectedTarget || item.status === 'converting') return;
+        if (!item || (!item.selectedTarget && window.currentMode === 'convert') || item.status === 'converting') return;
 
         item.status = 'converting';
         render();
 
         try {
-            const blob = await callConvertAPI(item.file, item.ext, item.selectedTarget);
-            downloadBlob(blob, replaceExtension(item.file.name, item.selectedTarget));
-            item.status = 'done';
+            if (window.currentMode === 'ai') {
+                const result = await callConvertAPI(item.file, item.ext, item.selectedTarget, item.compressionQuality);
+                if (window.customAlert) {
+                    window.customAlert(`<div style="text-align:left; max-height:400px; overflow-y:auto; white-space:pre-wrap; font-size:14px; line-height:1.6;">${result.summary}</div>`, 'AI Summary for ' + item.file.name, '✨');
+                } else {
+                    alert('Summary:\n' + result.summary);
+                }
+                item.status = 'done';
+            } else {
+                const blob = await callConvertAPI(item.file, item.ext, item.selectedTarget, item.compressionQuality);
+                let outName = item.file.name;
+                if (window.currentMode === 'compress') outName = item.file.name.replace(/\.[^/.]+$/, "") + "-compressed." + item.ext;
+                else outName = replaceExtension(item.file.name, item.selectedTarget);
+                
+                downloadBlob(blob, outName);
+                item.status = 'done';
+            }
         } catch (err) {
-            console.error('Convert error:', err);
+            console.error('Action error:', err);
             item.status = 'error';
-            showToast(`Error converting ${item.file.name}: ${err.message}`, 'error');
+            showToast(`Error handling ${item.file.name}: ${err.message}`, 'error');
         }
         render();
     }
@@ -385,36 +450,56 @@
         }
     }
 
-    async function callConvertAPI(file, sourceExt, targetExt) {
+    async function callConvertAPI(file, sourceExt, targetExt, quality) {
         const formData = new FormData();
         formData.append('file', file);
 
         let url = '';
-        const srcCat = getFileCategory(sourceExt);
-        const tgtInfo = FORMAT_INFO[targetExt];
 
-        // Route to the correct API
-        if (srcCat === 'Image' && targetExt === 'pdf') {
-            // Image → PDF
-            url = '/api/image/convert';
-            formData.append('target_format', 'pdf');
-        } else if (srcCat === 'Image' && ['jpg', 'png', 'webp', 'ico'].includes(targetExt)) {
-            url = '/api/image/convert';
-            formData.append('target_format', targetExt);
-        } else if (srcCat === 'Video' || srcCat === 'Audio') {
-            url = '/api/media/convert';
-            formData.append('target_format', targetExt);
-        } else if (sourceExt === 'pdf' && ['jpg', 'jpeg', 'png'].includes(targetExt)) {
-            url = '/api/pdf/to-image';
-            formData.append('target_format', targetExt === 'jpg' ? 'jpeg' : targetExt);
-        } else if (sourceExt === 'pdf' && targetExt === 'docx') {
-            url = '/api/pdf/to-word';
-        } else if (['doc', 'docx'].includes(sourceExt) && targetExt === 'pdf') {
-            url = '/api/pdf/word-to-pdf';
-        } else if (['xls', 'xlsx'].includes(sourceExt) && targetExt === 'pdf') {
-            url = '/api/pdf/excel-to-pdf';
+        if (window.currentMode === 'ai') {
+            url = '/api/ai/summarize-pdf';
+            const resp = await fetch(url, { method: 'POST', body: formData });
+            if (!resp.ok) {
+                const errJson = await resp.json().catch(()=>({}));
+                throw new Error(errJson.detail || resp.statusText);
+            }
+            return await resp.json();
+        }
+
+        if (window.currentMode === 'compress') {
+            if (['jpg','jpeg','png','webp','heic','heif'].includes(sourceExt)) {
+                url = '/api/image/compress';
+            } else if (sourceExt === 'pdf') {
+                url = '/api/pdf/compress';
+            }
+            formData.append('quality', quality || 80);
         } else {
-            throw new Error(`Conversion ${sourceExt} → ${targetExt} not supported`);
+            const srcCat = getFileCategory(sourceExt);
+            const tgtInfo = FORMAT_INFO[targetExt];
+
+            // Route to the correct API
+            if (srcCat === 'Image' && targetExt === 'pdf') {
+                // Image → PDF
+                url = '/api/image/convert';
+                formData.append('target_format', 'pdf');
+            } else if (srcCat === 'Image' && ['jpg', 'png', 'webp', 'ico'].includes(targetExt)) {
+                url = '/api/image/convert';
+                formData.append('target_format', targetExt);
+            } else if (srcCat === 'Video' || srcCat === 'Audio') {
+                url = '/api/media/convert';
+                formData.append('target_format', targetExt);
+            } else if (sourceExt === 'pdf' && ['jpg', 'jpeg', 'png'].includes(targetExt)) {
+                url = '/api/pdf/to-image';
+                formData.append('target_format', targetExt === 'jpg' ? 'jpeg' : targetExt);
+            } else if (sourceExt === 'pdf' && targetExt === 'docx') {
+                url = '/api/pdf/to-word';
+            } else if (['doc', 'docx'].includes(sourceExt) && targetExt === 'pdf') {
+                url = '/api/pdf/word-to-pdf';
+            } else if (['xls', 'xlsx'].includes(sourceExt) && targetExt === 'pdf') {
+                url = '/api/pdf/excel-to-pdf';
+            } else {
+                throw new Error(`Conversion ${sourceExt} → ${targetExt} not supported`);
+            }
         }
 
         const resp = await fetch(url, { method: 'POST', body: formData });

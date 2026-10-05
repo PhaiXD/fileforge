@@ -71,6 +71,7 @@ function toggleTheme() {
 // ============================================================
 
 let currentMode = 'convert';
+window.currentMode = currentMode;
 let currentPanel = null;
 let ctxToolId = null;
 let ctxIsStore = false;
@@ -120,9 +121,17 @@ window.TOOLS = {
 
 function switchMode(mode) {
     currentMode = mode;
+    window.currentMode = mode;
     document.querySelectorAll('.mode-toggle-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.mode === mode);
     });
+    
+    // Hide smart-convert-box in Fetch mode
+    const scBox = document.getElementById('smart-convert-box');
+    if (scBox) {
+        scBox.style.display = (mode === 'fetch') ? 'none' : 'block';
+    }
+    
     renderTools();
     hidePanel();
 }
@@ -703,8 +712,8 @@ function hidePanel() {
     }
     
     const scBox = document.getElementById('smart-convert-box');
-    if (scBox && currentMode === 'convert') {
-        scBox.style.display = '';
+    if (scBox) {
+        scBox.style.display = (currentMode === 'fetch') ? 'none' : 'block';
     }
     
     currentPanel = null;

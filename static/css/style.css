@@ -592,7 +592,8 @@ body {
 }
 
 .mode-toggle-btn {
-    padding: 7px 24px;
+    padding: 7px 0;
+    min-width: 120px;
     border-radius: var(--radius-full);
     border: none;
     background: transparent;
@@ -602,6 +603,7 @@ body {
     font-weight: 500;
     transition: all var(--transition-fast);
     font-family: var(--font-primary);
+    text-align: center;
 }
 
 .mode-toggle-btn:hover { color: var(--text-primary); }

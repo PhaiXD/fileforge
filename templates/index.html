@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css?v=2.1">
 </head>
 <body>
     <div id="update-modal" class="modal-overlay" style="display:none; align-items:center; justify-content:center; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; animation:fadeIn 0.3s;">
@@ -77,8 +77,17 @@
             </div>
         </section>
 
+        <div class="mode-toggle">
+            <div class="mode-toggle-group">
+                <button class="mode-toggle-btn active" data-mode="convert">🔄 Convert</button>
+                <button class="mode-toggle-btn" data-mode="compress">🗜️ Compress</button>
+                <button class="mode-toggle-btn" data-mode="fetch">📥 Fetch</button>
+                <button class="mode-toggle-btn" data-mode="ai">🤖 AI Tools</button>
+            </div>
+        </div>
+
         <!-- Smart Convert Drop Zone -->
-        <div id="smart-convert-box" class="smart-convert-box" style="margin-top:48px; margin-bottom:48px;">
+        <div id="smart-convert-box" class="smart-convert-box" style="margin-top:24px; margin-bottom:48px;">
             <!-- Rendered by smart-convert.js -->
         </div>
         <input type="file" id="sc-file-input" multiple hidden>
@@ -92,14 +101,7 @@
             </div>
         <div id="search-results" class="search-results" style="display:none;"></div>
 
-        <div class="mode-toggle">
-            <div class="mode-toggle-group">
-                <button class="mode-toggle-btn active" data-mode="convert">🔄 Convert</button>
-                <button class="mode-toggle-btn" data-mode="compress">🗜️ Compress</button>
-                <button class="mode-toggle-btn" data-mode="fetch">📥 Fetch</button>
-                <button class="mode-toggle-btn" data-mode="ai">🤖 AI Tools</button>
-            </div>
-        </div>
+
 
         
         <div class="layout-container" style="display:flex; gap:24px; margin-top:24px; align-items:flex-start;">
@@ -731,8 +733,8 @@
     <script src="/static/js/ai.js?v=1.4"></script>
     <script src="/static/js/store.js?v=2.4"></script>
     <script src="/static/js/plugin-ui.js?v=2.2.0"></script>
-    <script src="/static/js/smart-convert.js?v=1.0"></script>
-    <script src="/static/js/app.js?v=2.9"></script>
+    <script src="/static/js/smart-convert.js?v=1.2"></script>
+    <script src="/static/js/app.js?v=3.0"></script>
 
     
     <!-- Custom Modal (replaces browser alert/confirm) -->
