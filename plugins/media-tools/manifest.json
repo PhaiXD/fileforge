@@ -39,8 +39,8 @@
     },
     {
       "id": "tiktok-mp4",
-      "name": "TikTok Downloader",
-      "description": "Download TikTok videos",
+      "name": "TikTok to MP4",
+      "description": "Download TikTok videos as MP4",
       "icon": "📱",
       "category": "video-audio",
       "mode": "fetch",
@@ -51,6 +51,21 @@
       "command": "plugin.bat",
       "args": ["tiktok-mp4", "{input_file}", "{output_file}"],
       "output_ext": ".mp4"
+    },
+    {
+      "id": "tiktok-mp3",
+      "name": "TikTok to MP3",
+      "description": "Extract audio from TikTok videos",
+      "icon": "🎵",
+      "category": "video-audio",
+      "mode": "fetch",
+      "inputs": {
+        "type": "url",
+        "placeholder": "https://tiktok.com/..."
+      },
+      "command": "plugin.bat",
+      "args": ["tiktok-mp3", "{input_file}", "{output_file}"],
+      "output_ext": ".mp3"
     },
     {
       "id": "mp4-mp3",

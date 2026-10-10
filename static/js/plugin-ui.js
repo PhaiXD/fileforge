@@ -6,7 +6,7 @@ let installedPlugins = {}; // pid -> manifest
 
 async function loadInstalledPlugins() {
     try {
-        const response = await fetch('/api/plugins');
+        const response = await fetch('/api/plugins?t=' + Date.now());
         const data = await response.json();
         
         if (data.success) {
