@@ -29,6 +29,10 @@ async def main():
             file_path, _ = await download_media(args.input, "mp3")
             os.replace(file_path, args.output)
             print(f"Downloaded to {args.output}")
+        elif args.tool == "tiktok-mp4":
+            file_path, _ = await download_media(args.input, "mp4")
+            os.replace(file_path, args.output)
+            print(f"Downloaded to {args.output}")
         elif args.tool == "to-mp4":
             output_path, _ = await convert_media(args.input, "mp4", Path(args.input).name)
             os.replace(output_path, args.output)
