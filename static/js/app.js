@@ -112,6 +112,8 @@ window.TOOLS = {
     fetch: [
         { id: 'yt-mp4', title: 'YouTube to MP4', desc: 'Download YouTube videos as MP4', icon: '🎬', color: 'var(--accent-red)', active: true, tags: ['video'] },
         { id: 'yt-mp3', title: 'YouTube to MP3', desc: 'Extract audio from YouTube videos', icon: '🎵', color: 'var(--accent-red)', active: true, tags: ['audio','video'] },
+        { id: 'tiktok-mp4', title: 'TikTok to MP4', desc: 'Download TikTok videos without watermark', icon: '📱', color: 'var(--accent-teal)', active: true, tags: ['video'] },
+        { id: 'tiktok-mp3', title: 'TikTok to MP3', desc: 'Extract audio from TikTok videos', icon: '🎵', color: 'var(--accent-teal)', active: true, tags: ['audio','video'] },
     ],
     ai: [
         { id: 'ai-pdf', title: 'Summarize PDF', desc: 'Extract and summarize PDF content using AI', icon: '📄', color: 'var(--accent-purple)', active: true, tags: ['document'] },
@@ -564,6 +566,8 @@ function showPanel(toolId) {
     const panelMap = {
         'yt-mp4': 'panel-yt-mp4',
         'yt-mp3': 'panel-yt-mp3',
+        'tiktok-mp4': 'panel-tiktok-mp4',
+        'tiktok-mp3': 'panel-tiktok-mp3',
         'mp4-mp3': 'panel-media-convert',
         'mp4-m4a': 'panel-media-convert',
         'mov-mp3': 'panel-media-convert',
@@ -1192,6 +1196,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof initMediaDownloader === 'function') {
         initMediaDownloader('yt-mp4');
         initMediaDownloader('yt-mp3');
+        initMediaDownloader('tiktok-mp4');
+        initMediaDownloader('tiktok-mp3');
     }
     initPdfSummarizer();
     initVideoSummarizer();
