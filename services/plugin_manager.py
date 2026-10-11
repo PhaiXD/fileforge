@@ -373,8 +373,13 @@ class PluginManager:
             )
             # Replace option placeholders
             for opt_id, opt_val in options.items():
-                arg = arg.replace(f"{{{opt_id}}}", str(opt_val))
-            cmd.append(arg)
+                arg = arg.replace(f"{{{opt_id}}}", str(opt_val) if opt_val is not None else "")
+            
+            # Clean up any leftover unsubstituted placeholders e.g. {width}
+            import re
+            arg = re.sub(r"\{[a-zA-Z0-9_]+\}", "", arg).strip()
+            if arg:
+                cmd.append(arg)
 
         # .bat/.cmd files need cmd.exe /c on Windows
         if os.name == "nt" and executable.suffix.lower() in (".bat", ".cmd"):
@@ -438,12 +443,20 @@ class PluginManager:
         tool: dict, options: dict, input_path: Path
     ) -> str:
         """Determine the output file extension from the tool definition."""
+        if tool.get("output_ext"):
+            ext = tool["output_ext"]
+            return f".{ext}" if not ext.startswith(".") else ext
+
         output_spec = tool.get("output", {})
         naming = output_spec.get("naming", "")
 
         # Check if naming template specifies a format option
         if "{format}" in naming and "format" in options:
             ext = options["format"]
+            return f".{ext}" if not ext.startswith(".") else ext
+
+        if output_spec.get("format"):
+            ext = output_spec["format"]
             return f".{ext}" if not ext.startswith(".") else ext
 
         # Check if naming uses the input extension

@@ -706,7 +706,10 @@ function showPanel(toolId) {
 }
 
 function hidePanel() {
-    document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tool-panel').forEach(p => {
+        p.classList.remove('active');
+        p.style.display = 'none';
+    });
     document.getElementById('tool-grid-section').style.display = 'block';
     const sidebar = document.getElementById('sidebar-filters');
     if (sidebar) sidebar.style.display = '';

@@ -74,30 +74,46 @@ function openPluginTool(pluginId, toolId) {
         </form>
     `;
     
-    // Show the panel
-    document.getElementById('tool-grid-section').style.display = 'none';
-    document.querySelector('.mode-toggle').style.display = 'none';
-    document.getElementById('ai-section').style.display = 'none';
-    document.getElementById('store-section').style.display = 'none';
+    // Show the panel safely
+    const toolGrid = document.getElementById('tool-grid-section');
+    if (toolGrid) toolGrid.style.display = 'none';
     
-    document.querySelectorAll('.tool-panel').forEach(p => p.style.display = 'none');
+    const sidebar = document.getElementById('sidebar-filters');
+    if (sidebar) sidebar.style.display = 'none';
+    
+    const smartBox = document.getElementById('smart-convert-box');
+    if (smartBox) smartBox.style.display = 'none';
+
+    const aiSection = document.getElementById('ai-section');
+    if (aiSection) aiSection.style.display = 'none';
+    
+    const storeSection = document.getElementById('store-section');
+    if (storeSection) storeSection.style.display = 'none';
+    
+    document.querySelectorAll('.tool-panel').forEach(p => {
+        p.classList.remove('active');
+        p.style.display = 'none';
+    });
+    panel.classList.add('active');
     panel.style.display = 'block';
     
-    // Bind file upload UI events (from compress.js / convert.js if available, or write custom ones here)
+    // Bind file upload UI events
     bindDynamicUploadEvents(panelId);
 }
 
 function renderToolInputs(tool) {
     if (!tool.inputs) return '';
     
-    if (tool.inputs.type === 'file') {
-        const acceptStr = tool.inputs.accept ? tool.inputs.accept.join(',') : '*/*';
+    if (tool.inputs.type === 'file' || !tool.inputs.type) {
+        const acceptList = Array.isArray(tool.inputs.accept) ? tool.inputs.accept : (tool.inputs.accept ? [tool.inputs.accept] : ['*/*']);
+        const acceptStr = acceptList.join(',');
+        const hintStr = acceptList.join(', ');
         const isMultiple = tool.inputs.multiple ? 'multiple' : '';
         return `
             <div class="upload-zone dynamic-upload-zone">
                 <div class="upload-zone-icon">📤</div>
                 <div class="upload-zone-text">Drop your file(s) here or click to browse</div>
-                <div class="upload-zone-hint">Accepts: ${tool.inputs.accept.join(', ')}</div>
+                <div class="upload-zone-hint">Accepts: ${hintStr}</div>
                 <input type="file" name="file_upload" accept="${acceptStr}" ${isMultiple} style="display:none" required>
             </div>
             <div class="file-list dynamic-file-list"></div>
@@ -108,7 +124,7 @@ function renderToolInputs(tool) {
         return `
             <div class="option-group" style="margin-bottom: 24px;">
                 <label class="option-label">Video/Audio URL</label>
-                <input type="url" name="url_input" class="plugin-text-input" placeholder="https://www.youtube.com/watch?v=..." required style="width:100%; padding:12px; border-radius:8px; border:2px solid var(--border-light); background:var(--bg-secondary); color:var(--text-primary); font-size:16px;">
+                <input type="url" name="url_input" class="plugin-text-input" placeholder="https://..." required style="width:100%; padding:12px; border-radius:8px; border:2px solid var(--border-light); background:var(--bg-secondary); color:var(--text-primary); font-size:16px;">
             </div>
         `;
     }
