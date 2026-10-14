@@ -85,10 +85,12 @@ async def compress_image(
             sk["optimize"] = True
         elif fmt == "WEBP":
             sk["quality"] = q
+        elif fmt == "AVIF":
+            sk["quality"] = q
         img.save(buf, format=fmt, **sk)
         return buf
 
-    if target_bytes and fmt in ("JPEG", "WEBP"):
+    if target_bytes and fmt in ("JPEG", "WEBP", "AVIF"):
         # Binary search for optimal quality
         low, high = 1, 100
         best_buf = None
@@ -142,7 +144,7 @@ async def compress_image(
     output_buffer.seek(0)
 
     # Generate output filename
-    ext_map = {"JPEG": ".jpg", "PNG": ".png", "WEBP": ".webp", "GIF": ".gif", "ICO": ".ico", "PDF": ".pdf"}
+    ext_map = {"JPEG": ".jpg", "PNG": ".png", "WEBP": ".webp", "GIF": ".gif", "ICO": ".ico", "PDF": ".pdf", "AVIF": ".avif"}
     ext = ext_map.get(fmt, ".jpg")
     base_name = ".".join(filename.rsplit(".", 1)[:-1]) if "." in filename else filename
     suffix = "_converted" if output_format else "_compressed"

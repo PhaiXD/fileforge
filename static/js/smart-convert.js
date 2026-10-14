@@ -10,14 +10,15 @@
     // Maps source extension → { category, targets[] }
     const FORMAT_MAP = {
         // Images
-        'jpg':  { category: 'Image',    targets: ['png', 'webp', 'pdf', 'ico'] },
-        'jpeg': { category: 'Image',    targets: ['png', 'webp', 'pdf', 'ico'] },
-        'png':  { category: 'Image',    targets: ['jpg', 'webp', 'pdf', 'ico'] },
-        'webp': { category: 'Image',    targets: ['jpg', 'png'] },
-        'heic': { category: 'Image',    targets: ['jpg', 'png', 'webp'] },
-        'heif': { category: 'Image',    targets: ['jpg', 'png', 'webp'] },
+        'jpg':  { category: 'Image',    targets: ['png', 'webp', 'avif', 'pdf', 'ico'] },
+        'jpeg': { category: 'Image',    targets: ['png', 'webp', 'avif', 'pdf', 'ico'] },
+        'png':  { category: 'Image',    targets: ['jpg', 'webp', 'avif', 'pdf', 'ico'] },
+        'webp': { category: 'Image',    targets: ['jpg', 'png', 'avif'] },
+        'avif': { category: 'Image',    targets: ['jpg', 'png', 'webp'] },
+        'heic': { category: 'Image',    targets: ['jpg', 'png', 'webp', 'avif'] },
+        'heif': { category: 'Image',    targets: ['jpg', 'png', 'webp', 'avif'] },
         'svg':  { category: 'Image',    targets: ['jpg', 'png'] },
-        'bmp':  { category: 'Image',    targets: ['jpg', 'png', 'webp'] },
+        'bmp':  { category: 'Image',    targets: ['jpg', 'png', 'webp', 'avif'] },
         // Video
         'mp4':  { category: 'Video',    targets: ['mp3', 'm4a', 'gif', 'ogg'] },
         'mov':  { category: 'Video',    targets: ['mp4', 'mp3', 'm4a', 'gif'] },
@@ -44,6 +45,7 @@
         'jpg':  { label: 'JPG',  icon: '🖼️', group: 'Image' },
         'png':  { label: 'PNG',  icon: '🖼️', group: 'Image' },
         'webp': { label: 'WEBP', icon: '🌐', group: 'Image' },
+        'avif': { label: 'AVIF', icon: '🎨', group: 'Image' },
         'ico':  { label: 'ICO',  icon: '🔷', group: 'Image' },
         'pdf':  { label: 'PDF',  icon: '📄', group: 'Document' },
         'docx': { label: 'DOCX', icon: '📝', group: 'Document' },
@@ -567,7 +569,7 @@
         }
 
         if (window.currentMode === 'compress') {
-            if (['jpg','jpeg','png','webp','heic','heif'].includes(sourceExt)) {
+            if (['jpg','jpeg','png','webp','heic','heif','avif'].includes(sourceExt)) {
                 url = '/api/image/compress';
             } else if (sourceExt === 'pdf') {
                 url = '/api/pdf/compress';
@@ -582,7 +584,7 @@
                 // Image → PDF
                 url = '/api/image/convert';
                 formData.append('target_format', 'pdf');
-            } else if (srcCat === 'Image' && ['jpg', 'png', 'webp', 'ico'].includes(targetExt)) {
+            } else if (srcCat === 'Image' && ['jpg', 'png', 'webp', 'avif', 'ico'].includes(targetExt)) {
                 url = '/api/image/convert';
                 formData.append('target_format', targetExt);
             } else if (srcCat === 'Video' || srcCat === 'Audio') {

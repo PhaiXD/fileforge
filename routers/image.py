@@ -32,7 +32,7 @@ async def compress_image_endpoint(
     target_size_kb: Optional[int] = Form(None),
 ):
     """Compress an image file to reduce its size."""
-    allowed_exts = ("jpg", "jpeg", "png", "webp", "bmp", "heic", "heif")
+    allowed_exts = ("jpg", "jpeg", "png", "webp", "bmp", "heic", "heif", "avif")
     ext = file.filename.lower().rsplit(".", 1)[-1] if "." in file.filename else ""
     if ext not in allowed_exts:
         return {"error": f"Unsupported format. Allowed: {', '.join(allowed_exts)}"}
@@ -57,6 +57,7 @@ async def compress_image_endpoint(
             ".jpeg": "image/jpeg",
             ".png": "image/png",
             ".webp": "image/webp",
+            ".avif": "image/avif",
         }
         output_ext = "." + output_filename.rsplit(".", 1)[-1].lower()
         content_type = content_type_map.get(output_ext, "image/jpeg")
@@ -80,7 +81,7 @@ async def convert_image_endpoint(
     target_format: str = Form("jpg"),
 ):
     """Convert an image to a specific format."""
-    allowed_exts = ("jpg", "jpeg", "png", "webp", "bmp", "heic", "heif", "svg")
+    allowed_exts = ("jpg", "jpeg", "png", "webp", "bmp", "heic", "heif", "svg", "avif")
     ext = file.filename.lower().rsplit(".", 1)[-1] if "." in file.filename else ""
     if ext not in allowed_exts:
         return {"error": f"Unsupported format. Allowed: {', '.join(allowed_exts)}"}
@@ -88,8 +89,8 @@ async def convert_image_endpoint(
     try:
         image_bytes = await file.read()
         
-        # We can just reuse compress_image but pass output_format and quality 100 for PNG, 95 for JPG
-        quality = 95 if target_format in ("jpg", "jpeg") else 100
+        # We can just reuse compress_image but pass output_format and quality 100 for PNG, 95 for JPG/AVIF
+        quality = 95 if target_format in ("jpg", "jpeg", "avif") else 100
         
         converted_bytes, output_filename = await compress_image(
             image_bytes,
@@ -103,6 +104,7 @@ async def convert_image_endpoint(
             ".jpeg": "image/jpeg",
             ".png": "image/png",
             ".webp": "image/webp",
+            ".avif": "image/avif",
         }
         output_ext = "." + output_filename.rsplit(".", 1)[-1].lower()
         content_type = content_type_map.get(output_ext, "image/jpeg")
